@@ -22,7 +22,7 @@
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: .8rem;
-  background: var(--panel);
+  background: var(--surface);
   box-shadow: var(--panel-shadow);
   pointer-events: auto;
 }
@@ -33,7 +33,16 @@
 .game-widget[data-collapsed] { height: auto; }
 .game-widget[data-collapsed] .widget-content { display: none; }
 .widget-slot { min-width: 0; background: var(--surface); }
-.game-widget.widget-raised { z-index: 1; }
+.game-panels { isolation: isolate; }
+.game-widget { z-index: var(--widget-layer, 0); }
+.game-widget[data-positioned] {
+  position: absolute;
+  grid-area: auto;
+  inset: var(--widget-y) auto auto var(--widget-x);
+  max-height: var(--widget-limit);
+}
+.widget-grip > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.widget-controls, .widget-bar img { flex-shrink: 0; }
 .widget-bar, .widget-controls, .widget-grip {
   display: flex;
   align-items: center;
@@ -121,6 +130,7 @@
 }
 .resource-list dt { min-width: 0; }
 .resource-details summary { display: flex; align-items: center; gap: .35rem; cursor: pointer; }
+.resource-details summary .agllm-icon { width: 1em; height: 1em; flex: none; }
 .resource-details summary::-webkit-details-marker { display: none; }
 .resource-details summary:hover { color: var(--accent); }
 .resource-details p { margin-top: .25rem; color: var(--muted); }

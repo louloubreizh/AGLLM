@@ -1,4 +1,4 @@
-const gap = 8;
+const gap = 4;
 
 export function placeTooltip(anchor, size, viewport) {
   const leftSpace = anchor.left - gap;
@@ -29,27 +29,31 @@ export function placeTooltip(anchor, size, viewport) {
 export function keepReferenceTooltipsVisible(document) {
   const view = document.defaultView;
   const tooltip = document.getElementById("tooltip");
-  const journal = document.getElementById("rightColumn");
+  const game = document.getElementById("game");
   let frame = 0;
 
   function place() {
     frame = 0;
     const owner = view.gamePage?.tooltipOwnerDomNode;
     if (!owner?.isConnected || !tooltip.textContent.trim() || tooltip.style.display === "none") return;
-
-    if (tooltip.classList.contains("tooltip-in-right-column") && journal.getClientRects().length
-      && !journal.hasAttribute("data-collapsed")) {
-      if (tooltip.parentElement !== journal) journal.append(tooltip);
-      tooltip.removeAttribute("data-floating");
+    if (!owner.getClientRects().length) {
+      view.UIUtils.hideTooltip(view.gamePage);
       return;
     }
 
-    if (tooltip.parentElement !== document.body) document.body.append(tooltip);
-    tooltip.setAttribute("data-floating", "");
     const anchor = owner.getBoundingClientRect();
+    const viewport = owner.closest(".tabInner, .widget-content")?.getBoundingClientRect();
+    if (viewport && (anchor.bottom <= viewport.top || anchor.top >= viewport.bottom
+      || anchor.right <= viewport.left || anchor.left >= viewport.right)) {
+      view.UIUtils.hideTooltip(view.gamePage);
+      return;
+    }
+    if (tooltip.parentElement !== document.body) document.body.append(tooltip);
+    if (!tooltip.hasAttribute("data-floating")) tooltip.setAttribute("data-floating", "");
     const { width, height } = tooltip.getBoundingClientRect();
-    const { x, y } = placeTooltip(anchor, { width, height }, { width: view.innerWidth, height: view.innerHeight });
-    for (const [property, value] of [["--tooltip-x", x], ["--tooltip-y", y]]) {
+    const { x, y, maxHeight } = placeTooltip(anchor, { width, height: Math.max(height, tooltip.scrollHeight + 2) },
+      { width: view.innerWidth, height: view.innerHeight });
+    for (const [property, value] of [["--tooltip-x", x], ["--tooltip-y", y], ["--tooltip-height", maxHeight]]) {
       const length = `${value}px`;
       if (tooltip.style.getPropertyValue(property) !== length) tooltip.style.setProperty(property, length);
     }
@@ -61,7 +65,10 @@ export function keepReferenceTooltipsVisible(document) {
 
   const observer = new MutationObserver(schedule);
   observer.observe(tooltip, { attributes: true, attributeFilter: ["class", "style"], childList: true });
-  observer.observe(document.getElementById("game"), { attributes: true, attributeFilter: ["data-panel"] });
+  observer.observe(game, { attributes: true, attributeFilter: ["data-panel"], childList: true });
+  for (const widget of game.querySelectorAll(".game-widget")) {
+    observer.observe(widget, { childList: true, attributes: true, attributeFilter: ["style", "data-collapsed"] });
+  }
   view.addEventListener("resize", schedule);
   document.addEventListener("scroll", schedule, true);
   return () => {

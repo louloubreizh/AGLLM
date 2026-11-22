@@ -1,136 +1,153 @@
+.reference-game #midColumn .Bonfire .bldTopContainer {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.reference-game #midColumn .camp-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .35rem;
+}
+.reference-game #midColumn .camp-filters > a {
+  box-sizing: border-box;
+  padding: .38rem .68rem;
+  border: 1px solid var(--divider);
+  border-radius: .45rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+}
+.reference-game #midColumn .camp-filters > a:is(:hover, [aria-current]) {
+  border-color: var(--line);
+  background: var(--control-hover);
+  color: var(--accent) !important;
+}
+.reference-game #midColumn .camp-filter-picker {
+  appearance: none;
+  display: none;
+  width: 100%;
+  min-height: 2.3rem;
+  padding: .3rem .55rem;
+  border: 1px solid var(--divider);
+  border-radius: .45rem;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
 .reference-game #midColumn .Bonfire .bldGroupContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 12.75rem), 1fr));
   flex: 0 0 100%;
-  align-items: start;
   gap: .55rem;
-  margin: .35rem 0 0 !important;
+  height: auto;
+  margin: .3rem 0 0 !important;
+  padding: .6rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--divider);
+  background: transparent;
 }
-
-.reference-game #midColumn .Bonfire .bldGroupContainer > table {
-  display: contents;
-
-  & > tbody,
-  & > tr,
-  & > tbody > tr,
-  & > tr > td,
-  & > tbody > tr > td { display: contents; }
+.reference-game .camp-core-actions {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .55rem;
 }
-
 .reference-game #midColumn .Bonfire .btn.modern {
+  box-sizing: border-box;
   width: 100% !important;
+  min-width: 0;
   margin: 0 !important;
+  border: 1px solid var(--divider);
+  border-radius: .65rem;
+  background: var(--surface);
+  box-shadow: none;
+  font-family: var(--font);
 }
-.reference-game #midColumn .Bonfire .btn[data-building-icon] { border-color: transparent !important; }
+.reference-game #midColumn .Bonfire .btn.modern:not(.disabled):hover {
+  border-color: var(--line);
+  background: var(--surface-raised);
+  box-shadow: none;
+}
+.reference-game #midColumn .Bonfire .btn.modern[data-camp-unavailable] {
+  border-color: color-mix(in srgb, var(--ink) 42%, var(--line));
+  box-shadow: inset 0 1px 3px #e8efe77a, 0 0 .28rem #e8efe728;
+}
+.reference-game #midColumn .Bonfire .btn.modern .btnContent {
+  background: transparent;
+}
+.reference-game #midColumn .Bonfire [data-camp-action] .btnContent {
+  box-sizing: border-box;
+  height: 3.1rem;
+  flex-wrap: nowrap;
+  gap: .45rem;
+}
 .reference-game #midColumn .Bonfire [data-camp-action] .btnTitle {
-  flex: 1 1 100%;
-  gap: .5rem;
-  min-height: 2.3rem;
+  display: flex;
+  align-items: center;
+  gap: .38rem;
+  min-width: 0;
+  color: #fff !important;
+  font-size: .84rem;
   font-weight: 650;
+  line-height: 1.2;
 }
-.reference-game #midColumn .Bonfire [data-camp-action] .btnTitle::before { width: 2.2rem; height: 2.2rem; }
-.reference-game #midColumn .Bonfire [data-camp-action="gather"] .btnTitle { --element-icon: var(--icon-leaf); }
-.reference-game #midColumn .Bonfire [data-camp-action="refine"] .btnTitle { --element-icon: var(--icon-tools); }
+.reference-game #midColumn .Bonfire [data-camp-action] .btnTitle::before {
+  content: "";
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: none;
+  background: var(--element-icon) center / contain no-repeat;
+}
+.reference-game #midColumn .Bonfire [data-camp-action="gather"] .btnTitle { --element-icon: var(--icon-catnip); }
+.reference-game #midColumn .Bonfire [data-camp-action="refine"] .btnTitle { --element-icon: var(--icon-wood); }
 
 .reference-game #midColumn .Bonfire .btn.modern .camp-building-card {
-  --camp-action-size: 2rem;
-  --camp-quantity-size: 1.7rem;
-  --camp-spacing: .35rem;
-  container-type: inline-size;
+  --camp-action-size: 1.85rem;
+  --camp-tool-icon-size: 1.1rem;
+  --camp-step-size: 1.35rem;
+  box-sizing: border-box;
   display: grid;
   grid-template:
-    "preview heading stages" max(2.4rem, var(--camp-action-size))
-    "quantity quantity quantity" var(--camp-action-size)
-    "actions actions actions" var(--camp-action-size)
-    / 2.5rem minmax(0, 1fr) 2.5rem;
+    "preview heading" 4.15rem
+    "actions actions" auto / 2.65rem minmax(0, 1fr);
   align-items: stretch;
-  gap: var(--camp-spacing);
-  padding: .65rem !important;
+  column-gap: .55rem;
+  padding: .55rem .55rem .45rem !important;
 }
-
 .reference-game .camp-building-preview {
   grid-area: preview;
+  align-self: center;
   display: grid;
-  align-content: center;
-  justify-items: center;
-  min-width: 0;
+  place-items: center;
 }
-.reference-game .camp-building-preview img {
-  display: block;
-  width: 2.2rem;
-  height: 2.2rem;
-  object-fit: contain;
-}
-.reference-game .camp-building-quantity {
-  --camp-button-radius: 50%;
-  grid-area: quantity;
-  place-self: center;
-  display: grid;
-  grid-template-columns: 0 minmax(3rem, max-content) 0;
-  grid-template-rows: var(--camp-quantity-size);
-  min-width: 0;
-  max-width: 100%;
-  align-items: center;
-}
-.reference-game .camp-building-quantity:has(> button):not([data-read-only]) {
-  grid-template-columns: var(--camp-quantity-size) minmax(3rem, max-content) var(--camp-quantity-size);
-  border-radius: 2rem;
-  background: var(--surface);
-}
-.reference-game .camp-building-quantity[data-read-only] button { display: none !important; }
-.reference-game .camp-building-card .camp-building-count {
-  grid-area: 1 / 2;
-  place-self: center;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  padding: 0 .45rem;
-  overflow: hidden;
-  border-radius: 1rem;
-  background: var(--control-hover);
-  color: var(--ink);
-  font: 700 .75rem/1.5rem var(--font);
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow-wrap: normal;
-}
-.reference-game .camp-building-quantity:has(> button):not([data-read-only]) .camp-building-count {
-  padding-inline: .3rem;
-  background: transparent;
-  color: var(--accent);
-}
-.reference-game .btn.bldlackResConvert .camp-building-card .camp-building-count { color: var(--warning); }
-.reference-game .camp-building-quantity > [data-camp-tool="minus"] { grid-area: 1 / 1; --camp-icon: var(--control-icon-minus); }
-.reference-game .camp-building-quantity > [data-camp-tool="plus"] {
-  grid-area: 1 / 3;
-  --camp-icon: var(--control-icon-plus);
-  --camp-button-surface: var(--control-hover);
-  --camp-button-hover: color-mix(in srgb, var(--control-hover) 80%, var(--accent));
-}
-.reference-game .camp-building-quantity > button { height: 100%; }
-
+.reference-game .camp-building-preview img { display: block; width: 2.55rem; height: 2.55rem; }
 .reference-game .camp-building-heading {
   grid-area: heading;
   display: grid;
-  place-items: center;
+  align-content: center;
+  justify-items: center;
+  gap: .22rem;
   min-width: 0;
 }
 .reference-game #midColumn .Bonfire .camp-building-heading .btnTitle {
   display: block;
   min-width: 0;
   color: #fff !important;
-  font-size: clamp(.9rem, 5.75cqi, 1.05rem);
+  text-shadow: none;
+  font-size: .93rem;
   font-weight: 700;
-  line-height: 1.12;
-  text-align: center;
+  line-height: 1.16;
 }
 .reference-game .camp-building-heading .btnTitle::before { content: none !important; }
+.reference-game .camp-building-heading .btnTitle > .upgrade-available,
 .reference-game .camp-building-heading .btnTitle:has(> .label) > :not(.label) { display: none !important; }
 .reference-game #game #midColumn .camp-building-heading .btnTitle :is(.label, .label-content) {
   white-space: normal;
   overflow-wrap: anywhere;
+  text-align: center;
+  color: inherit;
 }
 .reference-game #game #midColumn .camp-building-heading .btnTitle .label-content {
   display: -webkit-box;
@@ -138,120 +155,143 @@
   -webkit-line-clamp: 2;
   font-size: inherit;
 }
-.reference-game .camp-building-stages {
-  grid-area: stages;
-  display: flex;
-  justify-content: flex-end;
+.reference-game .camp-building-count {
+  grid-column: 2;
+  grid-row: 1;
+  max-width: 100%;
+  overflow: hidden;
+  padding: .12rem .4rem;
+  border: 1px solid var(--divider);
+  border-radius: .32rem;
+  background: var(--control-disabled);
+  color: var(--accent);
+  font: 650 .73rem/1.15 var(--font);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reference-game .camp-building-activity {
+  display: grid;
+  grid-template-columns: var(--camp-step-size) minmax(0, max-content) var(--camp-step-size);
   align-items: center;
-  gap: .15rem;
+  gap: .24rem;
+  max-width: 100%;
 }
-.reference-game #midColumn .btnContent .camp-building-stages [data-camp-stage] {
-  flex: 0 1 1.5rem;
-  height: 1.65rem;
-}
-.reference-game [data-camp-stage="down"] { --camp-icon: var(--control-icon-downgrade); }
-.reference-game [data-camp-stage="up"] { --camp-icon: var(--control-icon-upgrade); }
-
+.reference-game .camp-building-activity > [data-camp-tool] { grid-row: 1; }
+.reference-game .camp-building-activity > [data-camp-tool="minus"] { grid-column: 1; }
+.reference-game .camp-building-activity > [data-camp-tool="plus"] { grid-column: 3; }
+.reference-game .btn.bldlackResConvert .camp-building-count { color: var(--warning); }
 .reference-game .camp-building-actions {
   grid-area: actions;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
+  align-items: center;
+  gap: .2rem;
+  min-width: 0;
+  padding-top: .4rem;
+  border-top: 1px solid var(--divider);
+  cursor: default;
+}
+.reference-game :is(.camp-building-primary, .camp-actions-before, .camp-actions-after) {
   display: flex;
-  justify-content: center;
-  gap: var(--camp-spacing);
+  gap: .2rem;
   min-width: 0;
 }
-.reference-game #midColumn .camp-building-actions :is(button, a) {
-  flex: 0 0 min(3rem, calc((100% - 4 * var(--camp-spacing)) / 5));
-}
-.reference-game #midColumn :is(.camp-building-actions :is(button, a), .camp-building-stages [data-camp-stage], .camp-building-quantity:not([data-read-only]) > button, .camp-quantity-menu :is(button, a)):not([hidden], [style*="display: none"]) {
-  display: grid !important;
-  place-items: center;
-  width: 100%;
+.reference-game .camp-actions-before { justify-content: end; }
+.reference-game .camp-actions-after { justify-content: start; }
+.reference-game #midColumn .camp-building-card :is([data-camp-icon], .camp-quantity-menu :is(button, a)):not([hidden], [style*="display: none"], [style*="display:none"]) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
-  min-width: 0 !important;
+  min-width: 0;
   min-height: 0;
-  padding: 0 !important;
-  border: 0;
-  border-radius: var(--camp-button-radius, .42rem);
-  background: var(--camp-button-surface, var(--surface)) !important;
-  color: var(--accent);
-  font: 700 .8rem/1 var(--font);
-  font-variant-numeric: tabular-nums;
+  padding: 0 .18rem !important;
+  border: 1px solid transparent;
+  border-radius: .4rem;
+  background: var(--control-disabled) !important;
+  box-shadow: none;
+  color: var(--ink);
+  font: 650 .73rem/1 var(--font);
+  text-indent: 0;
+  text-shadow: none;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
 }
-.reference-game #midColumn :is(.camp-building-actions :is(button, a), .camp-building-stages [data-camp-stage], .camp-building-quantity > button):is(:hover, :focus-visible, :has(+ :popover-open)):not(:disabled) {
-  background: var(--camp-button-hover, var(--control-hover)) !important;
-}
-.reference-game .camp-building-actions button:disabled { opacity: .4; cursor: default; }
-.reference-game .camp-building-card [hidden] { display: none !important; }
-.reference-game #midColumn .camp-building-card .camp-building-actions[data-read-only] a { display: none !important; }
-.reference-game #midColumn .camp-building-actions a[data-camp-native="sell"] { color: var(--warning) !important; }
-.reference-game #midColumn .camp-building-actions a:is(.bld-on, .auto-on) { background: var(--control-hover) !important; }
-.reference-game #midColumn .camp-building-actions a:is(.bld-off, .auto-off) { color: var(--muted) !important; }
-.reference-game .camp-building-card [data-camp-icon] {
-  position: relative;
+.reference-game #midColumn .camp-building-card [data-camp-icon] {
+  flex: none;
+  width: var(--camp-action-size);
+  height: var(--camp-action-size);
   font-size: 0 !important;
 }
-.reference-game .camp-building-card [data-camp-icon]::before {
+.reference-game #midColumn .camp-building-card .camp-building-activity > [data-camp-icon] {
+  width: var(--camp-step-size);
+  height: var(--camp-step-size);
+  border-color: var(--divider);
+}
+.reference-game #midColumn .camp-building-card .camp-building-activity > [data-camp-icon] {
+  border-radius: 50%;
+  touch-action: manipulation;
+}
+.reference-game #midColumn .camp-building-card [data-camp-icon]::before {
   content: "";
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 1rem;
-  height: 1rem;
-  background: currentColor;
-  mask: var(--camp-icon) center / contain no-repeat;
+  flex: none;
+  width: var(--camp-tool-icon-size);
+  height: var(--camp-tool-icon-size);
+  background: var(--camp-icon) center / contain no-repeat;
   pointer-events: none;
 }
-.reference-game .camp-building-actions [data-camp-tool="eye"] { --camp-icon: var(--control-icon-eye); }
-.reference-game .camp-building-actions [data-camp-tool="info"] { --camp-icon: var(--control-icon-info); }
-.reference-game .camp-building-actions [data-camp-native="power"] { --camp-icon: var(--control-icon-power); }
-.reference-game .camp-building-actions [data-camp-native="automation"] { --camp-icon: var(--control-icon-automation); }
-.reference-game .camp-building-actions [data-camp-native="sell"] { --camp-icon: var(--control-icon-sell); }
+.reference-game #midColumn .camp-building-card :is([data-camp-icon], .camp-quantity-menu :is(button, a)):is(:hover, :focus-visible, :has(+ :popover-open)):not(:disabled) {
+  border-color: var(--line);
+  background: var(--control-hover) !important;
+}
+.reference-game #midColumn .camp-building-card button:disabled { opacity: .42; cursor: default; }
+.reference-game .camp-building-card [hidden],
+.reference-game #midColumn .camp-building-actions[data-read-only] :is(.camp-actions-before, .camp-actions-after) > * { display: none !important; }
+.reference-game #midColumn .camp-building-actions a:is(.bld-on, .auto-on) { background: var(--control-hover) !important; }
+.reference-game .camp-building-actions a:is(.bld-off, .auto-off) { opacity: .66; }
+.reference-game .camp-building-actions [data-camp-tool="eye"] { --camp-icon: var(--camp-tool-eye); }
+.reference-game .camp-building-actions [data-camp-tool="info"] { --camp-icon: var(--camp-tool-info); }
+.reference-game .camp-building-activity [data-camp-tool="minus"] { --camp-icon: var(--camp-tool-minus); }
+.reference-game .camp-building-activity [data-camp-tool="plus"] { --camp-icon: var(--camp-tool-plus); }
+.reference-game .camp-building-actions [data-camp-native="power"] { --camp-icon: var(--camp-tool-power); }
+.reference-game .camp-building-actions [data-camp-native="automation"] { --camp-icon: var(--camp-tool-automation); }
+.reference-game .camp-building-actions [data-camp-native="sell"] { --camp-icon: var(--camp-tool-sell); }
+.reference-game .camp-building-actions [data-camp-stage="down"] { --camp-icon: var(--camp-tool-downgrade); }
+.reference-game .camp-building-actions [data-camp-stage="up"] { --camp-icon: var(--camp-tool-upgrade); }
 
 .reference-game .camp-quantity-menu {
-  --camp-button-radius: .42rem;
-  --camp-button-surface: var(--control);
   position: fixed;
   box-sizing: border-box;
   inset: auto .65rem .65rem auto;
-  width: min(3.65rem, calc(100vw - 1.3rem));
+  width: 4.5rem;
   margin: 0;
   padding: .35rem;
   border: 1px solid var(--line);
-  border-radius: .65rem;
+  border-radius: .6rem;
   background: var(--surface);
-  color: var(--ink);
-  box-shadow: 0 .4rem 1rem #08170e80;
+  box-shadow: var(--panel-shadow);
 }
 .reference-game .camp-quantity-menu:popover-open {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
   grid-auto-rows: var(--camp-action-size);
-  gap: var(--camp-spacing);
+  gap: .2rem;
 }
-.reference-game #midColumn .camp-quantity-menu :is(a, button):is(:hover, :focus-visible) { background: var(--control-hover) !important; }
-
-@supports (position-area: inline-end span-block-end) {
+@supports (position-area: block-end) {
   .reference-game .camp-quantity-menu {
     inset: auto;
-    position-area: inline-end span-block-end;
-    position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
-    align-self: start;
-    margin-inline: .25rem;
-  }
-  .reference-game .camp-building-quantity [data-camp-tool="minus"] + .camp-quantity-menu {
-    position-area: inline-start span-block-end;
+    position-area: block-end;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    margin-block: .25rem;
   }
 }
-
 @media (pointer: coarse) {
-  .reference-game #midColumn .Bonfire .btn.modern .camp-building-card {
-    --camp-action-size: 2.75rem;
-    --camp-quantity-size: var(--camp-action-size);
-  }
-  .reference-game #midColumn .btnContent .camp-building-stages [data-camp-stage] {
-    flex-basis: 2rem;
-    height: 2rem;
-  }
+  .reference-game #midColumn .Bonfire .btn.modern .camp-building-card { --camp-action-size: 2.1rem; }
+}
+@container reference-play (max-width: 30rem) {
+  .reference-game #midColumn .camp-filters,
+  .reference-game #midColumn .tabInner.Bonfire > .reference-section-art { display: none; }
+  .reference-game #midColumn .camp-filter-picker { display: block; }
+}
+@container reference-play (max-width: 16rem) {
+  .reference-game .camp-core-actions { grid-template-columns: minmax(0, 1fr); }
 }

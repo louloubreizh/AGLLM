@@ -1,6 +1,6 @@
 import React from "react";
-import { resourceIcons } from "./resource-icons.js";
-import { buildingIcons } from "./building-icons.js";
+import { resourceIcons, resourceImage } from "./resource-icons.js";
+import { buildingIcons, buildingIllustration } from "./building-icons.js";
 import { illustration } from "./illustration.js";
 
 const shapes = {
@@ -12,6 +12,7 @@ const shapes = {
   flag: "M5 21V4m0 1h12l-2 4 2 4H5",
   up: "m5 13 7-7 7 7m-7-7v14",
   down: "m5 11 7 7 7-7m-7 7V4",
+  chevron: "m5 9 7 7 7-7",
   power: "M12 2v9m5-6a8 8 0 1 1-10 0",
   save: "M4 3h13l4 4v14H3V3z M7 3v6h9V3 M7 21v-8h10v8",
   settings: "M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M19 5l-3 3m-8 8-3 3 M18 12a6 6 0 1 1-12 0 6 6 0 1 1 12 0Z M14 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0Z",
@@ -55,8 +56,10 @@ function imageCatalog(drawings) {
 }
 
 const interfaceImages = imageCatalog(shapes);
-const resourceImages = imageCatalog(resourceIcons);
-const buildingImages = imageCatalog(buildingIcons);
+const resourceImages = Object.fromEntries(Object.entries(resourceIcons).map(([name, drawing]) =>
+  [name, resourceImage(drawing)]));
+const buildingImages = Object.fromEntries(Object.entries(buildingIcons).map(([name, drawing]) =>
+  [name, buildingIllustration(drawing)]));
 
 export function iconImage(name) {
   return interfaceImages[name] ?? resourceImages[name] ?? interfaceImages.resources;

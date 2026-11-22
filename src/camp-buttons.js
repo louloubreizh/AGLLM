@@ -29,13 +29,14 @@ function nativeWrapper(content, link) {
   return Array.from(content.children).find((child) => child.contains(link));
 }
 
-function moveStageLinks(content, controls, button) {
+function moveStageLinks(content, toolbar, before, after, button) {
   const { stages, stage = 0 } = button.model.metadata;
   for (const { link } of button.stageLinks ?? []) {
     const upgrade = link.textContent.trim() === "^";
     const direction = upgrade ? "up" : "down";
     const wrapper = nativeWrapper(content, link);
-    if (controls.querySelector(`[data-camp-stage="${direction}"]`)) {
+    if (!wrapper) continue;
+    if (toolbar.querySelector(`[data-camp-stage="${direction}"]`)) {
       wrapper.hidden = true;
       continue;
     }
@@ -45,26 +46,30 @@ function moveStageLinks(content, controls, button) {
     link.textContent = upgrade ? "↑" : "↓";
     link.title = upgrade ? `Améliorer en ${target}` : `Revenir à ${target}`;
     link.setAttribute("aria-label", link.title);
-    controls.append(wrapper);
+    (upgrade ? before : after).append(wrapper);
   }
 }
 
-function addQuantityMenus(document, content, quantity, button) {
-  for (const [links, first, many, all, name, label, sign] of [
-    [button.remove, "off1", "off25", "offAll", "minus", "Désactiver des bâtiments", "−"],
-    [button.add, "add1", "add25", "add", "plus", "Activer des bâtiments", "+"],
+function addQuantityMenus(document, content, controls, button) {
+  for (const [links, first, many, all, name, label, sign, method] of [
+    [button.remove, "off1", "off25", "offAll", "minus", "Désactiver des bâtiments", "−", "off"],
+    [button.add, "add1", "add25", "add", "plus", "Activer des bâtiments", "+", "on"],
   ]) {
     const root = links?.[first]?.link;
-    if (!root) continue;
+    const trigger = createAction(document, name);
+    trigger.setAttribute("aria-label", label);
+    controls.append(trigger);
+    if (!root) {
+      trigger.disabled = true;
+      continue;
+    }
     const wrapper = nativeWrapper(content, root);
     const menu = document.createElement("div");
     menu.className = "camp-quantity-menu";
     menu.popover = "auto";
     menu.setAttribute("role", "group");
     menu.setAttribute("aria-label", label);
-    const trigger = createAction(document, name);
     trigger.title = `${label} · Double-clic : ${sign}1`;
-    trigger.setAttribute("aria-label", label);
     trigger.popoverTargetElement = menu;
     trigger.addEventListener("click", (event) => {
       if (event.detail > 1) event.preventDefault();
@@ -74,7 +79,18 @@ function addQuantityMenus(document, content, quantity, button) {
       if (menu.matches(":popover-open")) menu.hidePopover();
       root.click();
     });
-    for (const [key, amount] of [[first, "1"], [many, "25"], [all, "max"]]) {
+    const five = document.createElement("button");
+    five.type = "button";
+    five.textContent = `${sign}5`;
+    five.addEventListener("click", () => {
+      if (!button.game.isReadOnly()) {
+        button.animate();
+        button.controller[method](button.model, 5);
+      }
+      menu.hidePopover();
+    });
+    menu.append(five);
+    for (const [key, amount] of [[many, "25"], [all, "max"]]) {
       const action = links[key]?.link;
       if (!action) continue;
       action.textContent = `${sign}${amount}`;
@@ -85,21 +101,23 @@ function addQuantityMenus(document, content, quantity, button) {
       });
     }
     wrapper?.remove();
-    quantity.append(trigger, menu);
+    controls.append(menu);
   }
 }
 
-function moveNativeActions(content, toolbar, button) {
-  for (const [kind, action] of [["power", button.toggle], ["automation", button.toggleAutomation], ["sell", button.sellHref]]) {
-    if (!action?.link) continue;
+function moveNativeActions(content, toolbar, before, after, button) {
+  for (const [kind, action, target] of [
+    ["power", button.toggle, before], ["automation", button.toggleAutomation, after], ["sell", button.sellHref, after],
+  ]) {
+    if (!action?.link || toolbar.contains(action.link)) continue;
     action.link.dataset.campNative = kind;
     action.link.toggleAttribute("data-camp-icon", true);
-    toolbar.append(nativeWrapper(content, action.link));
+    const wrapper = nativeWrapper(content, action.link);
+    if (wrapper) target.append(wrapper);
   }
 }
 
-function createBuildingCard(document, game, button, callbacks) {
-  const { buttonContent: content, buttonTitle: title, domNode: node } = button;
+function createCardLayout(document, content, title) {
   content.classList.add("camp-building-card");
 
   const preview = document.createElement("div");
@@ -111,21 +129,30 @@ function createBuildingCard(document, game, button, callbacks) {
   count.className = "camp-building-count";
   preview.append(picture);
 
-  const quantity = document.createElement("div");
-  quantity.className = "camp-building-quantity";
-  quantity.append(count);
-  addQuantityMenus(document, content, quantity, button);
-
   const heading = document.createElement("div");
   heading.className = "camp-building-heading";
-  heading.append(title);
-  const stages = document.createElement("div");
-  stages.className = "camp-building-stages";
-  moveStageLinks(content, stages, button);
-
+  const activity = document.createElement("div");
+  activity.className = "camp-building-activity";
+  activity.append(count);
+  heading.append(title, activity);
   const toolbar = document.createElement("div");
   toolbar.className = "camp-building-actions";
   toolbar.setAttribute("role", "group");
+  const primary = document.createElement("div");
+  primary.className = "camp-building-primary";
+  const before = document.createElement("div");
+  const after = document.createElement("div");
+  before.className = "camp-actions-before";
+  after.className = "camp-actions-after";
+  toolbar.append(before, primary, after);
+  content.prepend(preview, heading, toolbar);
+  return { picture, count, activity, toolbar, primary, before, after };
+}
+
+function createBuildingCard(document, game, button, callbacks) {
+  const { buttonContent: content, buttonTitle: title, domNode: node } = button;
+  const layout = createCardLayout(document, content, title);
+  const { activity, toolbar, primary, before, after } = layout;
   const eye = createAction(document, "eye", () => callbacks.inspect(button.opts.building, buildingLabel(button)));
   const info = createAction(document, "info", (trigger) => callbacks.information({
     name: buildingLabel(button),
@@ -134,12 +161,12 @@ function createBuildingCard(document, game, button, callbacks) {
     trigger,
   }));
   info.setAttribute("aria-haspopup", "dialog");
-  toolbar.append(eye, info);
+  primary.append(eye, info);
+  addQuantityMenus(document, content, activity, button);
+  moveNativeActions(content, toolbar, before, after, button);
+  moveStageLinks(content, toolbar, before, after, button);
 
-  moveNativeActions(content, toolbar, button);
-  content.prepend(preview, heading, stages, quantity, toolbar);
-
-  for (const controls of [toolbar, quantity]) {
+  for (const controls of [activity, toolbar]) {
     controls.addEventListener("click", (event) => event.stopPropagation());
     controls.addEventListener("mouseover", (event) => {
       event.stopPropagation();
@@ -152,7 +179,7 @@ function createBuildingCard(document, game, button, callbacks) {
   content.addEventListener("keypress", (event) => {
     if (event.target.closest("a, button")) event.stopPropagation();
   });
-  return { count, eye, info, picture, quantity, toolbar };
+  return { ...layout, eye, info };
 }
 
 export function updateBuildingCard(document, game, button, callbacks) {
@@ -163,7 +190,7 @@ export function updateBuildingCard(document, game, button, callbacks) {
     cards.set(node, card);
   }
 
-  const { count, eye, info, picture, quantity, toolbar } = card;
+  const { count, eye, info, picture, activity, toolbar, before, after } = card;
   const label = buildingLabel(button);
   if (card.label !== label) {
     eye.setAttribute("aria-label", `Observer ${label}`);
@@ -184,10 +211,12 @@ export function updateBuildingCard(document, game, button, callbacks) {
   if (count.textContent !== countText) count.textContent = countText;
   const countTitle = `${active} actifs sur ${total}`;
   if (count.title !== countTitle) count.title = countTitle;
-  const down = quantity.querySelector('[data-camp-tool="minus"]');
-  const up = quantity.querySelector('[data-camp-tool="plus"]');
-  if (down) down.disabled = active < 1;
-  if (up) up.disabled = active >= total;
+  const readOnly = game.isReadOnly();
+  const down = activity.querySelector('[data-camp-tool="minus"]');
+  const up = activity.querySelector('[data-camp-tool="plus"]');
+  down.disabled = readOnly || !button.remove || active < 1;
+  up.disabled = readOnly || !button.add || active >= total;
+  node.toggleAttribute("data-camp-unavailable", !button.model.enabled);
   const observationDisabled = total < 1;
   if (eye.disabled !== observationDisabled) eye.disabled = observationDisabled;
   const eyeTitle = observationDisabled ? "Construisez un exemplaire pour l’observer" : `Observer ${label}`;
@@ -195,15 +224,18 @@ export function updateBuildingCard(document, game, button, callbacks) {
 
   const sell = button.sellHref?.link;
   const hideSell = !button.model.showSellLink;
-  if (sell && sell.hidden !== hideSell) sell.hidden = hideSell;
+  if (sell) {
+    if (!toolbar.contains(sell)) moveNativeActions(button.buttonContent, toolbar, before, after, button);
+    if (sell.hidden !== hideSell) sell.hidden = hideSell;
+    const sellLabel = `Vendre · ${label}`;
+    if (sell.getAttribute("aria-label") !== sellLabel) sell.setAttribute("aria-label", sellLabel);
+  }
   for (const control of [button.toggle?.link, button.toggleAutomation?.link]) {
     if (control?.title && control.getAttribute("aria-label") !== control.title) {
       control.setAttribute("aria-label", control.title);
     }
   }
-  const readOnly = game.isReadOnly();
-  toolbar.toggleAttribute("data-read-only", readOnly);
-  if (quantity.toggleAttribute("data-read-only", readOnly)) {
-    quantity.querySelector(":popover-open")?.hidePopover();
+  if (toolbar.toggleAttribute("data-read-only", readOnly)) {
+    activity.querySelector(":popover-open")?.hidePopover();
   }
 }

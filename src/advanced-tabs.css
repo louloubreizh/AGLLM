@@ -1,0 +1,137 @@
+.reference-game #midColumn :is(.Religion, .Space, .Time) {
+  --advanced-columns: repeat(auto-fill, minmax(min(100%, 12.6rem), 1fr));
+  --advanced-gap: .55rem;
+}
+.reference-game #midColumn .Religion { --advanced-icon: var(--icon-sun); }
+.reference-game #midColumn .Space { --advanced-icon: var(--icon-world); }
+.reference-game #midColumn .Time { --advanced-icon: var(--icon-calendar); }
+
+.reference-game #midColumn :is(.Religion, .Space, .Time) > .reference-section-art {
+  border: 0;
+  background: transparent;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .panelContainer > .title::before {
+  content: "";
+  flex: 0 0 1.15rem;
+  height: 1.15rem;
+  background: var(--advanced-icon) center / contain no-repeat;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .panelContainer > .container {
+  min-width: 0;
+  color: var(--muted);
+  font: .83rem/1.45 var(--font);
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .panelContainer[style*="display: block"] {
+  display: grid !important;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) :is(.container, .container div):has(> .btn.modern):not(.btn *) {
+  display: grid;
+  grid-template-columns: var(--advanced-columns);
+  gap: var(--advanced-gap);
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) :is(.container, .container div):has(> .btn.modern):not(.btn *) > :not(.btn) {
+  grid-column: 1 / -1;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .container :not(.btn, .btn *)[style*="padding-top: 20px"] {
+  padding-top: .55rem !important;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .container :not(.btn *) > span:empty { display: none; }
+.reference-game #midColumn .Space > div:has(> #toggleResearched) {
+  float: none !important;
+  margin: 0 0 .4rem;
+  color: var(--muted);
+  font: 600 .82rem/1.4 var(--font);
+}
+.reference-game #midColumn .Space #toggleResearched { margin-inline-end: .38rem; accent-color: var(--accent); }
+.reference-game #midColumn .Space label[for="toggleResearched"] { color: inherit; cursor: pointer; }
+.reference-game #midColumn .Space > div[style*="height: 20px"]:empty { display: none; }
+.reference-game #midColumn .Time .container span[style*="color: gray"] { color: var(--muted) !important; }
+
+.reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnContent {
+  align-content: center;
+  align-items: center;
+  gap: .25rem;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnTitle { flex: 1 1 100%; }
+.reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnContent :is(a[href], .reference-child-batch) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 1.85rem;
+  min-height: 1.85rem;
+  margin: 0 !important;
+  padding: .18rem .38rem !important;
+  border: 0 !important;
+  border-radius: .34rem;
+  background: var(--control-disabled) !important;
+  color: var(--ink);
+  box-shadow: none !important;
+  font: 650 .76rem/1.1 var(--font);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  text-decoration: none;
+  text-indent: 0;
+  text-shadow: none;
+  white-space: nowrap !important;
+  overflow: visible;
+  cursor: pointer;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnContent a[style*="display: none"] {
+  display: none;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnContent :is(a, .reference-child-batch):is(:hover, :focus-visible),
+.reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnContent a:is(.bld-on, .auto-on, .fugit-on) {
+  background: var(--control-hover) !important;
+  color: var(--accent);
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnContent a:is(.bld-off, .auto-off, .fugit-off) {
+  color: var(--muted);
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnContent .reference-child-batch {
+  min-width: 1.5rem;
+  color: var(--muted);
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .reference-child-group {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: .12rem;
+  float: none !important;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .reference-child-popover {
+  position: fixed !important;
+  inset: auto .6rem .6rem auto !important;
+  width: max-content !important;
+  max-width: calc(100vw - 1.2rem);
+  margin: 0 !important;
+  padding: .36rem;
+  border: 0;
+  border-radius: .5rem;
+  background: var(--surface) !important;
+  color: var(--ink);
+  box-shadow: var(--panel-shadow) !important;
+  font: inherit;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .reference-child-popover:not(:popover-open) {
+  display: none !important;
+}
+.reference-game #midColumn :is(.Religion, .Space, .Time) .reference-child-popover:popover-open {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+@supports (position-area: block-end) {
+  .reference-game #midColumn :is(.Religion, .Space, .Time) .reference-child-popover {
+    inset: auto !important;
+    position-area: block-end;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    margin-block: .25rem !important;
+  }
+}
+@container reference-play (max-width: 30rem) {
+  .reference-game #midColumn :is(.Religion, .Space, .Time) > .reference-section-art { display: none; }
+}

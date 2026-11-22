@@ -6,10 +6,7 @@
   justify-content: space-between;
   gap: .7rem;
   margin-bottom: .65rem;
-  padding: .65rem .7rem;
-  border: 0;
-  border-radius: .6rem;
-  background: linear-gradient(115deg, #293d2b, var(--village-card));
+  padding: .4rem 0;
 }
 
 .reference-game .village-government-identity {
@@ -35,7 +32,7 @@
   font-weight: 700;
 }
 
-.reference-game .village-government-name { margin: 0; font: 700 1.03rem/1.22 Georgia, serif; }
+.reference-game .village-government-name { margin: 0; font: 700 1rem/1.22 var(--font); }
 .reference-game :is(.village-government-stats, .village-government-bonus) {
   margin: .18rem 0 0;
   color: var(--muted);
@@ -77,7 +74,7 @@
   padding: .4rem .65rem;
   border: 0;
   border-radius: .55rem;
-  background: #20382c;
+  background-color: var(--control-disabled);
   color: var(--ink);
   font: 500 .82rem var(--font);
 }
@@ -123,12 +120,12 @@
 
 .reference-game .village-census-table-frame {
   overflow: hidden;
-  border: 0;
-  border-radius: .58rem;
-  background: #162b21;
 }
 
-.reference-game .village-census-table { width: 100%; }
+.reference-game .village-census-table {
+  width: 100%;
+  border-collapse: collapse;
+}
 .reference-game .village-census-table caption {
   position: absolute;
   width: 1px;
@@ -150,14 +147,13 @@
 
 .reference-game #midColumn .village-census table.village-census-table thead th {
   padding-block: .55rem;
-  background: #21392d;
+  background: transparent;
   color: #c4d4c8;
   font-size: .72rem;
   font-weight: 700;
 }
 
 .reference-game #midColumn .village-census-table tbody th { background: transparent; }
-.reference-game #midColumn .village-census-table tbody tr:last-child > th { border-bottom: 0; }
 .reference-game #midColumn .village-census-table tbody tr:nth-child(even) { background: #1b3026; }
 .reference-game #midColumn .village-census-table tbody tr[data-leader] { background: #293c2d; }
 .reference-game #midColumn .village-census-table tbody tr:is(:hover, :focus-within) { background: #284436; }
@@ -271,7 +267,7 @@
 .reference-game .village-resident-details-name {
   margin: 0;
   color: var(--accent);
-  font: 700 1.2rem/1.2 Georgia, serif;
+  font: 700 1.15rem/1.2 var(--font);
 }
 
 .reference-game .village-resident-facts {
@@ -313,11 +309,11 @@
 .reference-game .village-resident-icon-action:disabled { background: transparent; color: #789184; opacity: .7; }
 .reference-game .village-resident-icon-action[data-active] { background: #344532; color: #efd292; opacity: 1; }
 
-@container game-menu (max-width: 38rem) {
+@container reference-play (max-width: 38rem) {
   .reference-game .village-census-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-@container game-menu (max-width: 30rem) {
+@container reference-play (max-width: 30rem) {
   .reference-game #midColumn .village-census-table .village-resident-trait { display: none; }
   .reference-game #midColumn .village-census-table .village-resident-identity { width: 50%; }
   .reference-game #midColumn .village-census-table .village-resident-job { width: 30%; }
@@ -328,7 +324,7 @@
   }
 }
 
-@container game-menu (max-width: 21rem) {
+@container reference-play (max-width: 21rem) {
   .reference-game .village-census-toolbar .village-census-field:first-child { grid-column: 1 / -1; }
   .reference-game .village-census-toolbar .village-census-field:last-child { grid-column: 1 / -1; }
   .reference-game .village-resident-avatar { display: none; }

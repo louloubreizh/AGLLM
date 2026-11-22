@@ -7,10 +7,7 @@
   justify-content: space-between;
   gap: .45rem .75rem;
   margin-bottom: .65rem;
-  padding: .52rem .65rem;
-  border: 0;
-  border-radius: .55rem;
-  background: #1b3026;
+  padding: .25rem 0;
 }
 
 .reference-game .village-jobs-stats {
@@ -62,17 +59,17 @@
 
 .reference-game #midColumn .village-job-card.btn.modern {
   --job-accent: var(--accent);
-  --job-shade: var(--control);
   --job-control-size: 2rem;
   width: 100%;
   margin: 0;
   border: 0 !important;
   border-radius: .7rem !important;
-  background: #192e24 !important;
+  background: var(--village-card) !important;
+  box-shadow: none;
 }
 
 .reference-game #midColumn .village-job-card.btn.modern[data-staffed] {
-  background: #22382b !important;
+  background: var(--control) !important;
 }
 
 .reference-game #midColumn .village-job-card.btn.modern.bldlackResConvert {
@@ -101,7 +98,7 @@
   overflow: hidden;
   padding: .65rem .7rem;
   border-radius: .64rem .64rem 0 0;
-  background: linear-gradient(105deg, #172a21, var(--job-shade));
+  background: transparent;
 }
 
 .reference-game .village-job-card:not(.disabled) .village-job-cover { cursor: pointer; }
@@ -149,8 +146,8 @@
 .reference-game .village-job-name {
   margin: 0;
   color: #f2f5ec;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.2rem;
+  font-family: var(--font);
+  font-size: 1.05rem;
   line-height: 1.12;
   text-shadow: 0 1px .35rem #102019;
 }
@@ -170,7 +167,7 @@
   align-items: center;
   border: 0;
   border-radius: .46rem;
-  background: #13251c;
+  background: transparent;
 }
 
 .reference-game .village-job-count {
@@ -228,7 +225,7 @@
   overflow: auto;
   margin: 0;
   padding: .8rem;
-  border: 1px solid var(--village-line);
+  border: 0;
   border-radius: .62rem;
   background: #1c3228;
   color: var(--ink);
@@ -259,8 +256,7 @@
 .reference-game .village-job-presets {
   display: flow-root;
   margin-top: .65rem;
-  padding: .45rem;
-  border-top: 1px solid var(--village-line);
+  padding: .2rem 0;
 }
 
 .reference-game .village-job-presets > .loadout { width: 100% !important; }
@@ -274,7 +270,7 @@
   }
 }
 
-@container game-menu (max-width: 24rem) {
+@container reference-play (max-width: 24rem) {
   .reference-game .village-job-cover { --job-cover-height: 5.6rem; }
 }
 

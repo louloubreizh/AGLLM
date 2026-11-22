@@ -3,15 +3,15 @@ export const daysPerSeason = 30;
 export const dayDuration = 1000;
 
 export const resources = {
-  food: { label: "Vivres", icon: "leaf", capacity: 100, description: "Nourrissent les habitants et ravitaillent les expéditions." },
+  food: { label: "Vivres", icon: "food", capacity: 100, description: "Nourrissent les habitants et ravitaillent les expéditions." },
   timber: { label: "Bois", icon: "wood", capacity: 90, description: "Sert aux premières constructions et à la fabrication de planches." },
   clay: { label: "Argile", icon: "clay", capacity: 80, description: "Récoltée à la main ou par les potiers, elle sert à bâtir et à irriguer les jardins." },
   notes: { label: "Science", icon: "science", capacity: 90, description: "Produite à la maison des cartes, elle permet de financer les recherches." },
   boards: { label: "Planches", icon: "beam", capacity: 60, description: "Fabriquées à l’atelier à partir de bois, elles servent aux constructions." },
   stone: { label: "Pierre", icon: "slab", capacity: 80, description: "Extraite à la carrière, elle sert à construire et à produire du fer." },
   metal: { label: "Fer", icon: "iron", capacity: 60, description: "Produit au four ou à l’atelier, il sert notamment à construire les éoliennes et les filatures." },
-  cloth: { label: "Toile", icon: "furs", capacity: 60, description: "Sert aux expéditions et à la construction du phare des migrations." },
-  coins: { label: "Jetons", icon: "gold", capacity: 100, description: "Reçus en échangeant au marché, ils servent aux achats, aux fêtes et aux promotions." },
+  cloth: { label: "Toile", icon: "cloth", capacity: 60, description: "Sert aux expéditions et à la construction du phare des migrations." },
+  coins: { label: "Jetons", icon: "token", capacity: 100, description: "Reçus en échangeant au marché, ils servent aux achats, aux fêtes et aux promotions." },
   relics: { label: "Vestiges", icon: "relic", capacity: 30, description: "Rapportés d’expédition, ils servent à étudier la navigation et à bâtir le phare." },
 };
 

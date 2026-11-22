@@ -1,35 +1,31 @@
-.reference-game #midColumn .village-section.panelContainer {
-  --village-surface: #12251d;
-  --village-line: #365345;
-  --village-card: #1b3026;
-  border: 0 !important;
-  border-radius: .85rem;
-  background: var(--village-surface) !important;
+.reference-game #midColumn .tabInner.Village {
+  --village-surface: var(--surface);
+  --village-card: var(--surface-raised);
 }
-
-.reference-game #midColumn .village-section.panelContainer:has(> .toggle + .title) > .title {
-  display: flex;
-  align-items: center;
-  gap: .65rem;
-  min-height: 3.15rem;
-  padding: .6rem 3.4rem .6rem .8rem !important;
-  border: 0 !important;
-  border-radius: .8rem;
-  color: var(--ink);
-  font-size: 1rem;
-  letter-spacing: .01em;
+.reference-game #midColumn .Village > .reference-section-art {
+  border: 0;
+  background: transparent;
+}
+@container reference-play (max-width: 30rem) {
+  .reference-game #midColumn .Village > .reference-section-art { display: none; }
 }
 
 .reference-game #midColumn .village-section > .title::before {
   content: "";
-  flex: 0 0 1.95rem;
-  height: 1.95rem;
-  border-radius: .48rem;
-  background: var(--village-section-icon) center / 1.2rem no-repeat, #20382b;
+  flex: 0 0 1.15rem;
+  height: 1.15rem;
+  background: var(--village-section-icon) center / contain no-repeat;
 }
 
-.reference-game #midColumn .village-section > .toggle { margin-inline-end: .3rem; }
-.reference-game #midColumn .village-section > .container { padding: 0 .65rem .65rem !important; }
+.reference-game #midColumn .Village .panelContainer .btn.modern {
+  border: 0;
+  background: var(--village-card);
+  box-shadow: none;
+}
+.reference-game #midColumn .Village .panelContainer .btn.modern:not(.disabled):hover {
+  background: var(--control-hover);
+  box-shadow: none;
+}
 .reference-game #midColumn .village-section [hidden] { display: none !important; }
 
 .reference-game .village-icon {
@@ -72,7 +68,7 @@
   overflow: auto;
   margin: 0;
   padding: .8rem;
-  border: 1px solid var(--village-line);
+  border: 0;
   border-radius: .65rem;
   background: #1c3228;
   color: var(--ink);

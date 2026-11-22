@@ -2,15 +2,15 @@ import { control, element, setText, textFromMarkup, villageIcon, villageLocale }
 
 const pictures = import.meta.glob("../assets/jobs/*.jpg", { eager: true, import: "default", query: "?url" });
 const jobArtwork = {
-  woodcutter: ["wood", "#c9b483", "#2a3922"],
-  farmer: ["catnip", "#b8d689", "#323d20"],
-  scholar: ["science", "#a5d6da", "#14353b"],
-  hunter: ["manpower", "#c4d59a", "#1d3a2c"],
-  miner: ["minerals", "#c1d2e7", "#283746"],
-  priest: ["faith", "#e8b9cf", "#483140"],
-  geologist: ["coal", "#c6b7e6", "#233c43"],
-  engineer: ["gear", "#a7d8cc", "#19393d"],
-  ambassador: ["trade", "#e6c1a3", "#293c37"],
+  woodcutter: ["wood", "#c9b483"],
+  farmer: ["catnip", "#b8d689"],
+  scholar: ["science", "#a5d6da"],
+  hunter: ["manpower", "#c4d59a"],
+  miner: ["minerals", "#c1d2e7"],
+  priest: ["faith", "#e8b9cf"],
+  geologist: ["coal", "#c6b7e6"],
+  engineer: ["gear", "#a7d8cc"],
+  ambassador: ["trade", "#e6c1a3"],
 };
 
 const labels = {
@@ -41,9 +41,8 @@ function createCard(document, game, button, copy, refresh) {
   const title = element(document, "h3", "village-job-name", job.title);
   const artwork = jobArtwork[job.name];
   if (artwork) {
-    const [resource, accent, shade] = artwork;
+    const [resource, accent] = artwork;
     domNode.style.setProperty("--job-accent", accent);
-    domNode.style.setProperty("--job-shade", shade);
     const picture = element(document, "img", "village-job-picture");
     picture.src = pictures[`../assets/jobs/${job.name}.jpg`];
     picture.alt = "";

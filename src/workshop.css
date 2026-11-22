@@ -1,0 +1,189 @@
+.reference-game #midColumn .Workshop {
+  --workshop-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+  --workshop-gap: .55rem;
+}
+.reference-game #midColumn .Workshop > .reference-section-art {
+  border: 0;
+  background: transparent;
+}
+.reference-game #midColumn .Workshop > div:has(#toggleResearched),
+.reference-game #midColumn .Workshop > div[style*="float: left"] {
+  height: auto !important;
+  margin-bottom: .38rem;
+  color: var(--muted);
+  font: 600 .82rem/1.4 var(--font);
+}
+.reference-game #midColumn .Workshop > div[style*="float: left"],
+.reference-game #midColumn .Workshop :has(> #toggleResearched) { float: none !important; }
+.reference-game #midColumn .Workshop #toggleResearched { margin-right: .38rem; accent-color: var(--accent); }
+.reference-game #midColumn .Workshop label[for="toggleResearched"] { color: inherit; cursor: pointer; }
+
+.reference-game #midColumn .Workshop .panelContainer > .title::before {
+  content: "";
+  flex: 0 0 1.15rem;
+  height: 1.15rem;
+  background: var(--icon-tools) center / contain no-repeat;
+}
+.reference-game #midColumn .Workshop .workshop-craft-panel > .title::before { background-image: var(--icon-gear); }
+.reference-game #midColumn .Workshop .panelContainer:not(.workshop-craft-panel) > .container,
+.reference-game #midColumn .Workshop .workshop-craft-grid {
+  display: grid;
+  grid-template-columns: var(--workshop-columns);
+  gap: var(--workshop-gap);
+}
+.reference-game #midColumn .Workshop .workshop-craft-grid { padding: .18rem; }
+.reference-game #midColumn .Workshop .workshop-craft-panel > .container { padding-inline: .45rem !important; }
+.reference-game #midColumn .Workshop .btn.modern.workshop-craft .btnContent {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: 1fr auto;
+  gap: .35rem;
+}
+.reference-game #midColumn .Workshop .workshop-craft .btnTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .28rem;
+}
+.reference-game #midColumn .Workshop .workshop-craft .btnTitle::before {
+  content: "";
+  flex: 0 0 1.1rem;
+  height: 1.1rem;
+  background: var(--workshop-icon) center / contain no-repeat;
+}
+.reference-game #midColumn .Workshop .workshop-craft .btnTitle > .label + div { display: none; }
+.reference-game #midColumn .Workshop .workshop-craft .btnTitle .progress {
+  color: var(--muted);
+  font-size: .72rem;
+}
+.reference-game #midColumn .Workshop .workshop-engineer-summary {
+  display: block;
+  padding: .2rem .2rem .45rem;
+  color: var(--accent);
+  font-weight: 650;
+}
+.reference-game #midColumn .Workshop :is(.workshop-engineer-summary, .workshop-stock):empty { display: none; }
+.reference-game #midColumn .Workshop .workshop-statistics:has(.workshop-stock table:not(:has(tr))):not([data-mechanized]),
+.reference-game #midColumn .Workshop .workshop-statistics:not([data-mechanized]) .workshop-flow,
+.reference-game #midColumn .Workshop .workshop-stock:has(table:not(:has(tr))) { display: none; }
+.reference-game #midColumn .Workshop .workshop-statistics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
+  gap: .55rem;
+  margin-bottom: .6rem;
+}
+.reference-game #midColumn .Workshop :is(.workshop-flow, .workshop-stock) {
+  display: block;
+  min-width: 0;
+  padding: .55rem .65rem !important;
+  border: 0;
+  border-radius: .5rem;
+  background: var(--control-disabled);
+  color: var(--ink);
+}
+.reference-game #midColumn .Workshop :is(.workshop-flow h3, .workshop-stock > span) {
+  display: block;
+  margin: 0 0 .35rem;
+  color: var(--muted);
+  font: 650 .78rem/1.2 var(--font);
+}
+.reference-game #midColumn .Workshop .workshop-flow-rows,
+.reference-game #midColumn .Workshop .workshop-flow-empty { margin: 0; }
+.reference-game #midColumn .Workshop :is(.workshop-flow-row, .workshop-stock td, .workshop-flow-empty) {
+  font-size: .78rem;
+}
+.reference-game #midColumn .Workshop .workshop-flow-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .3rem;
+  padding-block: .12rem;
+}
+.reference-game #midColumn .Workshop .workshop-flow-row dt {
+  display: flex;
+  align-items: center;
+  gap: .28rem;
+  overflow-wrap: anywhere;
+}
+.reference-game #midColumn .Workshop .workshop-flow-row dd {
+  margin: 0;
+  color: var(--accent);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.reference-game #midColumn .Workshop .workshop-flow-consumption dd { color: var(--warning); }
+.reference-game #midColumn .Workshop .workshop-flow-empty { color: var(--muted); }
+.reference-game #midColumn .Workshop .workshop-stock table {
+  width: 100%;
+  padding: 0 !important;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+}
+.reference-game #midColumn .Workshop .workshop-stock td:last-child {
+  color: var(--accent);
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.reference-game #midColumn .Workshop .workshop-engineers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .24rem;
+  cursor: default;
+}
+.reference-game #midColumn .Workshop .workshop-engineer-count {
+  min-width: 1.5rem;
+  color: var(--ink);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.reference-game #midColumn .Workshop .workshop-engineers [hidden] { display: none !important; }
+.reference-game #midColumn .Workshop .workshop-engineers button {
+  box-sizing: border-box;
+  min-width: 1.85rem;
+  min-height: 1.85rem;
+  padding: .12rem .28rem;
+  border: 0;
+  border-radius: .38rem;
+  background: var(--control);
+  color: var(--accent);
+  font: 700 .92rem/1 var(--font);
+}
+.reference-game #midColumn .Workshop .workshop-engineers button:hover:not(:disabled) {
+  background: var(--control-hover);
+}
+.reference-game #midColumn .Workshop .workshop-engineers button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+.reference-game #midColumn .Workshop .workshop-engineer-menu {
+  inset: auto .6rem .6rem auto;
+  margin: 0;
+  padding: .4rem;
+  border: 0;
+  border-radius: .5rem;
+  background: var(--surface);
+  box-shadow: var(--panel-shadow);
+}
+.reference-game #midColumn .Workshop .workshop-engineer-menu:popover-open {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: .25rem;
+}
+@supports (position-area: block-end) {
+  .reference-game #midColumn .Workshop .workshop-engineer-menu {
+    inset: auto;
+    position-area: block-end;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    margin-block: .25rem;
+  }
+}
+@media (pointer: coarse) {
+  .reference-game #midColumn .Workshop .workshop-engineers button { min-width: 2.25rem; min-height: 2.25rem; }
+}
+@container reference-play (max-width: 30rem) {
+  .reference-game #midColumn .Workshop > .reference-section-art { display: none; }
+}

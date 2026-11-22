@@ -20,14 +20,20 @@
 }
 .reference-game #midColumn { container-name: reference-play; }
 .reference-game #midColumn .tabsContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem;
+  display: grid;
+  gap: .3rem;
   margin-bottom: .55rem;
-  padding: 0;
+  padding: 0 0 .4rem;
+  border-bottom: 1px solid var(--divider);
 }
 .reference-game #midColumn .tabsContainer > span { display: none; }
-.reference-game #midColumn .tabsContainer a.tab {
+.reference-game .reference-tab-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .3rem;
+}
+.reference-game #midColumn .tabsContainer :where(a.tab, .reference-tab-toggle) {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -36,24 +42,31 @@
   border: 1px solid var(--divider);
   border-radius: .5rem;
   background: var(--surface);
+  color: var(--ink);
+  font: 600 .86rem var(--font);
   text-decoration: none;
 }
-.reference-game #midColumn .tabsContainer a.tab::before {
+.reference-game #midColumn .tabsContainer :is(a.tab, .reference-tab-toggle)::before {
   content: "";
   width: 1rem;
   height: 1rem;
   flex: none;
   background: var(--tab-mark) center / contain no-repeat;
 }
+.reference-game #midColumn .tabsContainer .reference-tab-toggle { display: none; }
+.reference-game #midColumn .tabsContainer .reference-tab-toggle::after {
+  content: "";
+  width: .85rem;
+  height: .65rem;
+  margin-left: auto;
+  background: linear-gradient(currentColor 0 0) top / 100% 1px,
+    linear-gradient(currentColor 0 0) center / 100% 1px,
+    linear-gradient(currentColor 0 0) bottom / 100% 1px;
+  background-repeat: no-repeat;
+}
 .reference-game #midColumn .tabsContainer a.tab:is(:hover, [aria-current]) {
   background: var(--control-hover);
   border-color: var(--line);
-}
-.reference-game .reference-tab-picker {
-  display: none;
-  width: 100%;
-  padding: .4rem .55rem;
-  min-height: 2.45rem;
 }
 .reference-game #midColumn .tabInner { border: 0; padding: 0; }
 .reference-game .reference-section-art {
@@ -94,25 +107,7 @@
   color: var(--accent);
 }
 .reference-game #midColumn .panelContainer > .container { min-width: 0; overflow-x: auto; }
-.reference-game #midColumn .bldTopContainer > a {
-  display: inline-block;
-  margin: .15rem;
-  padding: .25rem .55rem;
-  border: 1px solid var(--divider);
-  border-radius: 1rem;
-  text-decoration: none;
-}
-.reference-game #midColumn .bldTopContainer > a:is(:hover, .activeTab) { background: var(--control); }
 .reference-game #midColumn .bldTopContainer > span { display: none; }
-.reference-game #midColumn .Bonfire .bldGroupContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  align-items: start;
-  gap: .5rem;
-}
-.reference-game #midColumn .Bonfire .bldGroupContainer > table,
-.reference-game #midColumn .Bonfire .bldGroupContainer > table :is(tbody, tr, td) { display: contents; }
-.reference-game #midColumn .Bonfire .btn.modern { width: 100%; margin: 0; }
 .reference-game #midColumn .btn.modern {
   border-color: var(--line);
   background: var(--control);
@@ -140,29 +135,103 @@
   border-radius: .35rem;
 }
 .reference-game #midColumn .btn.modern .btnContent a:is(:hover, :focus-visible) { background: var(--control-hover); }
-.reference-game #leftColumn .res-table { max-width: none; border-spacing: 0 .15rem; }
+.reference-game #leftColumn { font-size: 14px; }
+.reference-game #leftColumn .res-table { min-width: max-content; max-width: none; border-spacing: 0 .15rem; }
 .reference-game #leftColumn .res-cell {
-  padding-inline: .13rem;
+  padding-inline: .28em;
   overflow: visible;
-  font-size: .82rem;
+  font-size: inherit;
   font-variant-numeric: tabular-nums;
 }
-.reference-game #leftColumn .res-cell:not(.resource-name) { width: auto; max-width: none; }
+.reference-game #leftColumn .res-cell { width: auto; max-width: none; white-space: nowrap !important; }
 .reference-game #leftColumn .res-row .res-cell { padding-block: .2rem; border-bottom: 1px solid var(--divider); }
 .reference-game #leftColumn .resource-name::before {
   content: "";
-  position: absolute;
-  inset: .19rem auto auto .12rem;
-  width: 1rem;
-  height: 1rem;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-inline-end: .38em;
+  vertical-align: -.12em;
   background: var(--resource-mark) center / contain no-repeat;
 }
-.reference-game #leftColumn .resource-name {
-  position: relative;
-  min-width: 4.65rem;
-  padding-inline-start: 1.35rem;
-  white-space: normal !important;
+.reference-game #leftColumn .widget-content { padding: .55rem; }
+.reference-game #leftColumn .reference-resource-header,
+.reference-game #leftColumn .reference-resource-sizes {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin-block: .4rem;
+  font-size: .85rem;
 }
+.reference-game #leftColumn .reference-resource-header > :first-child { flex: 1 1 auto; }
+.reference-game #leftColumn .reference-resource-header .res-toolbar.right { float: none; }
+.reference-game #leftColumn :is(.reference-resource-header a, .reference-resource-sizes a, .pin-link > a) {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .4rem .55rem;
+  border: 1px solid var(--line);
+  border-radius: .45rem;
+  color: var(--ink);
+  background: var(--control);
+  text-decoration: none;
+  cursor: pointer;
+}
+.reference-game #leftColumn :is(.reference-resource-header a, .reference-resource-sizes a, .pin-link > a):is(:hover, :focus-visible),
+.reference-game #leftColumn .reference-resource-header a[aria-pressed="true"] {
+  color: var(--accent);
+  background: var(--control-hover);
+}
+.reference-game #leftColumn :is(.reference-resource-header .collapse, .reference-resource-sizes a) { font-size: 0; }
+.reference-game #leftColumn :is(.reference-resource-header .collapse, .reference-resource-sizes a)::after {
+  content: attr(data-label);
+  font-size: .85rem;
+  font-weight: 650;
+}
+.reference-game #leftColumn .reference-resource-header .collapse > .svg-icon { display: none; }
+.reference-game #leftColumn .reference-resource-header .gear {
+  width: 1em;
+  height: 1em;
+  mask: none;
+  background: var(--icon-gear) center / contain no-repeat;
+}
+.reference-game #leftColumn .reference-resource-header .collapse::before {
+  content: "";
+  flex: 0 0 .4rem;
+  height: .4rem;
+  border: solid currentColor;
+  border-width: 0 1px 1px 0;
+  transform: rotate(-45deg);
+}
+.reference-game #leftColumn .reference-resource-header .collapse[aria-expanded="true"]::before {
+  transform: rotate(45deg);
+}
+.reference-game #leftColumn .reference-resource-sizes { justify-content: end; }
+.reference-game #leftColumn .pin-link { padding: 0; margin-block: .25rem; }
+.reference-game #leftColumn .pin-link > a { display: block; font-size: .82rem; }
+.reference-game #leftColumn .trade-icons > .res-icon { display: none; }
+.reference-game #leftColumn .trade-icons::before,
+.reference-game #leftColumn .trade-icons::after {
+  content: "";
+  width: 1em;
+  height: 1em;
+  background: var(--trade-buy) center / contain no-repeat;
+}
+.reference-game #leftColumn .trade-icons::after { background-image: var(--trade-sell); }
+.reference-game #leftColumn :is(#fastHuntContainer, #fastSacrificeContainer, #fastPraiseContainer) > a::before {
+  content: "";
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-inline-end: .4em;
+  vertical-align: -.12em;
+  background: var(--action-icon) center / contain no-repeat;
+}
+.reference-game #leftColumn #fastHuntContainer { --action-icon: var(--icon-hunt); }
+.reference-game #leftColumn #fastSacrificeContainer { --action-icon: var(--icon-unicorns); }
+.reference-game #leftColumn #fastPraiseContainer { --action-icon: var(--icon-sun); }
+.reference-game #leftColumn .res-toggle-hidden { accent-color: var(--accent); }
 .reference-game #leftColumn .positive-weather { color: #a8d998; }
 .reference-game #leftColumn .negative-weather { color: var(--warning); }
 .reference-game #rightColumn .right-tab-header { padding-block: .25rem .45rem; }
@@ -176,7 +245,7 @@
 .reference-game #rightColumn .right-tab-header a.active { background: var(--control); }
 .reference-game #gameLog .msg { padding: .28rem .2rem; border-bottom: 1px solid var(--divider); }
 .reference-game #gameLog .msg.type_date { border-color: var(--line); color: var(--accent); }
-.reference-game :is(.reference-tab-picker, .village-census select, .dialog input[type="file"]) {
+.reference-game :is(.village-census select, .dialog input[type="file"]) {
   border: 1px solid var(--line);
   border-radius: .4rem;
   color: var(--ink);
@@ -209,8 +278,12 @@
 .reference-game :is(#optionsDiv, #importDiv, #exportDiv) { box-shadow: 0 .8rem 2.1rem #030907bb; }
 
 @container reference-play (max-width: 30rem) {
-  .reference-game #midColumn .tabsContainer:has(.reference-tab-picker) a.tab { display: none; }
-  .reference-game .reference-tab-picker { display: block; }
+  .reference-game #midColumn .tabsContainer:not([data-single-tab]) .reference-tab-toggle { display: inline-flex; }
+  .reference-game .reference-tab-links {
+    max-height: min(45vh, 12rem);
+    overflow-y: auto;
+  }
+  .reference-game .tabsContainer:not([data-single-tab]) .reference-tab-toggle[aria-expanded="false"] + .reference-tab-links { display: none; }
   .reference-game .reference-section-art { height: 2.9rem; }
 }
 
@@ -226,5 +299,5 @@
 }
 .reference-game .reference-scene-input.is-moving { cursor: grabbing; }
 .reference-game #gamePageContainer { pointer-events: none; }
-.reference-game :is(#topBar, #footerLinks, .game-widget, .dialog, .login-popup) { pointer-events: auto; }
+.reference-game :is(.game-widget, .dialog, .login-popup) { pointer-events: auto; }
 

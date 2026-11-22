@@ -1,0 +1,63 @@
+.reference-game #midColumn .Science {
+  --science-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+  --science-gap: .55rem;
+}
+.reference-game #midColumn .Science > .reference-section-art {
+  border: 0;
+  background: transparent;
+}
+.reference-game #midColumn .Science > div:has(> #toggleResearched) {
+  float: none !important;
+  margin: 0 0 .65rem;
+}
+.reference-game #midColumn .Science input[type="checkbox"] {
+  margin: 0 .4rem 0 0;
+  accent-color: var(--accent);
+  vertical-align: middle;
+}
+.reference-game #midColumn .Science label {
+  color: var(--muted);
+  font: 600 .82rem/1.4 var(--font);
+  vertical-align: middle;
+  cursor: pointer;
+}
+.reference-game #midColumn .Science > table.table,
+.reference-game #midColumn .Science > table.table :is(tbody, tr) {
+  display: contents;
+}
+.reference-game #midColumn .Science > table.table tr:has(> .btn) {
+  display: grid;
+  grid-template-columns: var(--science-columns);
+  gap: var(--science-gap);
+  padding: .15rem .2rem .6rem;
+}
+.reference-game #midColumn .Science > table.table tr:not(:has(> .btn)) { display: none; }
+.reference-game #midColumn .Science .panelContainer[style*="display: block"] { display: grid !important; }
+.reference-game #midColumn .Science .panelContainer > .container {
+  display: grid;
+  grid-template-columns: var(--science-columns);
+  align-items: stretch;
+  gap: var(--science-gap);
+}
+.reference-game #midColumn .Science .panelContainer > .container > :not(.btn) {
+  grid-column: 1 / -1;
+  float: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  color: var(--muted);
+  font-size: .82rem;
+}
+.reference-game #midColumn .Science .panelContainer > .container > span:empty,
+.reference-game #midColumn .Science .panelContainer > .container > div[style*="clear: both"] { display: none !important; }
+.reference-game #midColumn .Science .panelContainer > .title::before {
+  content: "";
+  flex: 0 0 1.15rem;
+  height: 1.15rem;
+  background: var(--icon-chart) center / contain no-repeat;
+}
+.reference-game #midColumn .Science .panelContainer:has(#prestigeHideResearched) > .title::before {
+  background-image: var(--control-icon-star);
+}
+@container reference-play (max-width: 30rem) {
+  .reference-game #midColumn .Science > .reference-section-art { display: none; }
+}

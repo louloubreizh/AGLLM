@@ -6,31 +6,45 @@ const arrowOffsets = { ArrowLeft: [-20, 0], ArrowRight: [20, 0], ArrowUp: [0, -2
 
 export function Widget({ element, label, icon }) {
   const [collapsed, setCollapsed] = useState(false);
-  const position = useRef({ x: 0, y: 0 });
   const pointer = useRef(null);
   const scope = element.ownerDocument.defaultView;
 
   function move(dx, dy) {
-    const { left, right, top, bottom } = element.getBoundingClientRect();
+    const { left, top, width, height } = element.getBoundingClientRect();
     const area = element.parentElement.getBoundingClientRect();
-    position.current.x += Math.max(area.left - left, Math.min(dx, area.right - right));
-    position.current.y += Math.max(area.top - top, Math.min(dy, area.bottom - bottom));
-    element.style.translate = `${position.current.x}px ${position.current.y}px`;
+    if (!width || !height) return;
+    const x = Math.max(0, Math.min(left - area.left + dx, area.width - width));
+    const y = Math.max(0, Math.min(top - area.top + dy, area.height - height));
+    if (!element.hasAttribute("data-positioned") && !collapsed) {
+      element.style.setProperty("--widget-height", `${height}px`);
+    }
+    element.style.setProperty("--widget-width", `${width}px`);
+    element.style.setProperty("--widget-x", `${x}px`);
+    element.style.setProperty("--widget-y", `${y}px`);
+    element.style.setProperty("--widget-limit", `${area.height - y}px`);
+    element.toggleAttribute("data-positioned", true);
   }
 
   function raise() {
-    element.ownerDocument.querySelector(".widget-raised")?.classList.remove("widget-raised");
-    element.classList.add("widget-raised");
+    const siblings = [...element.parentElement.querySelectorAll(":scope > .game-widget")];
+    const layer = (widget) => Number(widget.style.getPropertyValue("--widget-layer"));
+    if (layer(element) === siblings.length) return;
+    siblings.filter((widget) => widget !== element).sort((a, b) => layer(a) - layer(b))
+      .forEach((widget, index) => widget.style.setProperty("--widget-layer", index + 1));
+    element.style.setProperty("--widget-layer", siblings.length);
   }
 
   function resize(dx, dy) {
     const bounds = element.getBoundingClientRect();
     const { width: maxWidth, height: maxHeight } = element.parentElement.getBoundingClientRect();
     const width = Math.max(Math.min(215, maxWidth), Math.min(bounds.width + dx, maxWidth));
+    const availableHeight = maxHeight - (bounds.top - element.parentElement.getBoundingClientRect().top);
     const height = Math.max(Math.min(110, maxHeight), Math.min(bounds.height + dy, maxHeight));
 
+    move(0, 0);
     element.style.setProperty("--widget-width", `${width}px`);
     element.style.setProperty("--widget-height", `${height}px`);
+    element.style.setProperty("--widget-limit", `${Math.max(availableHeight, height)}px`);
     element.setAttribute("data-resized", "");
     const resized = element.getBoundingClientRect();
     move(bounds.left - resized.left, bounds.top - resized.top);
@@ -70,19 +84,26 @@ export function Widget({ element, label, icon }) {
   useLayoutEffect(() => {
     function reset() {
       pointer.current = null;
-      position.current = { x: 0, y: 0 };
-      element.style.removeProperty("translate");
-      element.style.removeProperty("--widget-width");
-      element.style.removeProperty("--widget-height");
+      for (const key of ["width", "height", "x", "y", "limit", "layer"]) {
+        element.style.removeProperty(`--widget-${key}`);
+      }
+      element.removeAttribute("data-positioned");
       element.removeAttribute("data-resized");
     }
     scope.addEventListener("resize", reset);
-    return () => scope.removeEventListener("resize", reset);
+    element.addEventListener("pointerdown", raise);
+    element.addEventListener("focusin", raise);
+    return () => {
+      scope.removeEventListener("resize", reset);
+      element.removeEventListener("pointerdown", raise);
+      element.removeEventListener("focusin", raise);
+    };
   }, [element, scope]);
 
   useLayoutEffect(() => {
     element.toggleAttribute("data-collapsed", collapsed);
-    if (element.getClientRects().length) {
+    if (element.hasAttribute("data-positioned") && element.getClientRects().length) {
+      element.style.setProperty("--widget-limit", `${element.parentElement.clientHeight}px`);
       move(0, 0);
     }
   }, [collapsed, element]);

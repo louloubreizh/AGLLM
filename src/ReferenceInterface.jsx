@@ -9,7 +9,13 @@ import palette from "./palette.css?raw";
 import widgets from "./interface.css?raw";
 import layout from "./reference-interface.css?raw";
 import presentation from "./reference-presentation.css?raw";
+import accordions from "./reference-accordions.css?raw";
+import purchases from "./reference-purchases.css?raw";
 import camp from "./camp.css?raw";
+import science from "./science.css?raw";
+import workshop from "./workshop.css?raw";
+import trade from "./trade.css?raw";
+import advancedTabs from "./advanced-tabs.css?raw";
 import villageUI from "./village-ui.css?raw";
 import villageJobs from "./village-jobs.css?raw";
 import villageManagement from "./village-management.css?raw";
@@ -73,10 +79,9 @@ function groupNativeLinks(document) {
   summary.textContent = "Menu Kittens Game";
   document.getElementById("optionsDiv").append(menu);
   menu.append(summary, links);
-  const topbar = document.getElementById("topBar");
   const toolbar = document.getElementById("headerLinks");
   document.getElementById("gamePageContainer").append(toolbar);
-  document.getElementById("footerLinks").prepend(topbar.firstElementChild);
+  document.getElementById("footerLinks").remove();
 }
 
 export function ReferenceInterface({ frame, panel, visible, cameraView, onInspect, onDocument, onNotice }) {
@@ -98,7 +103,8 @@ export function ReferenceInterface({ frame, panel, visible, cameraView, onInspec
       container.classList.add("game-panels");
       const style = document.createElement("style");
       style.id = "agllm-reference-layout";
-      style.textContent = [palette, widgets, layout, presentation, camp, villageUI, villageJobs,
+      style.textContent = [palette, widgets, layout, presentation, accordions, purchases, camp, science, workshop, trade,
+        advancedTabs, villageUI, villageJobs,
         villageManagement, villageCensus, referenceControlIcons, referenceResourceIcons].join("\n");
       document.head.append(style);
       for (const [index, [, key, label]] of columns.entries()) {

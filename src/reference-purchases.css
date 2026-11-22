@@ -1,0 +1,47 @@
+.reference-game #midColumn :is(.Science, .Workshop, .Trade, .Religion, .Space, .Time) .btn.modern {
+  --purchase-state: #fff;
+  --purchase-glow: #ffffff3d;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: .56rem;
+  background: var(--surface-raised) !important;
+  box-shadow: 0 0 .36rem var(--purchase-glow);
+  color: var(--purchase-state);
+  font-family: var(--font);
+  text-shadow: none;
+}
+.reference-game #midColumn :is(.Science, .Workshop, .Trade, .Religion, .Space, .Time) .btn.modern:is(.disabled, [data-trade-unavailable]) {
+  --purchase-state: #ff9b9b;
+  --purchase-glow: #ff717147;
+  background: color-mix(in srgb, #a74343 13%, var(--surface)) !important;
+  box-shadow: 0 0 .36rem var(--purchase-glow);
+}
+.reference-game #midColumn :is(.Science, .Workshop, .Trade, .Religion, .Space, .Time) .btn.modern:not(.disabled, [data-trade-unavailable]):is(:hover, :focus-visible) {
+  background: var(--control-hover) !important;
+  box-shadow: 0 0 .55rem #ffffff60;
+}
+.reference-game #midColumn :is(.Science, .Workshop, .Trade, .Religion, .Space, .Time) .btn.modern .btnContent {
+  box-sizing: border-box;
+  min-height: 3.2rem;
+  height: 100%;
+  padding: .56rem .7rem !important;
+  background: transparent;
+}
+.reference-game #midColumn :is(.Science, .Workshop, .Trade, .Religion, .Space, .Time) .btn.modern .btnTitle,
+.reference-game #midColumn :is(.Science, .Workshop, .Trade, .Religion, .Space, .Time) .btn.modern .btnTitle :is(.label, .label-content) {
+  min-width: 0;
+  color: var(--purchase-state) !important;
+  font: 650 .88rem/1.3 var(--font);
+  text-align: start;
+  text-shadow: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.reference-game #midColumn :is(.Science, .Workshop, .Trade, .Religion, .Space, .Time) .btnTitle > .label + div {
+  margin-top: .16rem;
+  font-size: .72rem;
+  font-weight: 500;
+}

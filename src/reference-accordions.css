@@ -1,0 +1,71 @@
+.reference-game #midColumn :is(.Village, .Science, .Workshop, .Trade, .Religion, .Space, .Time) .panelContainer {
+  display: grid;
+  grid-template: "heading" auto "content" auto / minmax(0, 1fr);
+  min-height: 0;
+  margin: 0 0 .38rem;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.reference-game #midColumn :is(.Village, .Science, .Workshop, .Trade, .Religion, .Space, .Time) .panelContainer > .title {
+  grid-area: heading;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  box-sizing: border-box;
+  min-height: 2.8rem;
+  margin: 0;
+  padding: .55rem .65rem !important;
+  border: 0 !important;
+  border-radius: .48rem;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.reference-game #midColumn :is(.Village, .Science, .Workshop, .Trade, .Religion, .Space, .Time) .panelContainer > .toggle {
+  grid-area: heading;
+  z-index: 1;
+  float: none !important;
+  align-self: stretch;
+  justify-self: stretch;
+  width: auto;
+  height: auto;
+  margin: 0 !important;
+  padding: 0;
+  border: 0 !important;
+  border-radius: .48rem;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 0 !important;
+  cursor: pointer;
+}
+
+.reference-game #midColumn :is(.Village, .Science, .Workshop, .Trade, .Religion, .Space, .Time) .panelContainer > .toggle + .title::after {
+  content: "";
+  flex: 0 0 .95rem;
+  height: .95rem;
+  margin-inline-start: auto;
+  background: var(--icon-chevron) center / contain no-repeat;
+}
+
+.reference-game #midColumn :is(.Village, .Science, .Workshop, .Trade, .Religion, .Space, .Time) .panelContainer > .toggle:not(.collapsed) + .title {
+  color: var(--accent);
+}
+.reference-game #midColumn :is(.Village, .Science, .Workshop, .Trade, .Religion, .Space, .Time) .panelContainer > .toggle:not(.collapsed) + .title::after {
+  transform: rotate(180deg);
+}
+.reference-game #midColumn :is(.Village, .Science, .Workshop, .Trade, .Religion, .Space, .Time) .panelContainer > .toggle:is(:hover, :focus-visible) + .title {
+  background: var(--surface-raised) !important;
+}
+.reference-game #midColumn :is(.Village, .Science, .Workshop, .Trade, .Religion, .Space, .Time) .panelContainer > .container {
+  grid-area: content;
+  padding: .35rem .65rem .8rem !important;
+  background: transparent;
+  box-shadow: none;
+}

@@ -13,13 +13,13 @@ const palettes = {
 
 const materials = {
   foliage: "brand field pasture leaf play check",
-  timber: "wood beam hut logHouse barn workshop tradepost journal",
-  rock: "minerals slab quarry",
-  steel: "iron factory magneto settings tools save grip close resize",
-  gold: "gold relic star energy",
-  water: "science scienceTab hydroplant observatory center info eye zoomIn zoomOut",
+  timber: "hut logHouse barn workshop tradepost journal",
+  rock: "quarry",
+  steel: "factory magneto settings tools save grip close resize",
+  gold: "star energy",
+  water: "scienceTab hydroplant observatory center info eye zoomIn zoomOut",
   fire: "smelter",
-  ivory: "furs library amphitheatre village camp cloud",
+  ivory: "library amphitheatre village camp cloud",
   rose: "heart",
 };
 
@@ -41,37 +41,6 @@ const silhouette = {
 };
 
 const scenes = {
-  wood: [
-    ["shadow", "M3 20q8-3 18-1l-5 3H4z"],
-    ["body", "M4 13 13 4q4-3 8 1 3 3 0 7l-9 9z"],
-    ["shade", "M10 15 20 5q3 4 1 7l-9 9z"],
-    ["light", "M5 13 15 4q3-1 4 1l-9 9z"],
-    ["highlight", "M13 17a5 4.5 40 1 1-10 .1 5 4.5 40 1 1 10-.1z"],
-    ["detail", "M9 16a2 2 0 1 1-3 2 2 2 0 0 1 3-2zm5-2 6-6m-6 1 4-4"],
-  ],
-  minerals: [
-    ["shadow", "M2 20q8-2 20-1l-5 3H6z"],
-    ["body", "m2 17 4-8 8-5 6 4 2 10-7 3z"],
-    ["shade", "m8 13 6 1 1 7-13-4z m6 1 6-6 2 10-7 3z"],
-    ["light", "m6 9 8-5 6 4-6 6z"],
-    ["highlight", "m10 8 4-2 3 2-3 3z"],
-    ["detail", "m5 14 4 2m6 2 3-2"],
-  ],
-  gold: [
-    ["shadow", "M2 19h20l-4 3H7z"],
-    ["body", "M3 12l4-6h10l4 6v6H3z"],
-    ["shade", "M3 12h18v6H3z"],
-    ["light", "m3 12 4-6h10l4 6z"],
-    ["highlight", "m8 8 7-1 1 2H7z"],
-    ["detail", "m9 15 2 1 4-1"],
-  ],
-  science: [
-    ["shadow", "M3 21q9-2 18 0l-3 2H6z"],
-    ["highlight", "M8 3h8l-2 2v5l5 8q1 3-2 3H7q-3 0-2-3l5-8V5z"],
-    ["body", "M8 14q4-2 8 0l3 5-2 2H7l-2-2z"],
-    ["light", "M8 14q4-2 8 0l1 2q-5-1-10 0z"],
-    ["detail", "M8 3h8m-5 6v3m5 6h.1m-6 0h.1"],
-  ],
   hut: [
     ["shadow", "M2 20h20l-5 3H7z"],
     ["body", "M5 10h14v11H5z"],
