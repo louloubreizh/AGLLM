@@ -30,7 +30,7 @@ export function runLifecycle(action, port, wrappers = false) {
     : ["scripts/lifecycle.mjs", action];
   return exec(command, args, {
     cwd: root,
-    env: { ...process.env, KGLLM_PORT: String(port) },
+    env: { ...process.env, AGLLM_PORT: String(port) },
     timeout: 12000,
     windowsHide: true,
   });

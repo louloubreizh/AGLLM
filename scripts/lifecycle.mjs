@@ -26,12 +26,12 @@ function readToken(port) {
 async function runningInstance(port, url) {
   const state = await health(url);
   const token = readToken(port);
-  return token && state?.application === "KGLLM" && state.instance === instanceId(token) ? token : null;
+  return token && state?.application === "AGLLM" && state.instance === instanceId(token) ? token : null;
 }
 
 async function start(port, url) {
   if (await runningInstance(port, url)) {
-    console.log(`KGLLM est déjà lancé sur ${url}`);
+    console.log(`AGLLM est déjà lancé sur ${url}`);
     return;
   }
   if (!existsSync(join(root, "dist", "index.html"))) {
@@ -49,7 +49,7 @@ async function start(port, url) {
       detached: true,
       windowsHide: true,
       stdio: ["ignore", log, log],
-      env: { ...process.env, KGLLM_PORT: String(port), KGLLM_CONTROL_TOKEN: token },
+      env: { ...process.env, AGLLM_PORT: String(port), AGLLM_CONTROL_TOKEN: token },
     });
   } finally {
     closeSync(log);
@@ -62,7 +62,7 @@ async function start(port, url) {
   const deadline = Date.now() + 8000;
   while (Date.now() < deadline) {
     if (await runningInstance(port, url)) {
-      console.log(`KGLLM est disponible sur ${url}`);
+      console.log(`AGLLM est disponible sur ${url}`);
       return;
     }
     if (spawnError || child.exitCode !== null || child.signalCode !== null) {
@@ -79,12 +79,12 @@ async function start(port, url) {
 async function stop(port, url, closeBrowser) {
   const token = await runningInstance(port, url);
   if (!token) {
-    console.log(`Aucune instance KGLLM active sur le port ${port}.`);
+    console.log(`Aucune instance AGLLM active sur le port ${port}.`);
     return;
   }
   const response = await fetch(`${url}api/shutdown`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "X-KGLLM-Close-Browser": closeBrowser ? "1" : "0" },
+    headers: { Authorization: `Bearer ${token}`, "X-AGLLM-Close-Browser": closeBrowser ? "1" : "0" },
     signal: AbortSignal.timeout(3000),
     redirect: "error",
   });
@@ -94,22 +94,22 @@ async function stop(port, url, closeBrowser) {
   const deadline = Date.now() + 5000;
   while (Date.now() < deadline) {
     if ((await health(url))?.instance !== instanceId(token)) {
-      console.log(`KGLLM est arrêté sur le port ${port}.`);
+      console.log(`AGLLM est arrêté sur le port ${port}.`);
       return;
     }
     await delay(100);
   }
-  throw new Error(`Le serveur KGLLM répond encore sur le port ${port}.`);
+  throw new Error(`Le serveur AGLLM répond encore sur le port ${port}.`);
 }
 
 async function openViewer(url) {
-  const profile = process.env.LOCALAPPDATA && join(process.env.LOCALAPPDATA, "KittensGameLocal", "Chrome-Jeu");
+  const profile = process.env.AGLLM_BROWSER_PROFILE;
   const chrome = [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], process.env.LOCALAPPDATA]
     .filter(Boolean)
     .map((directory) => join(directory, "Google", "Chrome", "Application", "chrome.exe"))
     .find(existsSync);
   const [command, args] = chrome
-    ? [chrome, [...(profile && existsSync(profile) ? [`--user-data-dir=${profile}`] : []), `--app=${url}`]]
+    ? [chrome, [...(profile ? [`--user-data-dir=${profile}`] : []), `--app=${url}`]]
     : ["rundll32.exe", ["url.dll,FileProtocolHandler", url]];
   const browser = spawn(command, args, { detached: true, stdio: "ignore" });
   await new Promise((resolve, reject) => {

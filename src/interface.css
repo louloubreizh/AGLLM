@@ -1,406 +1,160 @@
-html.kgllm-interface, html.kgllm-interface body {
-  --page-background-color: transparent !important;
-  --text-color: var(--ink) !important;
-  --button-border-color: var(--line) !important;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  margin: 0;
-  background: transparent !important;
-  color: var(--ink) !important;
-  font-family: var(--font);
-}
-.kgllm-interface body { font-size: .875rem; }
-
-.kgllm-interface :is(a, .link) { color: var(--accent); }
-.kgllm-interface :is(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--focus) !important;
-  outline-offset: -2px;
-}
-
-.kgllm-interface #gamePageContainer {
-  position: relative;
-  z-index: 1;
-  pointer-events: none;
-  box-sizing: border-box;
+.game-panels {
+  position: absolute;
+  inset: var(--panel-gutter);
   display: grid;
-  grid-template-rows: minmax(0, 1fr);
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(10.5rem, 1fr) minmax(10.5rem, 1fr) minmax(23rem, 2fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: start;
   gap: .65rem;
-  width: 100% !important;
-  height: 100%;
-  min-width: 0 !important;
-  margin: 0;
-  padding: .75rem clamp(.6rem, 1.6vw, 1.4rem) .45rem;
+  pointer-events: none;
+}
+.game-panels[hidden] { display: none; }
+.game-widget {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: var(--widget-width, 100%);
+  height: var(--widget-height, auto);
+  max-height: calc(100cqh - 2 * var(--panel-gutter));
+  min-width: 0;
   overflow: hidden;
-  background: transparent !important;
-}
-
-.kgllm-interface .kgllm-scene-input {
-  position: fixed;
-  inset: 0;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-.kgllm-interface .kgllm-scene-input.is-moving { cursor: grabbing; }
-.kgllm-interface :is(#leftColumn, #midColumn, #rightColumn, #toggleCenter, .dialog, .login-popup) {
+  border: 1px solid var(--line);
+  border-radius: .8rem;
+  background: var(--panel);
+  box-shadow: 0 .3rem 1rem #08120e50;
   pointer-events: auto;
 }
-.kgllm-interface #leftColumn .res-toolbar .tooltip-block:has(> .question-mark) { display: none !important; }
-
-.kgllm-interface :is(#leftColumn, #midColumn, #rightColumn, #toggleCenter) {
-  box-sizing: border-box;
-  border: 1px solid var(--line);
-  border-radius: .85rem;
-  color: var(--ink);
-  background: var(--panel) !important;
-  box-shadow: 0 .5rem 1.8rem #08170e4d;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
-}
-
-.kgllm-interface #topBar { display: none !important; }
-.kgllm-interface #headerLinks { position: absolute; }
-.kgllm-interface #headerLinks:not(:has(.login-popup)),
-.kgllm-interface #headerLinks :is(.toolbarIcon:not(:has(.login-popup)), .kgnet-login-link-container, #autosaveTooltip, #saveTooltip) {
-  display: none !important;
-}
-.kgllm-interface #headerLinks .login-popup {
-  position: fixed;
-  inset: .75rem .75rem auto auto;
-  z-index: 110;
-  margin: 0;
-  padding: .75rem;
-  max-height: calc(100vh - 1.5rem);
-  overflow: auto;
-}
-.kgllm-interface #headerLinks .toolbarIcon:has(.login-popup) { padding: 0; }
-
-.kgllm-interface :is(#game, #loadingContainer) {
-  grid-column: 1;
-  grid-row: 1;
-  position: static !important;
-  width: auto !important;
-  min-width: 0 !important;
-  min-height: 0;
-  height: auto !important;
-  margin: 0;
-  background: transparent !important;
-  white-space: normal;
-}
-.kgllm-interface #loadingContainer .content { min-height: 0; height: 100%; margin: 0; }
-.kgllm-interface #game:not([style*="display: none"]):not([style*="display:none"]) {
-  display: grid !important;
-  grid-template: "resources space journal" minmax(3rem, .8fr)
-                 "resources actions journal" minmax(0, 1fr)
-                 / minmax(12.5rem, 20%) minmax(0, 1fr) minmax(12.5rem, 20%);
-  gap: .75rem;
-}
-.kgllm-interface #game.centered {
-  grid-template-columns: minmax(12.5rem, 23%) minmax(0, 1fr) minmax(12.5rem, 23%) !important;
-}
-
-.kgllm-interface #game > :is(#leftColumn, #midColumn, #rightColumn) {
-  position: static !important;
-  top: auto;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: 100%;
-  margin: 0 !important;
-  padding: .85rem !important;
-  align-self: start;
-  overflow: auto;
-  overflow-wrap: anywhere;
-}
-.kgllm-interface #leftColumn { grid-area: resources; }
-.kgllm-interface #midColumn { grid-area: actions; align-self: end !important; }
-.kgllm-interface #rightColumn { grid-area: journal; }
-.kgllm-interface #game > .widget-raised { z-index: 2; }
-.kgllm-interface #game > :is(#leftColumn, #midColumn, #rightColumn)[data-resized] {
-  width: var(--widget-width) !important;
-  height: var(--widget-height) !important;
-  max-width: none !important;
-  max-height: none;
-}
-.kgllm-interface #game > :is(#leftColumn, #midColumn, #rightColumn)[data-collapsed] { height: fit-content !important; }
-.kgllm-interface #game > [data-collapsed] > :not(.widget-slot) { display: none !important; }
-.kgllm-interface .widget-slot {
-  position: sticky;
-  top: -.6rem;
-  left: -.6rem;
-  z-index: 1;
-  margin-bottom: .55rem;
-  background: var(--surface);
-  border-radius: .55rem;
-}
-.kgllm-interface [data-collapsed] > .widget-slot { margin-bottom: 0; }
-.kgllm-interface .widget-bar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-.kgllm-interface .widget-bar button {
-  min-height: 2.25rem;
-  padding: .25rem .6rem;
-  border: 1px solid transparent;
-  border-radius: .45rem;
-  background: transparent;
-  color: var(--accent);
-  font: 700 .875rem var(--font);
-}
-.kgllm-interface .widget-bar button:hover { background: var(--control-hover); }
-.kgllm-interface .widget-grip { display: flex; min-width: 0; align-items: center; gap: .55rem; cursor: grab; touch-action: none; }
-.kgllm-interface .widget-grip span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kgllm-interface .widget-grip:active { cursor: grabbing; }
-.kgllm-interface .widget-bar .kg-icon { width: 1.12rem; height: 1.12rem; flex: none; vertical-align: middle; }
-.kgllm-interface .widget-grip .drag-mark { color: var(--muted); }
-.kgllm-interface .widget-controls { display: flex; }
-.kgllm-interface :is(.widget-collapse, .widget-resize) { display: grid; place-items: center; min-width: 2.25rem; }
-.kgllm-interface .widget-collapse { cursor: pointer; }
-.kgllm-interface .widget-resize { cursor: nwse-resize; touch-action: none; }
-.kgllm-interface #toggleCenter {
-  grid-area: journal;
-  align-self: end;
-  justify-self: end;
-  width: 1.8rem;
-  min-height: 1.8rem;
-  height: 1.8rem;
-  margin: 0;
-  opacity: .75;
-}
-
-.kgllm-interface #midColumnViewport { display: none !important; }
-.kgllm-interface :is(#gameContainerId, .tabInner, .bldTopContainer, .bldGroupContainer, #gameLog) {
-  min-width: 0 !important;
-  min-height: 0 !important;
-  height: auto !important;
-  max-width: 100%;
-  background: transparent !important;
-}
-.kgllm-interface .tabInner { border: 0 !important; padding: .6rem 0 0 !important; margin: 0 !important; }
-.kgllm-interface .tabsContainer {
-  position: static !important;
+.game-widget-play { grid-column: 3; grid-row: 1 / -1; justify-self: end; width: var(--widget-width, min(100%, 37rem)); }
+.game-widget-resources { grid-column: 1; grid-row: 1; width: var(--widget-width, min(100%, 18rem)); }
+.game-widget-journal { grid-column: 1; grid-row: 2; width: var(--widget-width, min(100%, 18rem)); max-height: 100%; }
+.game-widget[data-collapsed] { height: auto; }
+.game-widget[data-collapsed] .widget-content { display: none; }
+.game-widget.widget-raised { z-index: 1; }
+.widget-bar, .widget-controls, .widget-grip {
   display: flex;
-  flex-wrap: nowrap;
-  gap: .2rem .55rem;
-  padding-bottom: .55rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  text-align: left;
-}
-.kgllm-interface .tabsContainer a.tab {
-  display: inline-flex;
-  flex: none;
   align-items: center;
+  gap: .3rem;
+}
+.widget-bar { justify-content: space-between; padding: .24rem .38rem; border-bottom: 1px solid var(--divider); background: var(--surface); }
+[data-collapsed] .widget-bar { border-bottom: 0; }
+.widget-bar button { background: transparent; border-color: transparent; }
+.widget-grip { justify-content: flex-start; cursor: grab; font-weight: 700; touch-action: none; }
+.widget-resize { cursor: nwse-resize; touch-action: none; }
+.widget-content { min-height: 0; overflow: auto; padding: .65rem; }
+
+.game-widget button, .game-options :is(button, input, textarea, select), .village-panel :is(input, select), .automation-setting select {
+  min-width: 0;
+  padding: .4rem .5rem;
+  color: var(--ink);
+  background-color: var(--control);
+  border: 1px solid var(--divider);
+  border-radius: .42rem;
+  font: inherit;
+}
+.game-widget button, .game-options button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  min-height: 2rem;
+}
+.game-widget .widget-bar button { border-color: transparent; background: transparent; }
+.game-widget button:hover:not(:disabled), .game-options button:hover:not(:disabled) { background-color: var(--control-hover); }
+.game-widget button[aria-pressed="true"] { background: var(--accent); color: #15281d; }
+.game-widget :is(button, summary, select, input):focus-visible, .game-options :is(button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+.game-sections, .gathering-actions, .resident-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
+.game-sections { padding-bottom: .65rem; margin-bottom: .65rem; border-bottom: 1px solid var(--divider); }
+.game-sections button { font-size: .875rem; }
+.section-art {
+  display: block;
+  width: 100%;
+  height: 3.8rem;
+  object-fit: contain;
+  margin: -.3rem 0 .65rem;
+  background: linear-gradient(90deg, transparent, var(--surface), transparent);
+}
+.gathering-actions, .automation-setting, .expedition-status { margin-bottom: .7rem; }
+.automation-setting, .resident-details label { display: grid; gap: .3rem; }
+.game-cards, .job-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: .55rem; }
+.game-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   gap: .4rem;
-  white-space: nowrap;
-  padding: .45rem .65rem;
-  border: 1px solid var(--line);
-  border-radius: .5rem;
+  padding: .65rem;
+  border: 1px solid var(--divider);
+  border-radius: .65rem;
   background: var(--surface);
-}
-.kgllm-interface .tabsContainer a.activeTab {
-  background: var(--control);
-}
-.kgllm-interface .tab, .kgllm-interface .tabInner { --element-icon: var(--icon-camp); }
-.kgllm-interface .Bonfire { --element-icon: var(--icon-fire); }
-.kgllm-interface :is(.Village, .SmallVillage) { --element-icon: var(--icon-village); }
-.kgllm-interface :is(.Science, .Library) { --element-icon: var(--icon-scienceTab); }
-.kgllm-interface .Workshop { --element-icon: var(--icon-tools); }
-.kgllm-interface :is(.Trade, .Diplomacy) { --element-icon: var(--icon-trade); }
-.kgllm-interface .Religion { --element-icon: var(--icon-sun); }
-.kgllm-interface .Space { --element-icon: var(--icon-world); }
-.kgllm-interface .Time { --element-icon: var(--icon-clock); }
-.kgllm-interface .Stats { --element-icon: var(--icon-chart); }
-.kgllm-interface .Queue { --element-icon: var(--icon-queue); }
-.kgllm-interface .Settings { --element-icon: var(--icon-settings); }
-.kgllm-interface :is(.Achievements, .Challenges) { --element-icon: var(--icon-star); }
-.kgllm-interface #logLink { --element-icon: var(--icon-journal); }
-.kgllm-interface #queueLink { --element-icon: var(--icon-queue); }
-.kgllm-interface #pauseBtn { --element-icon: var(--icon-pause); }
-.kgllm-interface #dialogClose { --element-icon: var(--icon-close); }
-.kgllm-interface .resource-name { --element-icon: var(--icon-resources); }
-.kgllm-interface :is(a.tab, #logLink, #queueLink, #pauseBtn, #dialogClose, .resource-name, #midColumn .btnTitle)::before {
-  content: "";
-  display: inline-block;
-  flex: none;
-  width: .95rem;
-  height: .95rem;
-  background: var(--element-icon) center / contain no-repeat;
-  vertical-align: -.16em;
-}
-.kgllm-interface :is(#logLink, #queueLink, #pauseBtn, #dialogClose, .resource-name)::before { margin-right: .35rem; }
-.kgllm-interface :is(#logLink, #queueLink) {
-  box-sizing: border-box;
-  white-space: nowrap;
-  border: 1px solid var(--line);
-  border-radius: .45rem;
-  background: var(--surface);
-}
-.kgllm-interface :is(#logLink, #queueLink).active { background: var(--control); }
-.kgllm-interface #toggleCenterIcon { background: var(--icon-center) center / contain no-repeat !important; }
-.kgllm-interface :is(.resource-name, #midColumn .btnTitle)::before { width: 1.2rem; height: 1.2rem; }
-.kgllm-interface :is(.tabsContainer a.tab, .right-tab-header a, .bldTopContainer > a) {
-  color: var(--muted) !important;
-}
-.kgllm-interface :is(.tabsContainer a.activeTab, .right-tab-header a.active) {
-  color: var(--accent) !important;
-  border-color: var(--accent) !important;
-  font-weight: 700;
-}
-.kgllm-interface :is(.bldTopContainer, .bldGroupContainer, .console-intro, .res-table) {
-  border-color: var(--line) !important;
-}
-.kgllm-interface .bldTopContainer { margin-bottom: .45rem !important; line-height: 1.8; }
-.kgllm-interface .bldTopContainer > a { display: inline-block; padding-inline: .25rem; }
-.kgllm-interface .bldTopContainer .bldGroupContainer .btn.modern { width: min(100%, 22rem); }
-.kgllm-interface #midColumn .btn.modern:not(.disabled) .btnTitle { font-weight: 600; }
-.kgllm-interface #midColumn .btnTitle {
-  display: inline-flex;
-  align-items: center;
-  max-width: 100%;
-  min-width: 0;
-  vertical-align: middle;
-}
-.kgllm-interface #midColumn .btnTitle .label-content { display: block; }
-.kgllm-interface #game #midColumn .btnTitle :is(.label, .label-content) {
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.kgllm-interface .bldGroupContainer { margin-top: .45rem !important; padding-top: .55rem !important; }
-.kgllm-interface #midColumn table[cellpadding="0"][cellspacing="0"] { table-layout: fixed; }
-.kgllm-interface #midColumn :is(.table, .map-viewport, .panelContainer, .loadout) { max-width: 100%; }
-.kgllm-interface .btn {
-  box-sizing: border-box;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  border: 1px solid var(--line) !important;
-  border-radius: .55rem !important;
-  color: var(--ink) !important;
-  background: var(--control) !important;
-  background-image: none !important;
-  box-shadow: none !important;
-  font-family: var(--font) !important;
-}
-.kgllm-interface .btn:hover:not(.disabled) { background: var(--control-hover) !important; }
-.kgllm-interface .btn.disabled { background: var(--surface) !important; }
-.kgllm-interface .btn.disabled .btnTitle { color: var(--muted) !important; }
-.kgllm-interface .btn .btnContent a { color: var(--accent) !important; background: var(--surface) !important; }
-.kgllm-interface .res-table { width: max-content; min-width: 100%; max-width: none; }
-.kgllm-interface .res-cell {
-  box-sizing: border-box;
-  white-space: nowrap !important;
-  overflow-wrap: normal !important;
-  word-break: normal;
-  font-variant-numeric: tabular-nums;
-}
-.kgllm-interface .res-cell.resource-name {
-  white-space: nowrap !important;
-  overflow-wrap: normal !important;
-}
-.kgllm-interface .res-cell:not(.resource-name) { max-width: none; }
-.kgllm-interface .res-toolbar.right { margin-right: 0 !important; }
-.kgllm-interface #gameLog { overflow: visible !important; }
-
-.kgllm-interface #footerLinks { display: none !important; }
-
-.kgllm-interface :is(.dialog, .button_tooltip, .login-popup) {
-  box-sizing: border-box;
-  max-width: calc(100vw - 1.2rem);
-  border: 1px solid var(--line) !important;
-  border-radius: .65rem !important;
-  color: var(--ink) !important;
-  background: var(--surface) !important;
-  box-shadow: 0 .6rem 2rem #0008 !important;
-}
-.kgllm-interface #tooltip:is(.button_tooltip, .tooltip-in-right-column) {
-  box-sizing: border-box;
-  position: fixed !important;
-  inset: var(--hint-y, 0) auto auto var(--hint-x, 0) !important;
-  width: max-content !important;
-  min-width: 0 !important;
-  max-width: min(23rem, calc(100vw - 16px)) !important;
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: min(var(--hint-max-height, 100vh), calc(100vh - 16px)) !important;
-  padding: .7rem .8rem !important;
-  overflow: auto;
   overflow-wrap: anywhere;
-  white-space: normal;
-  z-index: 9000;
 }
-.kgllm-interface #tooltip:not([data-anchored]) { visibility: hidden; }
-.kgllm-interface #tooltip .tooltip-inner { box-sizing: border-box; min-width: 0; max-width: 100%; }
-.kgllm-interface #tooltip .tooltip-inner .desc { color: var(--ink); }
-.kgllm-interface #tooltip .tooltip-inner .desc.small { color: var(--muted); }
-.kgllm-interface #tooltip .tooltip-inner .noRes { color: #ff9d8e; }
-.kgllm-interface #tooltip .tooltip-divider { border-color: var(--line) !important; }
-.kgllm-interface .tooltip-block:has(> .tooltip-content) { position: relative; }
-.kgllm-interface .tooltip-block > .tooltip-content {
-  box-sizing: border-box;
-  inset: calc(100% + .3rem) 0 auto auto;
-  width: max-content;
-  max-width: min(18rem, calc(100vw - 1rem));
-  margin: 0;
-  padding: .55rem;
+.game-card h3 { display: flex; align-items: center; gap: .4rem; margin: 0; font-size: .93rem; }
+.game-card p, .job-card, .resident-details, .resident-filters, .game-options label { color: var(--muted); font-size: .83rem; }
+.game-card p.card-cost { color: var(--accent); }
+.game-card > button:first-of-type { margin-top: auto; }
+.building-card-header { display: flex; align-items: center; gap: .45rem; }
+.building-card-header > img { width: 2.65rem; height: 2.65rem; }
+.building-card-header > span { color: var(--accent); font-variant-numeric: tabular-nums; }
+.building-card-tools { display: flex; gap: .2rem; margin-left: auto; }
+.building-card-tools .agllm-icon { width: 1rem; height: 1rem; }
+
+.resource-list, .journal-list { display: grid; gap: .4rem; margin: 0; padding: 0; font-size: .85rem; }
+.resource-list > div { display: flex; justify-content: space-between; gap: .3rem; align-items: baseline; }
+.resource-list dt { display: flex; align-items: center; gap: .35rem; }
+.resource-list dd { margin: 0; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.resource-list small { display: block; color: var(--accent); }
+.resource-list .resource-shortage small, .game-options [role="alert"] { color: var(--warning); }
+.journal-list { list-style: none; }
+.journal-list li + li { padding-top: .35rem; border-top: 1px solid var(--divider); }
+.journal-list small { color: var(--muted); }
+.journal-list p { margin-top: .15rem; }
+
+.village-panel { display: grid; gap: .6rem; }
+.village-group, .resident { border: 1px solid var(--divider); border-radius: .55rem; background: var(--surface); }
+.village-group > summary, .resident > summary { padding: .6rem; cursor: pointer; }
+.village-group > summary { font-weight: 650; }
+.job-cards, .resident-details, .resident-filters { padding: .6rem; }
+.job-cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr)); }
+.job-card { display: grid; gap: .35rem; justify-items: center; overflow: hidden; padding-bottom: .4rem; border: 1px solid var(--divider); border-radius: .5rem; }
+.job-card > img { width: 100%; aspect-ratio: 2; object-fit: cover; }
+.job-actions { display: grid; grid-template-columns: 2rem 1.2rem 2rem; gap: .4rem; align-items: center; text-align: center; }
+.resident-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr)); align-items: end; gap: .5rem; }
+.resident-filters label { display: grid; gap: .25rem; }
+.resident-filters .check { display: flex; align-items: center; padding-block: .45rem; }
+.resident { margin: 0 .6rem .45rem; }
+.resident summary small { color: var(--muted); }
+.resident summary > span:last-child { float: right; color: var(--accent); font-size: .8rem; }
+.resident-details { display: grid; gap: .45rem; align-items: start; }
+.resident-empty { padding: .6rem; color: var(--muted); }
+
+.game-options {
+  position: fixed;
+  width: min(29rem, calc(100% - 1.4rem));
+  max-height: calc(100dvh - 1.4rem);
+  padding: 1rem;
   border: 1px solid var(--line);
-  border-radius: .5rem;
+  border-radius: .8rem;
   background: var(--surface);
   color: var(--ink);
 }
-.kgllm-interface .dialog {
-  position: fixed !important;
-  inset: 50% auto auto 50% !important;
-  z-index: 120;
-  width: min(41rem, calc(100vw - 1.2rem)) !important;
-  max-height: calc(100vh - 1.2rem) !important;
-  height: auto !important;
-  margin: 0 !important;
-  padding: 1.25rem !important;
-  overflow: auto;
-  transform: translate(-50%, -50%) !important;
-}
-.kgllm-interface .dialog > div { flex-wrap: wrap !important; }
-.kgllm-interface .dialog :is(select, textarea, input:not([type="checkbox"])) {
-  box-sizing: border-box;
-  max-width: 100%;
-  border: 1px solid var(--line) !important;
-  border-radius: .35rem !important;
-  color: var(--ink);
-  background: var(--control) !important;
-  box-shadow: none !important;
-}
+.game-options::backdrop { background: #07100ccc; }
+.game-options h2 { margin: 0 2.6rem .8rem 0; font-size: 1.25rem; }
+.game-options h3 { margin: .75rem 0 .35rem; font-size: 1rem; }
+.game-options form, .game-options label { display: grid; gap: .45rem; }
+.game-options form { margin-top: .6rem; }
+.game-options textarea { resize: vertical; }
 
 @media (max-width: 1050px) {
-  .kgllm-interface #game:not([style*="display: none"]):not([style*="display:none"]) {
-    grid-template: "space" minmax(1.3rem, 1fr) "actions" minmax(0, 1.65fr) / minmax(0, 1fr) !important;
-  }
-  .kgllm-interface #game > :is(#leftColumn, #midColumn, #rightColumn) {
-    display: none !important;
-    grid-area: actions;
-    width: 100% !important;
-    max-width: 42rem !important;
-    justify-self: center;
-    align-self: stretch !important;
-    overscroll-behavior: contain;
-  }
-  .kgllm-interface[data-panel="play"] #game > #midColumn,
-  .kgllm-interface[data-panel="resources"] #game > #leftColumn,
-  .kgllm-interface[data-panel="journal"] #game > #rightColumn { display: block !important; }
-  .kgllm-interface #toggleCenter { display: none !important; }
+  .section-art { display: none; }
+  .game-panels { display: block; }
+  .game-panels[data-panel="play"] .game-widget:not([data-widget="play"]),
+  .game-panels[data-panel="resources"] .game-widget:not([data-widget="resources"]),
+  .game-panels[data-panel="journal"] .game-widget:not([data-widget="journal"]) { display: none; }
+  .game-widget { width: var(--widget-width, min(100%, 34rem)); max-height: 100%; }
 }
-
-@media (max-width: 620px) {
-  .kgllm-interface #gamePageContainer { gap: .38rem; padding: .4rem .55rem .25rem; }
-  .kgllm-interface #devPanel { padding-left: 0 !important; font-size: .76rem !important; white-space: nowrap; }
-  .kgllm-interface #game > :is(#leftColumn, #midColumn, #rightColumn) { padding: .6rem !important; }
-  .kgllm-interface .btn .btnContent { box-sizing: border-box; min-height: 2.75rem; }
-  .kgllm-interface #midColumn table[cellpadding="0"][cellspacing="0"],
-  .kgllm-interface #midColumn table[cellpadding="0"][cellspacing="0"] :is(tbody, tr, td) {
-    display: block;
-    width: 100%;
-  }
-  .kgllm-interface #midColumn table[cellpadding="0"][cellspacing="0"] .btn.modern { width: 100%; }
+@media (min-width: 680px) and (max-width: 1050px) {
+  .game-widget-play { margin-left: auto; width: var(--widget-width, min(58%, 34rem)); }
 }

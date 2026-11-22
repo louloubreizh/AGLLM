@@ -7,10 +7,10 @@ export const host = "127.0.0.1";
 export const runDirectory = join(root, ".run");
 
 export function readPort() {
-  const value = process.env.KGLLM_PORT || "8080";
+  const value = process.env.AGLLM_PORT || "8080";
   const port = Number(value);
   if (!/^\d+$/.test(value) || port < 1 || port > 65535) {
-    throw new Error("KGLLM_PORT doit être un port compris entre 1 et 65535.");
+    throw new Error("AGLLM_PORT doit être un port compris entre 1 et 65535.");
   }
   return port;
 }

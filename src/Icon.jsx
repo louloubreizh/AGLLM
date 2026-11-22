@@ -7,7 +7,6 @@ const shapes = {
   brand: "M12 3 21 12 12 21 3 12Z M8 13l3-4 2 3 1-1 2 2",
   save: "M4 3h13l4 4v14H3V3z M7 3v6h9V3 M7 21v-8h10v8",
   settings: "M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M19 5l-3 3m-8 8-3 3 M18 12a6 6 0 1 1-12 0 6 6 0 1 1 12 0Z M14 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0Z",
-  account: "M16 7a4 4 0 1 1-8 0 4 4 0 1 1 8 0Z M4 21v-2a8 8 0 0 1 16 0v2",
   info: "M22 12a10 10 0 1 1-20 0 10 10 0 1 1 20 0Z M12 11v6m0-10v.1",
   eye: "M2 12c2-4 6-6 10-6s8 2 10 6c-2 4-6 6-10 6s-8-2-10-6z M15 12a3 3 0 1 1-6 0 3 3 0 1 1 6 0z",
   world: "M12 2 21 7v10l-9 5-9-5V7z M3 7l9 5 9-5m-9 5v10",
@@ -24,28 +23,21 @@ const shapes = {
   calendar: "M3 5h18v16H3z M7 3v4m10-4v4M3 10h18m-13 5h2m4 0h2",
   play: "M7 4v16l13-8z",
   pause: "M9 5v14m6-14v14",
-  clock: "M21 12a9 9 0 1 1-18 0 9 9 0 1 1 18 0Z M12 7v5l3 2",
   heart: "M12 21 4 13C-1 8 6 1 12 7c6-6 13 1 8 6z",
   energy: "m13 2-9 12h7l-1 8 10-12h-7z",
   cloud: "M5 17h14a4 4 0 0 0 0-8h-1A6 6 0 0 0 7 8a4.5 4.5 0 0 0-2 9z",
-  drop: "M12 3 6 12a7 7 0 1 0 12 0z",
   check: "m4 12 5 5L20 6",
   leaf: "M4 20c6-7 9-10 16-15M6 17C1 8 11 5 20 4c-1 9-3 16-14 13z",
-  fire: "M12 22c-6 0-8-4-6-9l3 1c-1-5 1-8 4-12 0 5 5 6 7 12 1 5-3 8-8 8z",
   village: "M2 10l6-5 6 5m-10 0v10h8V10m0 2 4-4 6 5m-8 0v7h6v-7",
   scienceTab: "M4 21h16M9 20v-2h7c3 0 4-2 4-4a5 5 0 0 0-5-5M7 16h7m-6-4 4-8 4 2-4 8z M12 4l1-2 4 2-1 2",
   tools: "m3 21 10-10m0 0a5 5 0 0 1 5-7l-3 4 3 3 4-3a5 5 0 0 1-7 5l-9 9",
   trade: "M3 8h16m-5-5 5 5-5 5M21 16H5m5-5-5 5 5 5",
-  sun: "M17 12a5 5 0 1 1-10 0 5 5 0 1 1 10 0Z M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2m0-14-2 2M7 17l-2 2",
   star: "m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z",
-  chart: "M3 3v18h18M7 17v-4m5 4V8m5 9V5",
-  queue: "M4 6h16M4 12h12m-12 6h8m6-2 2 2-2 2",
   close: "m6 6 12 12M18 6 6 18",
-  chevron: "m5 9 7 7 7-7",
 };
 
 export function Icon({ name }) {
-  return <img className="kg-icon" src={iconImage(name)} width="20" height="20"
+  return <img className="agllm-icon" src={iconImage(name)} width="20" height="20"
     alt="" aria-hidden="true" draggable={false} />;
 }
 
@@ -58,21 +50,10 @@ const interfaceImages = imageCatalog(shapes);
 const resourceImages = imageCatalog(resourceIcons);
 const buildingImages = imageCatalog(buildingIcons);
 
-export function iconImage(name) {
+function iconImage(name) {
   return interfaceImages[name] ?? resourceImages[name];
 }
 
 export function buildingImage(name) {
   return buildingImages[name] ?? interfaceImages.camp;
 }
-
-export const iconVariables = `:root{${Object.entries(interfaceImages).map(([name, image]) =>
-  `--icon-${name}:url("${image}");`).join("")}}`;
-
-export const resourceIconStyles = Object.entries(resourceImages).map(([name, image]) =>
-  `.kgllm-interface .resource_${name} .resource-name { --element-icon: url("${image}"); }`
-).join("\n");
-
-export const buildingIconStyles = Object.entries(buildingImages).map(([name, image]) =>
-  `.kgllm-interface #midColumn .btn[data-building-icon="${name}"] .btnTitle { --element-icon: url("${image}"); }`
-).join("\n");

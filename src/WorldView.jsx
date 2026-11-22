@@ -71,7 +71,7 @@ export function WorldView({ snapshot, active, subject, view }) {
       )}
       {subject && <p className="camera-subject"><Icon name="eye" />{subject}</p>}
       {active && <div className="camera">
-        <p id="camera-instructions">Glisser ou utiliser les flèches pour tourner. Molette pour zoomer.</p>
+        <p id="camera-instructions">Glisser ou utiliser les flèches pour tourner. Clic droit maintenu pour déplacer la vue. Molette pour zoomer.</p>
         <div className="camera-actions" aria-label="Commandes de la caméra">
           <button type="button" disabled={!ready} onClick={() => view.current.zoomOut()} aria-label="Zoom arrière"><Icon name="zoomOut" /></button>
           <button type="button" disabled={!ready} onClick={() => view.current.zoomIn()} aria-label="Zoom avant"><Icon name="zoomIn" /></button>

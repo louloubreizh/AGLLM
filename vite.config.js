@@ -1,11 +1,6 @@
 import { defineConfig } from "vite";
-import { createGameApp } from "./scripts/game-files.mjs";
 
 export default defineConfig({
-  plugins: [{
-    name: "local-kittens-game",
-    configureServer(server) {
-      server.middlewares.use("/jeu", createGameApp());
-    },
-  }],
+  appType: "mpa",
+  server: { host: "127.0.0.1", port: 8080, strictPort: true },
 });

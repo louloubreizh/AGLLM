@@ -85,13 +85,8 @@ export function GameInformation({ snapshot, stateLabel, saveFeedback }) {
         <InformationRow icon={snapshot?.paused ? "pause" : "play"} label="État" description="Indique si la partie est active, en pause ou arrêtée.">
           {stateLabel}
         </InformationRow>
-        {toolbar?.tickTime != null && (
-          <InformationRow icon="clock" label="Performances" description="Temps de calcul d’un tick du jeu.">
-            FPS {metric.format(toolbar.tickTime)} ms
-          </InformationRow>
-        )}
         {toolbar?.happiness != null && (
-          <InformationRow icon="heart" label="Bonheur" description="Bonheur des chatons dans la colonie.">
+          <InformationRow icon="heart" label="Moral" description="Le moral influence la production des habitants.">
             {metric.format(toolbar.happiness)} %
           </InformationRow>
         )}
@@ -99,20 +94,15 @@ export function GameInformation({ snapshot, stateLabel, saveFeedback }) {
           <InformationRow
             icon="energy"
             label="Énergie"
-            warning={energy.production < energy.consumption || energy.winterProduction < energy.consumption}
-            description={`Production ${metric.format(energy.production)} W · Consommation ${metric.format(energy.consumption)} W`}
+            warning={energy.production < energy.consumption}
+            description={`Production ${metric.format(energy.production)} · Demande ${metric.format(energy.consumption)} · En hiver ${metric.format(energy.winterProduction)}`}
           >
-            {metric.format(energy.production - energy.consumption)} W
+            {metric.format(energy.production - energy.consumption)} unités
           </InformationRow>
         )}
         {toolbar?.pollutionVisible && (
-          <InformationRow icon="cloud" label="Pollution" description="Concentration de dioxyde de carbone dans la colonie.">
-            {toolbar.pollution == null ? "Détectée" : `${metric.format(toolbar.pollution)} ppm`}
-          </InformationRow>
-        )}
-        {toolbar?.sorrow != null && (
-          <InformationRow icon="sorrow" label="Chagrin" description="Niveau de chagrin de la colonie.">
-            {metric.format(Math.round(toolbar.sorrow))} %
+          <InformationRow icon="cloud" label="Pollution" description="La fumée des fours réduit le moral. Les roselières améliorent la qualité de l’air.">
+            {metric.format(toolbar.pollution)} / 500
           </InformationRow>
         )}
         {saveFeedback && <InformationRow icon="check" label="Sauvegarde" description="Notification de sauvegarde du jeu.">{saveFeedback}</InformationRow>}

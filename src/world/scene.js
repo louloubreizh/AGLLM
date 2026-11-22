@@ -93,7 +93,6 @@ export function createVillageScene(canvas) {
   controls.minDistance = 13;
   controls.maxDistance = 85;
   controls.maxPolarAngle = Math.PI * 0.45;
-  controls.enablePan = false;
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
   camera.position.set(32, 26, 37);
@@ -218,12 +217,12 @@ export function createVillageScene(canvas) {
     const [x, z] = offsets[index];
     building.position.set(plot.x + x, 0.03, plot.z + z);
     building.scale.setScalar(plot.models > 1 ? 0.8 : 1.15);
-    if (plot.id === "field" || plot.id === "pasture" && plot.stage === 0) {
+    if (plot.model === "crop" && plot.stage === 0) {
       cropPlot(building);
-    } else if (plot.stage > 0 || ["mine", "smelter", "lumberMill", "factory", "oilWell", "calciner"].includes(plot.id)) {
+    } else if (plot.stage > 0 || plot.model === "industry") {
       workshop(building, plot.stage);
     } else {
-      cabin(building, ["library", "academy", "temple", "ziggurat", "observatory", "mansion"].includes(plot.id));
+      cabin(building, plot.model === "hall");
     }
     return building;
   }
@@ -375,6 +374,7 @@ export function createVillageScene(canvas) {
   return {
     update,
     zoom,
+    pan: (dx, dy) => controls.pan(dx, dy),
     inspect,
     endInspection,
     setCameraMode(active) {

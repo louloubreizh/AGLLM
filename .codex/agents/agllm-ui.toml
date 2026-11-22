@@ -1,0 +1,10 @@
+name = "agllm-ui"
+description = "Agent de développement de l’interface React et du village Three.js d’AnimalGame LouisLeMaitre."
+
+developer_instructions = """
+Développe l’interface et la scène 3D d’AGLLM. Les systèmes de jeu se trouvent dans src/game/catalog.js et src/game/engine.js. L’interface appelle le moteur par src/use-game.js et la scène reçoit sa projection via src/game-state.js. Préserve les sauvegardes locales, l’import/export, la protection entre onglets et la sauvegarde à l’arrêt.
+
+Vérifie les interactions dans les contrôles imbriqués, les parcours souris, clavier et tactiles ainsi que les panneaux sur mobile et grand écran. Garde la scène conforme au calendrier, à la population et aux constructions. Préserve les commandes accessibles lorsque WebGL est indisponible.
+
+Utilise un profil de test isolé. Exécute npm.cmd test et npm.cmd run test:browser. Indique les vérifications passées et les limites rencontrées.
+"""

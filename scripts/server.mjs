@@ -2,11 +2,10 @@ import express from "express";
 import { timingSafeEqual } from "node:crypto";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { createGameApp } from "./game-files.mjs";
 import { host, instanceFile, instanceId, readPort, root, runDirectory } from "./instance.mjs";
 
 const port = readPort();
-const token = process.env.KGLLM_CONTROL_TOKEN;
+const token = process.env.AGLLM_CONTROL_TOKEN;
 if (!token || !/^[a-f\d]{64}$/.test(token)) {
   throw new Error("Lancez le serveur avec start.cmd ou npm start.");
 }
@@ -25,7 +24,7 @@ app.use((request, response, next) => {
 });
 
 app.get("/api/health", (_request, response) => {
-  response.set("Cache-Control", "no-store").json({ application: "KGLLM", instance: id });
+  response.set("Cache-Control", "no-store").json({ application: "AGLLM", instance: id });
 });
 
 app.get("/api/session", (_request, response) => {
@@ -42,12 +41,11 @@ app.post("/api/shutdown", (request, response) => {
     return response.sendStatus(403);
   }
 
-  const closeBrowser = request.get("x-kgllm-close-browser") === "1";
+  const closeBrowser = request.get("x-agllm-close-browser") === "1";
   response.once("finish", () => shutdown(closeBrowser));
   response.status(202).end();
 });
 
-app.use("/jeu", createGameApp());
 app.use(express.static(join(root, "dist"), {
   dotfiles: "deny",
   setHeaders(response, path) {
@@ -60,7 +58,7 @@ const server = app.listen(port, host, () => {
   try {
     mkdirSync(runDirectory, { recursive: true });
     writeFileSync(instanceFile(port), JSON.stringify({ token }), { mode: 0o600 });
-    console.log(`KGLLM écoute sur http://${host}:${port}/`);
+    console.log(`AGLLM écoute sur http://${host}:${port}/`);
   } catch (error) {
     console.error(error.message);
     server.close();

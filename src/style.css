@@ -5,7 +5,7 @@
 body, p { margin: 0; }
 body { min-width: 280px; min-height: 100vh; }
 button { font: inherit; cursor: pointer; }
-.kg-icon { flex: none; width: 1.15rem; height: 1.15rem; vertical-align: middle; object-fit: contain; }
+.agllm-icon { flex: none; width: 1.15rem; height: 1.15rem; vertical-align: middle; object-fit: contain; }
 button:disabled { cursor: default; opacity: .45; }
 button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 
@@ -21,12 +21,15 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
 .topbar {
   position: relative;
   z-index: 3;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
   align-items: center;
   gap: .7rem 1.2rem;
   min-height: 3.75rem;
   padding-inline: clamp(.65rem, 2vw, 1.6rem);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--divider);
   background: #12231b;
 }
 
@@ -34,19 +37,17 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   display: flex;
   align-items: center;
   gap: .65rem;
-  flex: none;
   font-size: 1.05rem;
   font-weight: 750;
   letter-spacing: .16em;
 }
-.wordmark small { color: var(--muted); letter-spacing: 0; font-size: .75rem; }
-.game-actions { display: flex; gap: .35rem; margin-left: auto; }
+.game-actions { display: grid; grid-auto-flow: column; gap: .35rem; }
 .game-actions button {
   display: inline-flex;
   justify-content: center;
   align-items: center;
   gap: .45rem;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: .5rem;
   padding: .55rem .62rem;
   color: var(--ink);
@@ -54,7 +55,7 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   white-space: nowrap;
 }
 .game-actions button { min-height: 2.55rem; }
-.game-actions button:hover:not(:disabled) { background: var(--control); border-color: var(--line); }
+.game-actions button:hover:not(:disabled) { background: var(--control); }
 .brand-icon {
   width: 1.6rem;
   height: 1.6rem;
@@ -69,9 +70,8 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   display: flex;
   align-items: center;
 }
-.wordmark + .info-menu { margin-left: auto; }
 .info-button { display: flex; align-items: center; gap: .4rem; }
-.info-button .kg-icon { color: var(--accent); }
+.info-button .agllm-icon { color: var(--accent); }
 .info-popover {
   position: absolute;
   inset: 100% clamp(.65rem, 2vw, 1.6rem) auto auto;
@@ -106,9 +106,9 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   width: 2rem;
   height: 2rem;
 }
-.information-icon .kg-icon { width: 1.65rem; height: 1.65rem; }
+.information-icon .agllm-icon { width: 1.65rem; height: 1.65rem; }
 .information-row p { color: var(--muted); }
-.information-row.metric-warning p { color: #f1bc87; }
+.information-row.metric-warning p { color: var(--warning); }
 .information-row .information-description { display: none; flex-basis: 100%; margin-top: .2rem; font-size: .8rem; }
 .information-row:hover .information-description, .information-row:focus .information-description { display: block; }
 
@@ -119,19 +119,16 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   gap: .4rem;
   min-height: 2.55rem;
   padding: .4rem .85rem;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: .6rem;
   background: var(--control);
   color: var(--ink);
   white-space: nowrap;
 }
 .camera-toggle:hover, .info-button:hover, .info-button[aria-expanded="true"], .panel-switcher button:hover { background: var(--control-hover); }
-.camera-toggle { flex: none; }
 
-.playfield { position: relative; isolation: isolate; min-height: 0; background: #14251f; }
-.world, .game-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.game-frame { background: transparent; color-scheme: dark; }
-.game-frame[hidden] { display: block; visibility: hidden; pointer-events: none; }
+.playfield { position: relative; isolation: isolate; container: playfield / size; min-height: 0; background: #14251f; }
+.world { position: absolute; inset: 0; width: 100%; height: 100%; }
 
 .world canvas { display: block; width: 100%; height: 100%; }
 .camera-active canvas { cursor: grab; touch-action: none; }
@@ -140,8 +137,8 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
 .camera {
   position: absolute;
   inset: auto .8rem .8rem;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: .55rem;
   pointer-events: none;
@@ -151,8 +148,8 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   border-radius: .7rem;
   background: var(--panel);
 }
-.camera p { padding: .6rem .75rem; color: var(--muted); font-size: .875rem; }
-.camera-actions { display: flex; padding: .2rem; pointer-events: auto; }
+.camera p { justify-self: start; padding: .6rem .75rem; color: var(--muted); font-size: .875rem; }
+.camera-actions { display: grid; grid-auto-flow: column; padding: .2rem; pointer-events: auto; }
 .camera-actions button {
   display: inline-flex;
   align-items: center;
@@ -186,12 +183,18 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   position: fixed;
   width: min(28rem, calc(100% - 1.5rem));
   max-height: calc(100dvh - 1.5rem);
-  padding: 1.2rem;
+  padding: 2.8rem 1.25rem 1.25rem;
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: .85rem;
   background: var(--surface);
   color: var(--ink);
+}
+.building-information[open] {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
 }
 .building-information::backdrop { background: #07100caa; }
 .building-info-close {
@@ -203,13 +206,14 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   min-width: 2.5rem;
   min-height: 2.5rem;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: .45rem;
   background: var(--control);
 }
 .building-info-close:hover { background: var(--control-hover); }
-.building-info-picture { display: block; width: 8rem; height: 8rem; object-fit: contain; margin: 0 auto .8rem; }
+.building-info-picture { display: block; width: 100%; max-width: 7rem; aspect-ratio: 1; object-fit: contain; }
 .building-info-copy h2 { margin: 0 0 .45rem; color: var(--accent); font-size: 1.35rem; }
+.building-info-copy { overflow-wrap: anywhere; }
 .building-info-copy p { color: var(--muted); white-space: pre-line; line-height: 1.5; }
 .render-status, .game-message {
   position: absolute;
@@ -222,8 +226,22 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   text-align: center;
 }
 .game-message { color: var(--muted); }
-.game-message strong .kg-icon { margin-right: .45rem; }
+.game-message strong .agllm-icon { margin-right: .45rem; }
 .game-message p { margin-top: .4rem; }
+.save-notice {
+  position: fixed;
+  z-index: 4;
+  bottom: 4rem;
+  left: .65rem;
+  max-width: min(25rem, calc(100% - 1.3rem));
+  padding: .55rem .7rem;
+  pointer-events: none;
+  border: 1px solid var(--line);
+  border-radius: .55rem;
+  background: var(--surface);
+  font-size: .83rem;
+}
+.save-notice:empty { clip-path: inset(50%); width: 1px; height: 1px; padding: 0; border: 0; }
 .panel-switcher { display: none; }
 .panel-switcher button[aria-pressed="true"] {
   color: #15281d;
@@ -237,7 +255,7 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: .4rem;
     padding: .45rem .65rem max(.45rem, env(safe-area-inset-bottom));
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--divider);
     background: #12231b;
   }
 }
@@ -253,19 +271,24 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   .wordmark { gap: .25rem; font-size: .9rem; letter-spacing: .08em; }
   .wordmark .brand-icon { display: none; }
   .camera-toggle, .info-button, .game-actions button, .panel-switcher button { padding-inline: .45rem; font-size: .82rem; }
-  .camera { align-items: end; flex-direction: column-reverse; }
-  .camera p { max-width: 15rem; }
+  .camera { grid-template-columns: minmax(0, 1fr); justify-items: end; }
+  .camera p { grid-row: 2; justify-self: end; max-width: 15rem; }
 }
 
 @media (max-width: 560px) {
   .game-actions { gap: .15rem; }
   .game-actions button { min-width: 2rem; padding-inline: .25rem; }
   .action-label { display: none; }
-  .panel-switcher .kg-icon { width: 1rem; height: 1rem; }
+  .panel-switcher .agllm-icon { width: 1rem; height: 1rem; }
 }
 
 @media (max-width: 360px) {
   .panel-switcher button { gap: .25rem; padding-inline: .25rem; font-size: .78rem; }
+}
+
+@media (max-width: 440px) {
+  .building-information[open] { grid-template-columns: minmax(0, 1fr); }
+  .building-info-picture { justify-self: center; max-width: 5.5rem; }
 }
 
 @media (max-width: 305px) {
