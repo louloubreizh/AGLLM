@@ -1,0 +1,273 @@
+@import "./palette.css";
+
+:root { font-family: var(--font); color: var(--ink); background: #101c17; }
+* { box-sizing: border-box; }
+body, p { margin: 0; }
+body { min-width: 280px; min-height: 100vh; }
+button { font: inherit; cursor: pointer; }
+.kg-icon { flex: none; width: 1.15rem; height: 1.15rem; vertical-align: middle; object-fit: contain; }
+button:disabled { cursor: default; opacity: .45; }
+button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+.shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 260px;
+}
+
+.topbar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: .7rem 1.2rem;
+  min-height: 3.75rem;
+  padding-inline: clamp(.65rem, 2vw, 1.6rem);
+  border-bottom: 1px solid var(--line);
+  background: #12231b;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  flex: none;
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: .16em;
+}
+.wordmark small { color: var(--muted); letter-spacing: 0; font-size: .75rem; }
+.game-actions { display: flex; gap: .35rem; margin-left: auto; }
+.game-actions button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: .45rem;
+  border: 1px solid transparent;
+  border-radius: .5rem;
+  padding: .55rem .62rem;
+  color: var(--ink);
+  background: transparent;
+  white-space: nowrap;
+}
+.game-actions button { min-height: 2.55rem; }
+.game-actions button:hover:not(:disabled) { background: var(--control); border-color: var(--line); }
+.brand-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: .5rem;
+  display: inline-grid;
+  place-items: center;
+}
+.brand-icon { color: var(--accent); }
+
+.info-menu {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+.wordmark + .info-menu { margin-left: auto; }
+.info-button { display: flex; align-items: center; gap: .4rem; }
+.info-button .kg-icon { color: var(--accent); }
+.info-popover {
+  position: absolute;
+  inset: 100% clamp(.65rem, 2vw, 1.6rem) auto auto;
+  display: grid;
+  gap: .25rem;
+  width: min(21rem, calc(100vw - 1.3rem));
+  max-height: min(75dvh, 32rem);
+  padding: .5rem;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: .7rem;
+  background: var(--surface);
+  box-shadow: 0 .75rem 1.8rem #030907a6;
+  font-size: .875rem;
+}
+.info-popover[hidden] { display: none; }
+.information-row {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: start;
+  gap: .55rem;
+  padding: .45rem;
+  border-radius: .45rem;
+}
+.information-row > div { display: flex; align-items: baseline; flex-wrap: wrap; gap: .2rem .5rem; }
+.information-row > div > p:not(.information-description) { white-space: nowrap; }
+.information-row:hover, .information-row:focus-visible { background: var(--control); }
+.information-row:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
+.information-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+}
+.information-icon .kg-icon { width: 1.65rem; height: 1.65rem; }
+.information-row p { color: var(--muted); }
+.information-row.metric-warning p { color: #f1bc87; }
+.information-row .information-description { display: none; flex-basis: 100%; margin-top: .2rem; font-size: .8rem; }
+.information-row:hover .information-description, .information-row:focus .information-description { display: block; }
+
+.camera-toggle, .info-button, .panel-switcher button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  min-height: 2.55rem;
+  padding: .4rem .85rem;
+  border: 1px solid var(--line);
+  border-radius: .6rem;
+  background: var(--control);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.camera-toggle:hover, .info-button:hover, .info-button[aria-expanded="true"], .panel-switcher button:hover { background: var(--control-hover); }
+.camera-toggle { flex: none; }
+
+.playfield { position: relative; isolation: isolate; min-height: 0; background: #14251f; }
+.world, .game-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.game-frame { background: transparent; color-scheme: dark; }
+.game-frame[hidden] { display: block; visibility: hidden; pointer-events: none; }
+
+.world canvas { display: block; width: 100%; height: 100%; }
+.camera-active canvas { cursor: grab; touch-action: none; }
+.camera-active canvas:active { cursor: grabbing; }
+.world canvas:focus-visible { outline-offset: -4px; }
+.camera {
+  position: absolute;
+  inset: auto .8rem .8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: .55rem;
+  pointer-events: none;
+}
+.camera p, .camera-actions, .render-status, .game-message {
+  border: 1px solid var(--line);
+  border-radius: .7rem;
+  background: var(--panel);
+}
+.camera p { padding: .6rem .75rem; color: var(--muted); font-size: .875rem; }
+.camera-actions { display: flex; padding: .2rem; pointer-events: auto; }
+.camera-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  min-width: 2.65rem;
+  min-height: 2.65rem;
+  padding: .4rem .65rem;
+  border: 0;
+  border-radius: .4rem;
+  color: var(--ink);
+  background: transparent;
+  font-size: .875rem;
+}
+.camera-actions button:hover:not(:disabled) { background: var(--control-hover); }
+.camera-subject {
+  position: absolute;
+  top: .8rem;
+  left: .8rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  max-width: calc(100% - 1.6rem);
+  padding: .5rem .7rem;
+  border: 1px solid var(--line);
+  border-radius: .6rem;
+  background: var(--panel);
+  pointer-events: none;
+}
+.building-information {
+  position: fixed;
+  width: min(28rem, calc(100% - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  padding: 1.2rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: .85rem;
+  background: var(--surface);
+  color: var(--ink);
+}
+.building-information::backdrop { background: #07100caa; }
+.building-info-close {
+  position: absolute;
+  top: .65rem;
+  right: .65rem;
+  display: grid;
+  place-items: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: .45rem;
+  background: var(--control);
+}
+.building-info-close:hover { background: var(--control-hover); }
+.building-info-picture { display: block; width: 8rem; height: 8rem; object-fit: contain; margin: 0 auto .8rem; }
+.building-info-copy h2 { margin: 0 0 .45rem; color: var(--accent); font-size: 1.35rem; }
+.building-info-copy p { color: var(--muted); white-space: pre-line; line-height: 1.5; }
+.render-status, .game-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  transform: translate(-50%, -50%);
+  padding: .9rem 1.15rem;
+  text-align: center;
+}
+.game-message { color: var(--muted); }
+.game-message strong .kg-icon { margin-right: .45rem; }
+.game-message p { margin-top: .4rem; }
+.panel-switcher { display: none; }
+.panel-switcher button[aria-pressed="true"] {
+  color: #15281d;
+  background: var(--accent);
+  font-weight: 700;
+}
+
+@media (max-width: 1050px) {
+  .panel-switcher {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .4rem;
+    padding: .45rem .65rem max(.45rem, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: #12231b;
+  }
+}
+
+@media (max-width: 840px) {
+  .topbar { gap: .45rem; }
+  .camera-toggle, .info-button, .game-actions button { padding-inline: .55rem; font-size: .875rem; }
+  .camera-toggle .action-label { display: none; }
+}
+
+@media (max-width: 680px) {
+  .topbar { gap: .25rem; }
+  .wordmark { gap: .25rem; font-size: .9rem; letter-spacing: .08em; }
+  .wordmark .brand-icon { display: none; }
+  .camera-toggle, .info-button, .game-actions button, .panel-switcher button { padding-inline: .45rem; font-size: .82rem; }
+  .camera { align-items: end; flex-direction: column-reverse; }
+  .camera p { max-width: 15rem; }
+}
+
+@media (max-width: 560px) {
+  .game-actions { gap: .15rem; }
+  .game-actions button { min-width: 2rem; padding-inline: .25rem; }
+  .action-label { display: none; }
+  .panel-switcher .kg-icon { width: 1rem; height: 1rem; }
+}
+
+@media (max-width: 360px) {
+  .panel-switcher button { gap: .25rem; padding-inline: .25rem; font-size: .78rem; }
+}
+
+@media (max-width: 305px) {
+  .info-button > span:last-child, .panel-switcher .panel-label { display: none; }
+}

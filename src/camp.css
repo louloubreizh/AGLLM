@@ -1,0 +1,153 @@
+.kgllm-interface #midColumn .Bonfire .bldGroupContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  align-items: stretch;
+  gap: .6rem;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.kgllm-interface #midColumn .Bonfire .bldGroupContainer > table,
+.kgllm-interface #midColumn .Bonfire .bldGroupContainer > table :is(tbody, tr, td) {
+  display: contents;
+}
+
+.kgllm-interface #midColumn .Bonfire .bldTopContainer > a {
+  min-height: 1.9rem;
+  padding: .2rem .65rem;
+  border-radius: 1rem;
+  font-weight: 600;
+}
+.kgllm-interface #midColumn .Bonfire .bldTopContainer > a.activeTab {
+  border-color: #a2b87c;
+  color: #e1efbd !important;
+}
+
+.kgllm-interface #midColumn .Bonfire .btn.modern {
+  box-sizing: border-box;
+  width: 100% !important;
+  margin: 0 !important;
+  border: 1px solid #49675a !important;
+  border-radius: .75rem !important;
+  background: #213a30 !important;
+}
+.kgllm-interface #midColumn .Bonfire .btn.modern:not(.disabled):hover {
+  border-color: #b6cc88 !important;
+  background: #2a4437 !important;
+}
+.kgllm-interface #midColumn .Bonfire .btn.modern.disabled {
+  border-style: solid !important;
+  border-color: #3e5b4c !important;
+  background: #172c24 !important;
+}
+.kgllm-interface #midColumn .Bonfire .btn.modern :is(.btnTitle, .btnContent) { gap: .5rem; }
+.kgllm-interface #midColumn .Bonfire .btn.modern .btnContent {
+  padding: .65rem .7rem !important;
+  border: 0 !important;
+}
+.kgllm-interface #midColumn .Bonfire .btn.modern .btnTitle {
+  flex: 1 1 100%;
+  min-height: 2.3rem;
+  font-weight: 650;
+}
+.kgllm-interface #midColumn .Bonfire .btn.modern .btnTitle::before { width: 2.2rem; height: 2.2rem; }
+.kgllm-interface #midColumn .Bonfire .btn.modern:has(.btnContent a:not([style*="display: none"])) .btnTitle {
+  padding-bottom: .35rem;
+  border-bottom: 1px solid #54705d;
+}
+.kgllm-interface #midColumn .Bonfire .btn.modern .btnContent a {
+  border-radius: .55rem;
+  background: #20392e !important;
+}
+.kgllm-interface #midColumn .Bonfire .btn.modern .btnContent a:is(:hover, :focus-visible) {
+  background: #3b5c46 !important;
+}
+.kgllm-interface #midColumn .Bonfire [data-camp-action="gather"] .btnTitle { --element-icon: var(--icon-leaf); }
+.kgllm-interface #midColumn .Bonfire [data-camp-action="refine"] .btnTitle { --element-icon: var(--icon-tools); }
+.kgllm-interface #midColumn .Bonfire .btn[data-building-icon] {
+  --camp-control-size: 2rem;
+  --camp-control-border: #547567;
+  --camp-control-surface: #172e25;
+  --camp-control-hover: #3b5c46;
+}
+.kgllm-interface .camp-building-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .4rem .55rem;
+  padding: .55rem .65rem;
+}
+.kgllm-interface .camp-building-identity {
+  display: flex;
+  flex: 1 1 7.35rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .2rem .35rem;
+  min-width: 0;
+}
+.kgllm-interface #midColumn .Bonfire .camp-building-identity .btnTitle {
+  flex: 0 1 auto;
+  min-height: 0;
+  text-wrap: pretty;
+}
+.kgllm-interface #game #midColumn .Bonfire .camp-building-identity .btnTitle :is(.label, .label-content) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.kgllm-interface .camp-building-identity .btnTitle .amt { display: none !important; }
+.kgllm-interface .camp-building-count {
+  flex: none;
+  padding: .15rem .35rem;
+  border-radius: .3rem;
+  background: #142820;
+  color: #dbedc7;
+  font: 650 .75rem/1.25 var(--font);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.kgllm-interface .camp-building-actions {
+  display: flex;
+  flex: none;
+  gap: .3rem;
+  margin-inline-start: auto;
+}
+.kgllm-interface .camp-building-actions button {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--camp-control-size);
+  height: var(--camp-control-size);
+  padding: 0;
+  cursor: pointer;
+}
+.kgllm-interface #midColumn .Bonfire .btn[data-building-icon] :is(.camp-building-actions button, .btnContent a) {
+  min-height: var(--camp-control-size);
+  border: 1px solid var(--camp-control-border) !important;
+  border-radius: .48rem;
+  background: var(--camp-control-surface) !important;
+}
+.kgllm-interface #midColumn .Bonfire .btn[data-building-icon] :is(.camp-building-actions button, .btnContent a):is(:hover, :focus-visible):not(:disabled) {
+  background: var(--camp-control-hover) !important;
+}
+.kgllm-interface #midColumn .Bonfire .btn[data-building-icon] .btnContent :is(.auto-on, .bld-on) {
+  --camp-control-border: #9bbd80;
+  --camp-control-surface: #2d4937;
+}
+.kgllm-interface .camp-building-actions button:disabled { opacity: .45; cursor: default; }
+.kgllm-interface .camp-building-actions img { width: 1.15rem; height: 1.15rem; pointer-events: none; }
+
+.kgllm-interface #midColumn .Bonfire .btn[data-building-icon] > .btnContent {
+  min-height: 0;
+  padding: .45rem .65rem !important;
+  border-top: 1px solid #49675a !important;
+  background: #10241b42;
+}
+.kgllm-interface #midColumn .Bonfire .btn[data-building-icon] > .btnContent:not(:has(> div:not([style*="display: none"]) > a:not([style*="display: none"]), > div:not([style*="display: none"]) > div > a:not([style*="display: none"]))) {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .kgllm-interface #midColumn .Bonfire .btn[data-building-icon] { --camp-control-size: 2.5rem; }
+}

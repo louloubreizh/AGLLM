@@ -1,0 +1,13 @@
+:root {
+  color-scheme: dark;
+  --ink: #e8efe7;
+  --muted: #aabfb0;
+  --accent: #c6e3a7;
+  --line: #466456;
+  --surface: #152820;
+  --panel: rgb(20 37 29 / 94%);
+  --control: #233d30;
+  --control-hover: #30533e;
+  --focus: #e4f6c4;
+  --font: "Segoe UI", system-ui, sans-serif;
+}
