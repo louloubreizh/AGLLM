@@ -1,0 +1,341 @@
+.reference-game .village-census { --village-section-icon: var(--icon-account); }
+
+.reference-game .village-government {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .7rem;
+  margin-bottom: .65rem;
+  padding: .65rem .7rem;
+  border: 0;
+  border-radius: .6rem;
+  background: linear-gradient(115deg, #293d2b, var(--village-card));
+}
+
+.reference-game .village-government-identity {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  min-width: 0;
+}
+
+.reference-game .village-government-identity > .village-icon {
+  box-sizing: border-box;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: .32rem;
+  border-radius: .52rem;
+  background: #3e4930;
+}
+
+.reference-game .village-government-identity h3 {
+  margin: 0 0 .1rem;
+  color: var(--accent);
+  font-size: .73rem;
+  font-weight: 700;
+}
+
+.reference-game .village-government-name { margin: 0; font: 700 1.03rem/1.22 Georgia, serif; }
+.reference-game :is(.village-government-stats, .village-government-bonus) {
+  margin: .18rem 0 0;
+  color: var(--muted);
+  font-size: .75rem;
+  line-height: 1.32;
+}
+
+.reference-game .village-census-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(0, 1fr));
+  gap: .5rem;
+  margin-bottom: .65rem;
+}
+
+.reference-game .village-census-field {
+  display: grid;
+  gap: .24rem;
+  min-width: 0;
+  color: var(--muted);
+  font-size: .74rem;
+  font-weight: 650;
+}
+
+.reference-game .village-census-field > label {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  min-height: 1.3rem;
+  line-height: 1.25;
+}
+
+.reference-game .village-census-field > label .village-icon { width: .9rem; height: .9rem; }
+
+.reference-game .village-census-field :is(input, select) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.55rem;
+  padding: .4rem .65rem;
+  border: 0;
+  border-radius: .55rem;
+  background: #20382c;
+  color: var(--ink);
+  font: 500 .82rem var(--font);
+}
+
+.reference-game .village-census-field select {
+  appearance: none;
+  padding-inline-end: 1.65rem;
+  background-image: var(--icon-chevron);
+  background-position: right .48rem center;
+  background-repeat: no-repeat;
+  background-size: .95rem;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.reference-game .village-census-field :is(input, select):enabled:hover { background-color: #294638; }
+.reference-game .village-census-field select[data-filtered] { color: var(--accent); background-color: #294638; }
+.reference-game .village-census-field :is(input, select):disabled { opacity: .64; }
+
+@supports (appearance: base-select) {
+  .reference-game .village-census-field select,
+  .reference-game .village-census-field select::picker(select) { appearance: base-select; }
+  .reference-game .village-census-field select::picker-icon { display: none; }
+  .reference-game .village-census-field select::picker(select) {
+    margin-block: .3rem;
+    max-width: calc(100vw - 1rem);
+    padding: .3rem;
+    border: 0;
+    border-radius: .6rem;
+    background: #233c30;
+    color: var(--ink);
+    box-shadow: 0 .45rem 1.2rem #0a1610b3;
+  }
+  .reference-game .village-census-field option {
+    padding: .45rem .55rem;
+    border-radius: .35rem;
+    background: #233c30;
+    color: var(--ink);
+    font: 500 .82rem/1.3 var(--font);
+  }
+  .reference-game .village-census-field option:is(:hover, :focus-visible, :checked) { background: var(--control-hover); color: var(--accent); }
+}
+
+.reference-game .village-census-table-frame {
+  overflow: hidden;
+  border: 0;
+  border-radius: .58rem;
+  background: #162b21;
+}
+
+.reference-game .village-census-table { width: 100%; }
+.reference-game .village-census-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.reference-game #midColumn .village-census table.village-census-table :is(th, td) {
+  padding: .36rem .5rem;
+  border: 0;
+  color: var(--ink);
+  font-size: .8rem;
+  text-align: start;
+  vertical-align: middle;
+}
+
+.reference-game #midColumn .village-census table.village-census-table thead th {
+  padding-block: .55rem;
+  background: #21392d;
+  color: #c4d4c8;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.reference-game #midColumn .village-census-table tbody th { background: transparent; }
+.reference-game #midColumn .village-census-table tbody tr:last-child > th { border-bottom: 0; }
+.reference-game #midColumn .village-census-table tbody tr:nth-child(even) { background: #1b3026; }
+.reference-game #midColumn .village-census-table tbody tr[data-leader] { background: #293c2d; }
+.reference-game #midColumn .village-census-table tbody tr:is(:hover, :focus-within) { background: #284436; }
+
+.reference-game #midColumn .village-census-table .village-resident-identity { width: 34%; }
+.reference-game #midColumn .village-census-table :is(.village-resident-job, .village-resident-trait) { width: 21%; }
+.reference-game #midColumn .village-census table.village-census-table .village-resident-menu {
+  text-align: end;
+  white-space: nowrap;
+}
+
+.reference-game .village-resident-person {
+  display: flex;
+  align-items: center;
+  gap: .34rem;
+  min-width: 0;
+}
+
+.reference-game .village-resident-avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: .4rem;
+  background: color-mix(in srgb, var(--resident-color) 48%, var(--village-surface));
+}
+
+.reference-game .village-resident-flags { display: flex; flex-wrap: wrap; gap: .08rem; }
+.reference-game .village-resident-flags .village-icon { width: .85rem; height: .85rem; }
+.reference-game .village-resident-name {
+  min-width: 0;
+  padding: .2rem 0;
+  border: 0;
+  border-radius: .25rem;
+  background: transparent;
+  color: var(--ink);
+  font: 650 .8rem/1.25 var(--font);
+  text-align: start;
+  overflow-wrap: anywhere;
+  text-decoration: underline dotted #668675;
+  text-underline-offset: .18em;
+  cursor: pointer;
+}
+.reference-game .village-resident-name:is(:hover, :focus-visible, [aria-expanded="true"]) { color: var(--accent); text-decoration: underline; }
+
+.reference-game :is(.village-resident-job-label, .village-resident-trait-label) {
+  display: inline-block;
+  padding: .22rem .35rem;
+  border-radius: .32rem;
+  background: #2a4537;
+  color: #d2e9c1;
+  font-size: .73rem;
+  line-height: 1.12;
+}
+
+.reference-game .village-resident-trait-label { background: #293d39; color: #c4dfd6; }
+.reference-game .village-resident-trait-compact { display: none; }
+.reference-game .village-resident-job-label[data-jobless] { background: transparent; color: var(--muted); padding-inline: 0; }
+.reference-game .village-government .village-resident-open { background: transparent; }
+.reference-game .village-government .village-resident-open:is(:hover, :focus-visible, [aria-expanded="true"]) { background: var(--control-hover); }
+
+.reference-game .village-resident-hint {
+  position: fixed;
+  inset: 0 auto auto 0;
+  margin: 0;
+  padding: .35rem .55rem;
+  border: 0;
+  border-radius: .38rem;
+  background: #304d3e;
+  color: var(--ink);
+  box-shadow: 0 .25rem .7rem #09170f9c;
+  font: 650 .74rem/1.3 var(--font);
+  pointer-events: none;
+}
+
+@supports (position-area: block-start) {
+  .reference-game .village-resident-hint {
+    inset: auto !important;
+    position-area: block-start;
+    position-try-fallbacks: flip-block;
+    position-visibility: anchors-visible;
+    margin: .3rem;
+  }
+}
+
+.reference-game .village-census-empty {
+  display: grid;
+  gap: .65rem;
+  justify-items: center;
+  padding: 1.15rem .55rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.reference-game .village-census-empty p { margin: 0; }
+.reference-game :is(.village-census-footer, .village-census-pager) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .3rem;
+  color: var(--muted);
+  font-size: .75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.reference-game .village-census-footer { justify-content: space-between; margin-top: .55rem; }
+.reference-game .village-census-page { margin-inline: .2rem; }
+.reference-game .village-census-pager button { font-size: 1rem; }
+
+.reference-game .village-resident-details-name {
+  margin: 0;
+  color: var(--accent);
+  font: 700 1.2rem/1.2 Georgia, serif;
+}
+
+.reference-game .village-resident-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .45rem .65rem;
+  margin: .65rem 0 0;
+  padding: .55rem;
+  border-radius: .42rem;
+  background: var(--village-surface);
+  font-size: .8rem;
+}
+
+.reference-game .village-resident-facts dt { margin-bottom: .12rem; color: var(--muted); font-size: .72rem; }
+.reference-game .village-resident-facts dd { margin: 0; }
+.reference-game .village-resident-skills { margin-top: .6rem; }
+.reference-game .village-resident-skills h4 { margin: 0 0 .25rem; color: var(--accent); font-size: .78rem; }
+.reference-game .village-resident-skills ul { margin: 0; padding-inline-start: 1rem; font-size: .78rem; line-height: 1.4; }
+.reference-game .village-resident-promotion-cost { margin: .65rem 0 0; color: var(--muted); font-size: .75rem; line-height: 1.35; }
+.reference-game :is(.village-government-controls, .village-resident-actions) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .15rem;
+}
+
+.reference-game .village-resident-icon-action { background: transparent; padding: 0; color: #b3c7ba; }
+.reference-game .village-resident-icon-action::before {
+  content: "";
+  width: 1.05rem;
+  height: 1.05rem;
+  background: currentColor;
+  mask: var(--resident-action-icon) center / contain no-repeat;
+}
+.reference-game .village-resident-icon-action[data-icon="star"] { --resident-action-icon: var(--control-icon-star); }
+.reference-game .village-resident-icon-action[data-icon="flag"] { --resident-action-icon: var(--control-icon-flag); }
+.reference-game .village-resident-icon-action[data-icon="upgrade"] { --resident-action-icon: var(--control-icon-upgrade); }
+.reference-game .village-resident-icon-action[data-icon="unassign"] { --resident-action-icon: var(--control-icon-unassign); }
+.reference-game .village-resident-icon-action:disabled { background: transparent; color: #789184; opacity: .7; }
+.reference-game .village-resident-icon-action[data-active] { background: #344532; color: #efd292; opacity: 1; }
+
+@container game-menu (max-width: 38rem) {
+  .reference-game .village-census-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container game-menu (max-width: 30rem) {
+  .reference-game #midColumn .village-census-table .village-resident-trait { display: none; }
+  .reference-game #midColumn .village-census-table .village-resident-identity { width: 50%; }
+  .reference-game #midColumn .village-census-table .village-resident-job { width: 30%; }
+  .reference-game .village-resident-trait-compact { display: inline; }
+  .reference-game .village-resident-trait-label.village-resident-trait-compact {
+    display: table;
+    margin-top: .25rem;
+  }
+}
+
+@container game-menu (max-width: 21rem) {
+  .reference-game .village-census-toolbar .village-census-field:first-child { grid-column: 1 / -1; }
+  .reference-game .village-census-toolbar .village-census-field:last-child { grid-column: 1 / -1; }
+  .reference-game .village-resident-avatar { display: none; }
+  .reference-game .village-resident-actions { display: grid; grid-template-columns: repeat(2, auto); }
+  .reference-game .village-government-controls { align-items: flex-start; }
+  .reference-game #midColumn .village-census-table .village-resident-identity { width: auto; }
+  .reference-game #midColumn .village-census-table .village-resident-job { width: 36%; }
+  .reference-game #midColumn .village-census-table .village-resident-menu { width: 1%; }
+  .reference-game :is(.village-resident-job-label, .village-resident-trait-label) { padding-inline: .25rem; }
+}

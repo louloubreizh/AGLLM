@@ -52,12 +52,7 @@ export function useGame() {
     function begin() {
       if (ending || game.current) return;
       try {
-        const result = restore(localStorage);
-        game.current = result.state;
-        if (result.migrated) {
-          setNotice("Une sauvegarde précédente a été adaptée au moteur AGLLM.");
-          persist();
-        }
+        game.current = restore(localStorage);
       } catch (error) {
         autosaveAllowed.current = false;
         game.current = newGame();
@@ -115,12 +110,12 @@ export function useGame() {
 
   function importSave(source) {
     if (!game.current) throw new Error("La partie est fermée.");
-    const { state: imported, migrated } = parseSave(source);
+    const imported = parseSave(source);
     localStorage.setItem(saveKey, serialize(imported));
     game.current = imported;
     autosaveAllowed.current = true;
     publish();
-    setNotice(migrated ? "La sauvegarde précédente a été adaptée à AGLLM." : "Sauvegarde importée.");
+    setNotice("Sauvegarde importée.");
   }
 
   return { state, snapshot, status, notice, act, save: () => save(true), importSave, exportSave: () => serialize(game.current) };

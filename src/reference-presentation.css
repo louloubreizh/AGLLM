@@ -1,0 +1,230 @@
+.reference-game .reference-engine-menu { margin-top: .65rem; }
+.reference-game .reference-engine-menu summary {
+  padding: .3rem .55rem;
+  border: 1px solid var(--divider);
+  border-radius: .4rem;
+  background: var(--control);
+  cursor: pointer;
+}
+.reference-game .reference-engine-menu > .links-block {
+  position: static !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  margin-top: .35rem;
+  padding: .5rem !important;
+  gap: .35rem;
+  border: 1px solid var(--line);
+  border-radius: .5rem;
+  background: var(--surface);
+  box-shadow: var(--panel-shadow);
+}
+.reference-game #midColumn { container-name: reference-play; }
+.reference-game #midColumn .tabsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-bottom: .55rem;
+  padding: 0;
+}
+.reference-game #midColumn .tabsContainer > span { display: none; }
+.reference-game #midColumn .tabsContainer a.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem .65rem;
+  min-height: 2.15rem;
+  border: 1px solid var(--divider);
+  border-radius: .5rem;
+  background: var(--surface);
+  text-decoration: none;
+}
+.reference-game #midColumn .tabsContainer a.tab::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  background: var(--tab-mark) center / contain no-repeat;
+}
+.reference-game #midColumn .tabsContainer a.tab:is(:hover, [aria-current]) {
+  background: var(--control-hover);
+  border-color: var(--line);
+}
+.reference-game .reference-tab-picker {
+  display: none;
+  width: 100%;
+  padding: .4rem .55rem;
+  min-height: 2.45rem;
+}
+.reference-game #midColumn .tabInner { border: 0; padding: 0; }
+.reference-game .reference-section-art {
+  display: block;
+  width: 100%;
+  height: 4.2rem;
+  object-fit: contain;
+  margin-bottom: .55rem;
+  border: 1px solid var(--divider);
+  border-radius: .6rem;
+  background: linear-gradient(112deg, var(--surface), var(--control), var(--surface));
+}
+.reference-game #midColumn :is(.panelContainer, .census-block) {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: .6rem;
+  margin: 0 0 .5rem;
+  border: 1px solid var(--divider);
+  border-radius: .65rem;
+  background: var(--surface);
+}
+.reference-game #midColumn .panelContainer > .title {
+  color: var(--accent);
+  font-weight: 650;
+  padding: .25rem 0 .45rem;
+}
+.reference-game #midColumn .panelContainer:has(> .toggle) > .title { cursor: pointer; }
+.reference-game #midColumn .panelContainer > .toggle {
+  display: inline-grid;
+  place-items: center;
+  float: right;
+  width: 1.8rem;
+  height: 1.8rem;
+  margin: -.1rem 0 0 .35rem;
+  border: 1px solid var(--divider);
+  border-radius: .4rem;
+  background: var(--control);
+  color: var(--accent);
+}
+.reference-game #midColumn .panelContainer > .container { min-width: 0; overflow-x: auto; }
+.reference-game #midColumn .bldTopContainer > a {
+  display: inline-block;
+  margin: .15rem;
+  padding: .25rem .55rem;
+  border: 1px solid var(--divider);
+  border-radius: 1rem;
+  text-decoration: none;
+}
+.reference-game #midColumn .bldTopContainer > a:is(:hover, .activeTab) { background: var(--control); }
+.reference-game #midColumn .bldTopContainer > span { display: none; }
+.reference-game #midColumn .Bonfire .bldGroupContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  align-items: start;
+  gap: .5rem;
+}
+.reference-game #midColumn .Bonfire .bldGroupContainer > table,
+.reference-game #midColumn .Bonfire .bldGroupContainer > table :is(tbody, tr, td) { display: contents; }
+.reference-game #midColumn .Bonfire .btn.modern { width: 100%; margin: 0; }
+.reference-game #midColumn .btn.modern {
+  border-color: var(--line);
+  background: var(--control);
+  overflow-wrap: anywhere;
+}
+.reference-game #midColumn .btn.modern:not(.disabled):hover { background: var(--control-hover); }
+.reference-game #midColumn .btn.modern .btnContent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .35rem;
+  min-height: 2.65rem;
+  padding: .42rem .55rem;
+}
+.reference-game #midColumn .btn.modern .btnTitle { flex: 1 1 8rem; }
+.reference-game #midColumn [data-camp-action] .btnTitle { font-weight: 650; }
+.reference-game #midColumn .btn.modern .btnContent a {
+  float: none !important;
+  min-width: 0;
+  padding: .2rem .45rem !important;
+  margin: 0;
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: .35rem;
+}
+.reference-game #midColumn .btn.modern .btnContent a:is(:hover, :focus-visible) { background: var(--control-hover); }
+.reference-game #leftColumn .res-table { max-width: none; border-spacing: 0 .15rem; }
+.reference-game #leftColumn .res-cell {
+  padding-inline: .13rem;
+  overflow: visible;
+  font-size: .82rem;
+  font-variant-numeric: tabular-nums;
+}
+.reference-game #leftColumn .res-cell:not(.resource-name) { width: auto; max-width: none; }
+.reference-game #leftColumn .res-row .res-cell { padding-block: .2rem; border-bottom: 1px solid var(--divider); }
+.reference-game #leftColumn .resource-name::before {
+  content: "";
+  position: absolute;
+  inset: .19rem auto auto .12rem;
+  width: 1rem;
+  height: 1rem;
+  background: var(--resource-mark) center / contain no-repeat;
+}
+.reference-game #leftColumn .resource-name {
+  position: relative;
+  min-width: 4.65rem;
+  padding-inline-start: 1.35rem;
+  white-space: normal !important;
+}
+.reference-game #leftColumn .positive-weather { color: #a8d998; }
+.reference-game #leftColumn .negative-weather { color: var(--warning); }
+.reference-game #rightColumn .right-tab-header { padding-block: .25rem .45rem; }
+.reference-game #rightColumn .right-tab-header a {
+  display: inline-block;
+  margin: .15rem;
+  padding: .25rem .55rem;
+  border: 1px solid var(--divider);
+  border-radius: .4rem;
+}
+.reference-game #rightColumn .right-tab-header a.active { background: var(--control); }
+.reference-game #gameLog .msg { padding: .28rem .2rem; border-bottom: 1px solid var(--divider); }
+.reference-game #gameLog .msg.type_date { border-color: var(--line); color: var(--accent); }
+.reference-game :is(.reference-tab-picker, .village-census select, .dialog input[type="file"]) {
+  border: 1px solid var(--line);
+  border-radius: .4rem;
+  color: var(--ink);
+  background: var(--control);
+  font: inherit;
+}
+.reference-game .dialog [role="status"]:empty { display: none; }
+.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: .32rem .4rem;
+  align-items: start;
+}
+.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) > input[type="checkbox"] {
+  grid-column: 1;
+  accent-color: var(--accent);
+}
+.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) > label { grid-column: 2; }
+.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) > span { grid-column: 3; color: var(--muted); }
+.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) > br { display: none; }
+.reference-game .dialog input::file-selector-button {
+  padding: .38rem .55rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 0;
+  border-right: 1px solid var(--line);
+  margin-right: .4rem;
+  cursor: pointer;
+}
+.reference-game :is(#optionsDiv, #importDiv, #exportDiv) { box-shadow: 0 .8rem 2.1rem #030907bb; }
+
+@container reference-play (max-width: 30rem) {
+  .reference-game #midColumn .tabsContainer:has(.reference-tab-picker) a.tab { display: none; }
+  .reference-game .reference-tab-picker { display: block; }
+  .reference-game .reference-section-art { height: 2.9rem; }
+}
+
+@media (max-height: 480px) {
+  .reference-game .reference-section-art { display: none; }
+}
+.reference-game .reference-scene-input {
+  position: fixed;
+  inset: 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.reference-game .reference-scene-input.is-moving { cursor: grabbing; }
+.reference-game #gamePageContainer { pointer-events: none; }
+.reference-game :is(#topBar, #footerLinks, .game-widget, .dialog, .login-popup) { pointer-events: auto; }
+

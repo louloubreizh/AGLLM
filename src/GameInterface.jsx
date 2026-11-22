@@ -5,7 +5,7 @@ import { VillagePanel } from "./VillagePanel.jsx";
 import { Widget } from "./Widget.jsx";
 import { tabArt } from "./tab-art.js";
 import { buildings, gathering, irrigation, recipes, research, resources, trades, trails } from "./game/catalog.js";
-import { buildingCost, calendar, canPay, canUseRecipe, capacity, dailyRates, hasResearch, hasRoom } from "./game/engine.js";
+import { buildingCost, calendar, canPay, canStudy, canUseRecipe, capacity, dailyRates, hasResearch, hasRoom, recipeOutput } from "./game/engine.js";
 import "./interface.css";
 
 const metric = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 1 });
@@ -22,7 +22,7 @@ const sections = [
 ];
 
 function describeStock(amounts) {
-  return Object.entries(amounts).map(([id, amount]) => `${amount} ${resources[id].label.toLowerCase()}`).join(" · ");
+  return Object.entries(amounts).map(([id, amount]) => `${metric.format(amount)} ${resources[id].label.toLowerCase()}`).join(" · ");
 }
 
 function GameCard({ title, icon, description, children }) {
@@ -95,15 +95,14 @@ function Camp({ state, act, onInspect, onInformation }) {
 }
 
 function Research({ state, act }) {
+  const visible = Object.entries(research).filter(([id]) => hasResearch(state, id) || canStudy(state, id));
   return (
     <div className="game-cards">
-      {Object.entries(research).map(([id, item]) => {
+      {visible.map(([id, item]) => {
         const complete = hasResearch(state, id);
-        const missing = (item.after ?? []).filter((entry) => !hasResearch(state, entry));
         return <GameCard key={id} title={item.label} description={item.description} icon="scienceTab">
-          {missing.length > 0 && <p>Requiert {missing.map((entry) => research[entry].label).join(", ")}.</p>}
           <p className="card-cost">{describeStock(item.cost)}</p>
-          <button type="button" aria-label={`Étudier · ${item.label}`} disabled={complete || missing.length > 0 || !canPay(state, item.cost)}
+          <button type="button" aria-label={`Étudier · ${item.label}`} disabled={complete || !canPay(state, item.cost)}
             onClick={() => act("research", id)}>{complete ? "Étudié" : "Étudier"}</button>
         </GameCard>;
       })}
@@ -126,15 +125,18 @@ function Exchanges({ state, act, workshop }) {
         </label>
       )}
       <div className="game-cards">
-        {available.map(([id, item]) => (
-          <GameCard key={id} title={item.label} icon={workshop ? "tools" : "trade"}>
-            <p className="card-cost">Coût · {describeStock(item.cost)}</p>
-            <p>Reçu · {describeStock(item.output)}</p>
-            <button type="button" aria-label={item.label}
-              disabled={!canPay(state, item.cost) || !hasRoom(state, item.output, item.cost)}
-              onClick={() => act(workshop ? "craft" : "trade", id)}>{workshop ? "Fabriquer" : "Échanger"}</button>
-          </GameCard>
-        ))}
+        {available.map(([id, item]) => {
+          const output = workshop ? recipeOutput(state, id) : item.output;
+          return (
+            <GameCard key={id} title={item.label} icon={workshop ? "tools" : "trade"}>
+              <p className="card-cost">Coût · {describeStock(item.cost)}</p>
+              <p>Reçu · {describeStock(output)}</p>
+              <button type="button" aria-label={item.label}
+                disabled={!canPay(state, item.cost) || !hasRoom(state, output, item.cost)}
+                onClick={() => act(workshop ? "craft" : "trade", id)}>{workshop ? "Fabriquer" : "Échanger"}</button>
+            </GameCard>
+          );
+        })}
       </div>
     </>
   );
@@ -165,7 +167,12 @@ function Resources({ state }) {
       {Object.entries(resources).filter(([id]) => Object.hasOwn(gathering, id) || state.stocks[id] > 0 || rates[id] !== 0)
         .map(([id, item]) => (
           <div key={id} className={rates[id] < 0 ? "resource-shortage" : ""}>
-            <dt><Icon name={item.icon} />{item.label}</dt>
+            <dt>
+              <details className="resource-details">
+                <summary><Icon name={item.icon} />{item.label}</summary>
+                <p>{item.description}</p>
+              </details>
+            </dt>
             <dd><span data-stock={id}>{metric.format(state.stocks[id])}</span> / {capacity(state, id)}
               {Math.abs(rates[id]) >= 0.005 && <small>{signed.format(rates[id])} / j</small>}
             </dd>
@@ -189,7 +196,7 @@ function GameWidget({ id, label, icon, children }) {
   const [element, setElement] = useState(null);
   return (
     <section ref={setElement} className={`game-widget game-widget-${id}`} aria-label={label} data-widget={id}>
-      <div className="widget-slot" />
+      <header className="widget-slot" />
       {element && <Widget element={element} label={label} icon={icon} />}
       <div className="widget-content">{children}</div>
     </section>

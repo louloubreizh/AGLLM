@@ -2,8 +2,9 @@
   position: absolute;
   inset: var(--panel-gutter);
   display: grid;
-  grid-template-columns: minmax(10.5rem, 1fr) minmax(10.5rem, 1fr) minmax(23rem, 2fr);
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template: "resources scene journal" minmax(0, var(--scene-row, .8fr))
+                 "resources play journal" minmax(0, 1fr)
+                 / minmax(12.5rem, 20%) minmax(0, 1fr) minmax(12.5rem, 20%);
   align-items: start;
   gap: .65rem;
   pointer-events: none;
@@ -17,30 +18,38 @@
   height: var(--widget-height, auto);
   max-height: calc(100cqh - 2 * var(--panel-gutter));
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: .8rem;
   background: var(--panel);
-  box-shadow: 0 .3rem 1rem #08120e50;
+  box-shadow: var(--panel-shadow);
   pointer-events: auto;
 }
-.game-widget-play { grid-column: 3; grid-row: 1 / -1; justify-self: end; width: var(--widget-width, min(100%, 37rem)); }
-.game-widget-resources { grid-column: 1; grid-row: 1; width: var(--widget-width, min(100%, 18rem)); }
-.game-widget-journal { grid-column: 1; grid-row: 2; width: var(--widget-width, min(100%, 18rem)); max-height: 100%; }
+.game-widget-play { grid-area: play; align-self: end; justify-self: center; width: var(--widget-width, min(100%, 42rem)); }
+.game-widget-resources { grid-area: resources; }
+.game-widget-journal { grid-area: journal; }
+.game-widget:not([data-resized]) { max-height: 100%; }
 .game-widget[data-collapsed] { height: auto; }
 .game-widget[data-collapsed] .widget-content { display: none; }
+.widget-slot { min-width: 0; background: var(--surface); }
 .game-widget.widget-raised { z-index: 1; }
 .widget-bar, .widget-controls, .widget-grip {
   display: flex;
   align-items: center;
   gap: .3rem;
 }
-.widget-bar { justify-content: space-between; padding: .24rem .38rem; border-bottom: 1px solid var(--divider); background: var(--surface); }
+.widget-bar {
+  justify-content: space-between;
+  padding: .24rem .38rem;
+  border-bottom: 1px solid var(--divider);
+  background: linear-gradient(105deg, var(--surface-raised), var(--surface));
+}
 [data-collapsed] .widget-bar { border-bottom: 0; }
 .widget-bar button { background: transparent; border-color: transparent; }
 .widget-grip { justify-content: flex-start; cursor: grab; font-weight: 700; touch-action: none; }
 .widget-resize { cursor: nwse-resize; touch-action: none; }
-.widget-content { min-height: 0; overflow: auto; padding: .65rem; }
+.widget-content { min-height: 0; min-width: 0; overflow: auto; padding: .65rem; }
 
 .game-widget button, .game-options :is(button, input, textarea, select), .village-panel :is(input, select), .automation-setting select {
   min-width: 0;
@@ -102,8 +111,19 @@
 .building-card-tools .agllm-icon { width: 1rem; height: 1rem; }
 
 .resource-list, .journal-list { display: grid; gap: .4rem; margin: 0; padding: 0; font-size: .85rem; }
-.resource-list > div { display: flex; justify-content: space-between; gap: .3rem; align-items: baseline; }
-.resource-list dt { display: flex; align-items: center; gap: .35rem; }
+.resource-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: .3rem;
+  align-items: baseline;
+  padding: .3rem .15rem;
+  border-bottom: 1px solid var(--divider);
+}
+.resource-list dt { min-width: 0; }
+.resource-details summary { display: flex; align-items: center; gap: .35rem; cursor: pointer; }
+.resource-details summary::-webkit-details-marker { display: none; }
+.resource-details summary:hover { color: var(--accent); }
+.resource-details p { margin-top: .25rem; color: var(--muted); }
 .resource-list dd { margin: 0; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .resource-list small { display: block; color: var(--accent); }
 .resource-list .resource-shortage small, .game-options [role="alert"] { color: var(--warning); }
@@ -134,11 +154,12 @@
   position: fixed;
   width: min(29rem, calc(100% - 1.4rem));
   max-height: calc(100dvh - 1.4rem);
-  padding: 1rem;
+  padding: 1rem 1.1rem 1.15rem;
   border: 1px solid var(--line);
   border-radius: .8rem;
   background: var(--surface);
   color: var(--ink);
+  box-shadow: var(--panel-shadow);
 }
 .game-options::backdrop { background: #07100ccc; }
 .game-options h2 { margin: 0 2.6rem .8rem 0; font-size: 1.25rem; }
@@ -146,15 +167,28 @@
 .game-options form, .game-options label { display: grid; gap: .45rem; }
 .game-options form { margin-top: .6rem; }
 .game-options textarea { resize: vertical; }
+.game-options a { color: var(--accent); }
+.save-transfer { margin-top: .85rem; border-top: 1px solid var(--divider); padding-top: .65rem; }
+.save-transfer summary { cursor: pointer; font-weight: 600; }
+.save-transfer > div { display: grid; gap: .55rem; margin-top: .55rem; }
+.save-transfer p { color: var(--muted); font-size: .85rem; }
+.save-transfer table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.save-transfer :is(th, td) { padding: .3rem; border-bottom: 1px solid var(--divider); text-align: end; }
+.save-transfer th:first-child { text-align: start; }
+.save-transfer td { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 
 @media (max-width: 1050px) {
   .section-art { display: none; }
-  .game-panels { display: block; }
+  .game-panels {
+    grid-template: "scene" minmax(0, var(--scene-row, 1fr)) "play" minmax(0, 1.65fr) / minmax(0, 1fr);
+  }
   .game-panels[data-panel="play"] .game-widget:not([data-widget="play"]),
   .game-panels[data-panel="resources"] .game-widget:not([data-widget="resources"]),
   .game-panels[data-panel="journal"] .game-widget:not([data-widget="journal"]) { display: none; }
-  .game-widget { width: var(--widget-width, min(100%, 34rem)); max-height: 100%; }
+  .game-widget { grid-area: play; align-self: end; justify-self: center; width: var(--widget-width, min(100%, 42rem)); }
 }
-@media (min-width: 680px) and (max-width: 1050px) {
-  .game-widget-play { margin-left: auto; width: var(--widget-width, min(58%, 34rem)); }
+
+@media (max-height: 480px) {
+  .game-panels { --scene-row: .25fr; }
+  .section-art { display: none; }
 }

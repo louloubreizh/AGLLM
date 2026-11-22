@@ -1,0 +1,283 @@
+.reference-game .village-jobs { --village-section-icon: var(--icon-tools); }
+
+.reference-game .village-jobs-overview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .45rem .75rem;
+  margin-bottom: .65rem;
+  padding: .52rem .65rem;
+  border: 0;
+  border-radius: .55rem;
+  background: #1b3026;
+}
+
+.reference-game .village-jobs-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .35rem 1rem;
+  margin: 0;
+}
+
+.reference-game .village-jobs-stat {
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+  color: var(--muted);
+  font-size: .76rem;
+  line-height: 1.2;
+}
+
+.reference-game .village-jobs-stat dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: .95rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.reference-game .village-jobs-stat:first-child dd { color: var(--accent); }
+
+.reference-game .village-jobs-reset {
+  min-height: 2rem;
+  margin: 0;
+  padding: .25rem .6rem;
+  border: 0;
+  border-radius: .42rem;
+  background: transparent;
+  color: var(--muted);
+  font: 600 .75rem/1.2 var(--font);
+  cursor: pointer;
+}
+
+.reference-game .village-jobs-reset:hover { background: var(--control-hover); }
+
+.reference-game .village-job-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.25rem), 1fr));
+  gap: .6rem;
+}
+
+.reference-game #midColumn .village-job-card.btn.modern {
+  --job-accent: var(--accent);
+  --job-shade: var(--control);
+  --job-control-size: 2rem;
+  width: 100%;
+  margin: 0;
+  border: 0 !important;
+  border-radius: .7rem !important;
+  background: #192e24 !important;
+}
+
+.reference-game #midColumn .village-job-card.btn.modern[data-staffed] {
+  background: #22382b !important;
+}
+
+.reference-game #midColumn .village-job-card.btn.modern.bldlackResConvert {
+  box-shadow: inset 0 -.15rem var(--warning) !important;
+}
+
+.reference-game #midColumn .village-job-card.btn.modern > .btnContent {
+  display: block;
+  height: 100%;
+  min-height: 0;
+  padding: 0 !important;
+}
+
+.reference-game .village-job-card .btnContent > :not(.village-job-cover, .village-job-actions) {
+  display: none !important;
+}
+
+.reference-game .village-job-cover {
+  --job-cover-height: 6.45rem;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: end;
+  box-sizing: border-box;
+  min-height: var(--job-cover-height);
+  overflow: hidden;
+  padding: .65rem .7rem;
+  border-radius: .64rem .64rem 0 0;
+  background: linear-gradient(105deg, #172a21, var(--job-shade));
+}
+
+.reference-game .village-job-card:not(.disabled) .village-job-cover { cursor: pointer; }
+
+.reference-game .village-job-picture {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 auto;
+  width: min(54%, calc(var(--job-cover-height) * .9));
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  mask-image: linear-gradient(to right, transparent, #000 32%);
+}
+
+.reference-game [data-job="ambassador"] .village-job-picture { width: min(54%, 8.6rem); }
+
+.reference-game .village-job-cover::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(90deg, #13241bcf 24%, transparent 76%), linear-gradient(0deg, #13241bbf, transparent 56%);
+}
+
+.reference-game .village-job-heading { min-width: 0; }
+
+.reference-game .village-job-category {
+  display: flex;
+  align-items: center;
+  gap: .28rem;
+  margin-bottom: .23rem;
+  color: var(--job-accent);
+  font-size: .72rem;
+  font-weight: 650;
+  line-height: 1.15;
+}
+
+.reference-game .village-job-category img {
+  flex: none;
+  width: .95rem;
+  height: .95rem;
+}
+
+.reference-game .village-job-name {
+  margin: 0;
+  color: #f2f5ec;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+  line-height: 1.12;
+  text-shadow: 0 1px .35rem #102019;
+}
+
+.reference-game .village-job-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .35rem;
+  padding: .42rem .52rem;
+  cursor: default;
+}
+
+.reference-game .village-job-stepper {
+  display: grid;
+  grid-template-columns: var(--job-control-size) minmax(1.65rem, auto) var(--job-control-size);
+  align-items: center;
+  border: 0;
+  border-radius: .46rem;
+  background: #13251c;
+}
+
+.reference-game .village-job-count {
+  padding: 0 .22rem;
+  color: var(--ink);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.reference-game .village-job-actions button {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: var(--job-control-size);
+  min-height: var(--job-control-size);
+  margin: 0;
+  padding: .15rem .4rem;
+  border: 0;
+  border-radius: .38rem;
+  background: #294639;
+  color: var(--ink);
+  font: 650 .84rem/1 var(--font);
+  cursor: pointer;
+}
+
+.reference-game .village-job-actions .village-job-step { font-size: 1.05rem; }
+
+.reference-game .village-job-actions .village-job-assign {
+  background: #b8d99b;
+  color: #182c20;
+}
+
+.reference-game .village-job-actions .village-job-options {
+  border: 0;
+  background: transparent;
+  font-size: 1.15rem;
+}
+
+.reference-game .village-job-actions button:hover { background: #365745; }
+.reference-game .village-job-actions .village-job-assign:hover { background: #d2ecb8; }
+.reference-game .village-job-actions button:disabled {
+  background: #23362c;
+  color: #91a598;
+  cursor: default;
+}
+
+.reference-game .village-job-details {
+  box-sizing: border-box;
+  position: fixed;
+  inset: auto .7rem .7rem auto;
+  width: min(19rem, calc(100vw - 1.4rem));
+  max-height: calc(100dvh - 1.4rem);
+  overflow: auto;
+  margin: 0;
+  padding: .8rem;
+  border: 1px solid var(--village-line);
+  border-radius: .62rem;
+  background: #1c3228;
+  color: var(--ink);
+  box-shadow: 0 .55rem 1.5rem #09170fad;
+}
+
+.reference-game .village-job-details-title {
+  margin: 0;
+  color: var(--job-accent);
+  font-size: .95rem;
+}
+
+.reference-game .village-job-description {
+  margin: .4rem 0 .7rem;
+  color: var(--ink);
+  font-size: .82rem;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.reference-game .village-job-batch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-top: .35rem;
+}
+
+.reference-game .village-job-presets {
+  display: flow-root;
+  margin-top: .65rem;
+  padding: .45rem;
+  border-top: 1px solid var(--village-line);
+}
+
+.reference-game .village-job-presets > .loadout { width: 100% !important; }
+
+@supports (position-area: block-start span-inline-start) {
+  .reference-game .village-job-details {
+    inset: auto;
+    position-area: block-start span-inline-start;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    margin: .35rem;
+  }
+}
+
+@container game-menu (max-width: 24rem) {
+  .reference-game .village-job-cover { --job-cover-height: 5.6rem; }
+}
+
+@media (pointer: coarse) {
+  .reference-game #midColumn .village-job-card.btn.modern { --job-control-size: 2.65rem; }
+}

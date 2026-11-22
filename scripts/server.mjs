@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { host, instanceFile, instanceId, readPort, root, runDirectory } from "./instance.mjs";
+import { createMotorApp } from "./motor-reference.mjs";
 
 const port = readPort();
 const token = process.env.AGLLM_CONTROL_TOKEN;
@@ -46,6 +47,7 @@ app.post("/api/shutdown", (request, response) => {
   response.status(202).end();
 });
 
+app.use("/motorAGLLM", createMotorApp());
 app.use(express.static(join(root, "dist"), {
   dotfiles: "deny",
   setHeaders(response, path) {

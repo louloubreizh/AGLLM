@@ -3,16 +3,16 @@ export const daysPerSeason = 30;
 export const dayDuration = 1000;
 
 export const resources = {
-  food: { label: "Vivres", icon: "leaf", capacity: 100 },
-  timber: { label: "Bois", icon: "wood", capacity: 90 },
-  clay: { label: "Argile", icon: "minerals", capacity: 80 },
-  notes: { label: "Savoir", icon: "science", capacity: 90 },
-  boards: { label: "Planches", icon: "beam", capacity: 60 },
-  stone: { label: "Pierre", icon: "slab", capacity: 80 },
-  metal: { label: "Métal", icon: "iron", capacity: 60 },
-  cloth: { label: "Toile", icon: "furs", capacity: 60 },
-  coins: { label: "Jetons", icon: "gold", capacity: 100 },
-  relics: { label: "Vestiges", icon: "relic", capacity: 30 },
+  food: { label: "Vivres", icon: "leaf", capacity: 100, description: "Nourrissent les habitants et ravitaillent les expéditions." },
+  timber: { label: "Bois", icon: "wood", capacity: 90, description: "Sert aux premières constructions et à la fabrication de planches." },
+  clay: { label: "Argile", icon: "clay", capacity: 80, description: "Récoltée à la main ou par les potiers, elle sert à bâtir et à irriguer les jardins." },
+  notes: { label: "Science", icon: "science", capacity: 90, description: "Produite à la maison des cartes, elle permet de financer les recherches." },
+  boards: { label: "Planches", icon: "beam", capacity: 60, description: "Fabriquées à l’atelier à partir de bois, elles servent aux constructions." },
+  stone: { label: "Pierre", icon: "slab", capacity: 80, description: "Extraite à la carrière, elle sert à construire et à produire du fer." },
+  metal: { label: "Fer", icon: "iron", capacity: 60, description: "Produit au four ou à l’atelier, il sert notamment à construire les éoliennes et les filatures." },
+  cloth: { label: "Toile", icon: "furs", capacity: 60, description: "Sert aux expéditions et à la construction du phare des migrations." },
+  coins: { label: "Jetons", icon: "gold", capacity: 100, description: "Reçus en échangeant au marché, ils servent aux achats, aux fêtes et aux promotions." },
+  relics: { label: "Vestiges", icon: "relic", capacity: 30, description: "Rapportés d’expédition, ils servent à étudier la navigation et à bâtir le phare." },
 };
 
 export const gathering = { food: 6, timber: 5, clay: 4 };
@@ -32,11 +32,12 @@ export const buildings = {
   },
   archive: {
     label: "Maison des cartes", icon: "library", model: "hall", cost: { timber: 20, clay: 10 },
-    description: "Produit du savoir et permet d’affecter des cartographes.",
+    description: "Produit de la science et permet d’affecter des cartographes.",
   },
   studio: {
     label: "Atelier du sentier", icon: "workshop", cost: { timber: 34, clay: 18 }, requires: "craft",
-    description: "Ouvre les recettes de fabrication.",
+    craftBonusPerExtra: 10, craftBonusMax: 50,
+    description: "Ouvre les recettes. Chaque atelier supplémentaire augmente les quantités fabriquées de 10 %, jusqu’à +50 %.",
   },
   pit: {
     label: "Carrière de schiste", icon: "quarry", model: "industry", cost: { boards: 12, timber: 22 }, requires: "masonry",
@@ -52,7 +53,7 @@ export const buildings = {
   },
   foundry: {
     label: "Four des falaises", icon: "smelter", model: "industry", cost: { stone: 25, clay: 22 }, requires: "kilns",
-    description: "Transforme la pierre en métal et rejette de la fumée. Le four peut être mis à l’arrêt.",
+    description: "Transforme la pierre en fer et rejette de la fumée. Le four peut être mis à l’arrêt.",
     switchable: true,
   },
   windmill: {
@@ -86,7 +87,7 @@ export const research = {
   routes: { label: "Cartes des chemins", after: ["masonry"], cost: { notes: 36, boards: 8 }, description: "Ouvre le commerce et les expéditions." },
   kilns: { label: "Cuisson des minerais", after: ["masonry"], cost: { notes: 40, stone: 22 }, description: "Débloque le four et la métallurgie." },
   power: { label: "Voiles et engrenages", after: ["kilns"], cost: { notes: 58, metal: 12 }, description: "Débloque l’énergie éolienne et la filature." },
-  automation: { label: "Cadences d’atelier", after: ["power"], cost: { notes: 75, metal: 20 }, description: "Permet à l’atelier de fabriquer une recette tous les cinq jours." },
+  automation: { label: "Cadences d’atelier", after: ["power"], cost: { notes: 75, metal: 20 }, description: "Fabrique la recette choisie tous les cinq jours si les matériaux et la place de stockage suffisent." },
   river: { label: "Restauration des berges", after: ["kilns"], cost: { notes: 52, clay: 24 }, description: "Débloque la roselière qui capte la pollution." },
   council: { label: "Veillées du village", after: ["routes"], cost: { notes: 55, coins: 15 }, description: "Débloque le pavillon des assemblées." },
   navigation: { label: "Navigation nocturne", after: ["power", "river", "council"], cost: { notes: 85, relics: 4 }, description: "Débloque le grand phare et la dernière expédition." },
@@ -104,7 +105,7 @@ export const jobs = {
 export const recipes = {
   boards: { label: "Scier des planches", cost: { timber: 9 }, output: { boards: 3 } },
   stone: { label: "Tailler la pierre", requires: "masonry", cost: { clay: 9, timber: 3 }, output: { stone: 3 } },
-  metal: { label: "Couler le métal", requires: "kilns", cost: { stone: 8, timber: 6 }, output: { metal: 3 } },
+  metal: { label: "Couler le fer", requires: "kilns", cost: { stone: 8, timber: 6 }, output: { metal: 3 } },
   cloth: { label: "Tisser une toile", requires: "power", cost: { timber: 10, metal: 2 }, output: { cloth: 3 } },
 };
 

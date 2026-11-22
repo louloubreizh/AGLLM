@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import LZString from "lz-string";
 import { daysPerSeason, research } from "../src/game/catalog.js";
-import { advanceDay, capacity, dailyRates, newGame, perform } from "../src/game/engine.js";
-import { parseSave, restore, saveKey, serialize } from "../src/game/saves.js";
+import { advanceDay, capacity, dailyRates, newGame, perform, recipeOutput } from "../src/game/engine.js";
+import { maxSavedStock, parseSave, restore, saveKey, serialize } from "../src/game/saves.js";
+import { copyStocksToAGLLM, copyStocksToKittensGame, parseTransferSave } from "../src/game/stock-transfer.js";
 import { readGameState } from "../src/game-state.js";
 import { chooseObservation, maximumResidents, planVillage } from "../src/world/layout.js";
 
@@ -72,38 +73,90 @@ test("le parcours avancé permet la fabrication, le commerce et l’inauguration
   assert.equal(perform(state, "build", "beacon"), true);
   assert.equal(perform(state, "inaugurate"), true);
   assert.equal(perform(state, "inaugurate"), false);
-  assert.deepEqual(parseSave(serialize(state)), { state, migrated: false });
+  assert.deepEqual(parseSave(serialize(state)), state);
 });
 
-test("importe les trois formats historiques et conserve la sauvegarde d’origine", () => {
-  const previous = JSON.stringify({
-    calendar: { year: 3, season: 3, day: 50 },
-    resources: [{ name: "wood", value: 375 }, { name: "science", value: 42 }],
-    buildings: [{ name: "hut", val: 2 }, { name: "library", val: 1 }, { name: "workshop", val: 1 }],
-    village: { roster: [{ name: "Ébène", surname: "Mousse", job: "scholar", skills: 0 }] },
-  });
-  for (const input of [previous, LZString.compressToBase64(previous), LZString.compressToUTF16(previous)]) {
-    const { state, migrated } = parseSave(input);
-    assert.equal(migrated, true);
-    assert.equal(state.stocks.timber, 375);
-    assert.equal(state.stocks.notes, 42);
-    assert.equal(state.buildings.shelter, 2);
-    assert.deepEqual(state.researched, ["craft"]);
-    assert.equal(state.residents[0].name, "Ébène Mousse");
-    assert.equal(state.residents[0].job, "mapper");
-    assert.equal(readGameState(state).year, 4);
-    assert.equal(readGameState(state).season, "winter");
-    advanceDay(state);
-    assert.equal(state.stocks.timber, 375);
-  }
-  const entries = new Map([["previous.savedata", previous]]);
-  const storage = { length: entries.size, key: (index) => [...entries.keys()][index], getItem: (key) => entries.get(key) ?? null };
-  assert.equal(restore(storage).migrated, true);
-  entries.set(saveKey, serialize(newGame()));
-  assert.equal(restore(storage).migrated, false);
-  assert.equal(entries.get("previous.savedata"), previous);
+test("applique le rendement des ateliers en fabrication manuelle et automatique", () => {
+  const state = newGame();
+  state.researched = ["craft", "automation"];
+  state.buildings.studio = 2;
+  Object.assign(state.stocks, { timber: 20, boards: 56.71 });
+
+  assert.deepEqual(recipeOutput(state, "boards"), { boards: 3.3 });
+  assert.equal(perform(state, "craft", "boards"), false);
+  assert.equal(state.stocks.timber, 20);
+  state.stocks.boards = 56.7;
+  assert.equal(perform(state, "craft", "boards"), true);
+  assert.equal(state.stocks.boards, 60);
+  assert.equal(state.stocks.timber, 11);
+
+  state.stocks.boards = 50;
+  state.day = 4;
+  assert.equal(perform(state, "automate", "boards"), true);
+  assert.equal(advanceDay(state), true);
+  assert.equal(state.stocks.boards, 53.3);
+  assert.equal(state.stocks.timber, 2);
+
+  state.buildings.studio = 9;
+  assert.deepEqual(recipeOutput(state, "boards"), { boards: 4.5 });
+});
+
+test("restaure une sauvegarde AGLLM v1 et lit uniquement sa clé de stockage", () => {
+  const state = newGame();
+  state.stocks.metal = 27;
+  state.stocks.clay = 8;
+  const reads = [];
+  let saved = null;
+  const storage = { getItem(key) { reads.push(key); return saved; } };
+
+  assert.deepEqual(restore(storage), newGame());
+  saved = serialize(state);
+  assert.deepEqual(restore(storage), state);
+  assert.deepEqual(reads, [saveKey, saveKey]);
+  assert.throws(() => parseSave('{"format":"autre","version":1,"state":{}}'), /pas une sauvegarde AGLLM/);
   assert.throws(() => parseSave('{"format":"AGLLM","version":4}'), /version/);
   assert.throws(() => parseSave('{"format":"AGLLM","version":1,"state":{}}'), /incomplète/);
+});
+
+test("transfère les stocks correspondants entre deux copies de sauvegardes", () => {
+  const destination = newGame();
+  destination.stocks.metal = 19.5;
+  destination.stocks.notes = 42;
+  const foreign = {
+    saveVersion: 15,
+    calendar: { year: 101 },
+    village: {},
+    buildings: [{ name: "hut", val: 3 }],
+    resources: [
+      { name: "wood", value: 165.25, unlocked: true },
+      { name: "iron", value: 31, isHidden: true },
+      { name: "science", value: 123.5, unlocked: true },
+      { name: "minerals", value: 80 },
+    ],
+  };
+  const json = JSON.stringify(foreign);
+  for (const source of [json, LZString.compressToBase64(json), LZString.compressToUTF16(json)]) {
+    const transfer = parseTransferSave(source);
+    assert.deepEqual(parseSave(copyStocksToAGLLM(destination, transfer)), {
+      ...destination, stocks: { ...destination.stocks, timber: 165.25, metal: 31, notes: 123.5 },
+    });
+    const returned = JSON.parse(LZString.decompressFromBase64(copyStocksToKittensGame(destination, transfer)));
+    assert.deepEqual(returned, {
+      ...foreign, resources: [
+        { ...foreign.resources[0], value: 12 },
+        { ...foreign.resources[1], value: 19.5 },
+        { ...foreign.resources[2], value: 42 },
+        foreign.resources[3],
+      ],
+    });
+    assert.deepEqual(transfer.save, foreign);
+  }
+  assert.equal(destination.stocks.metal, 19.5);
+  assert.throws(() => parseTransferSave(serialize(destination)), /sauvegarde Kittens Game/);
+  foreign.resources[1].value = -1;
+  assert.throws(() => parseTransferSave(JSON.stringify(foreign)), /stock.*invalide/);
+  const tooLarge = { ...foreign, resources: [{ name: "science", value: maxSavedStock + 1 }] };
+  assert.throws(() => copyStocksToAGLLM(destination, parseTransferSave(JSON.stringify(tooLarge))), /Science.*dépasse/);
 });
 
 test("conserve les parcelles et limite le coût visuel pour les grandes colonies", () => {

@@ -8,6 +8,7 @@ const seasonYield = [1.15, 1, 1.3, 0.48];
 const blank = (catalog) => Object.fromEntries(Object.keys(catalog).map((id) => [id, 0]));
 const find = (catalog, id) => typeof id === "string" && Object.hasOwn(catalog, id) ? catalog[id] : undefined;
 const numberInStock = (state, id) => state.stocks[id] ?? 0;
+const roundStock = (value) => Math.round(value * 1e6) / 1e6;
 
 export function createResident(id, day) {
   return {
@@ -58,6 +59,12 @@ export function hasResearch(state, id) {
   return !id || state.researched.includes(id);
 }
 
+export function canStudy(state, id) {
+  const item = find(research, id);
+  return Boolean(item && state.buildings.archive && !hasResearch(state, id)
+    && (item.after ?? []).every((entry) => hasResearch(state, entry)));
+}
+
 export function capacity(state, id) {
   return resources[id].capacity + state.buildings.storehouse * 60;
 }
@@ -77,14 +84,15 @@ export function canPay(state, cost) {
 }
 
 export function hasRoom(state, output, cost = {}) {
-  return Object.entries(output).every(([id, amount]) => numberInStock(state, id) - (cost[id] ?? 0) + amount <= capacity(state, id));
+  return Object.entries(output).every(([id, amount]) =>
+    roundStock(numberInStock(state, id) - (cost[id] ?? 0) + amount) <= capacity(state, id));
 }
 
 function changeStocks(state, changes, direction = 1) {
   for (const [id, amount] of Object.entries(changes)) {
     const current = numberInStock(state, id);
     const value = Math.min(Math.max(current, capacity(state, id)), Math.max(0, current + direction * amount));
-    state.stocks[id] = Math.round(value * 1e6) / 1e6;
+    state.stocks[id] = roundStock(value);
   }
 }
 
@@ -96,6 +104,13 @@ export function canUseJob(state, id) {
 export function canUseRecipe(state, id) {
   const recipe = find(recipes, id);
   return Boolean(state.buildings.studio && recipe && hasResearch(state, recipe.requires));
+}
+
+export function recipeOutput(state, id) {
+  const { craftBonusPerExtra, craftBonusMax } = buildings.studio;
+  const bonus = Math.min(craftBonusMax, Math.max(0, state.buildings.studio - 1) * craftBonusPerExtra);
+  return Object.fromEntries(Object.entries(recipes[id].output).map(([resource, amount]) =>
+    [resource, roundStock(amount * (1 + bonus / 100))]));
 }
 
 export function morale(state) {
@@ -195,11 +210,7 @@ export function advanceDay(state, random = Math.random) {
   }
   if (state.expedition?.returns <= state.day) finishExpedition(state);
   if (state.automation && state.day % 5 === 0) {
-    const { cost, output } = recipes[state.automation];
-    if (canPay(state, cost) && hasRoom(state, output, cost)) {
-      changeStocks(state, cost, -1);
-      changeStocks(state, output);
-    }
+    craftRecipe(state, state.automation);
   }
   return true;
 }
@@ -209,6 +220,10 @@ function exchange(state, item) {
   changeStocks(state, item.cost, -1);
   changeStocks(state, item.output);
   return true;
+}
+
+function craftRecipe(state, id) {
+  return canUseRecipe(state, id) && exchange(state, { cost: recipes[id].cost, output: recipeOutput(state, id) });
 }
 
 const commands = {
@@ -241,15 +256,15 @@ const commands = {
     return true;
   },
   research(state, id) {
-    const item = find(research, id);
-    if (!item || !state.buildings.archive || hasResearch(state, id)
-      || item.after?.some((entry) => !hasResearch(state, entry)) || !canPay(state, item.cost)) return false;
+    if (!canStudy(state, id)) return false;
+    const item = research[id];
+    if (!canPay(state, item.cost)) return false;
     changeStocks(state, item.cost, -1);
     state.researched.push(id);
     addEvent(state, `Recherche terminée · ${item.label}.`);
     return true;
   },
-  craft: (state, id) => canUseRecipe(state, id) && exchange(state, recipes[id]),
+  craft: craftRecipe,
   trade: (state, id) => Boolean(state.buildings.market && exchange(state, find(trades, id))),
   automate(state, id) {
     if (!hasResearch(state, "automation") || (id !== null && !canUseRecipe(state, id))) return false;

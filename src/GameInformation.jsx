@@ -20,12 +20,32 @@ function InformationRow({ icon, label, description, warning, children }) {
 
 export function GameInformation({ snapshot, stateLabel, saveFeedback }) {
   const [open, setOpen] = useState(false);
+  const [fps, setFps] = useState(null);
   const pinned = useRef(false);
   const menu = useRef(null);
   const trigger = useRef(null);
   const popoverId = useId();
   const toolbar = snapshot?.toolbar;
   const energy = toolbar?.energy;
+
+  useEffect(() => {
+    if (!open) return;
+    let frames = 0;
+    let start;
+    let animation;
+    function measure(time) {
+      if (start === undefined) start = time;
+      else frames += 1;
+      if (time - start >= 800) {
+        setFps(Math.round((frames * 1000) / (time - start)));
+        start = time;
+        frames = 0;
+      }
+      animation = requestAnimationFrame(measure);
+    }
+    animation = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(animation);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -77,7 +97,12 @@ export function GameInformation({ snapshot, stateLabel, saveFeedback }) {
         <Icon name="info" /><span>Infos</span>
       </button>
       <section id={popoverId} className="info-popover" aria-label="Informations de la partie" hidden={!open}>
-        {snapshot && (
+        {snapshot?.calendarText && (
+          <InformationRow icon="calendar" label="Calendrier" description="Calendrier affiché dans le journal de la partie.">
+            {snapshot.calendarText}
+          </InformationRow>
+        )}
+        {snapshot?.year !== undefined && (
           <InformationRow icon="calendar" label={seasons[snapshot.season]} description="Saison, année et jour dans la partie.">
             An {metric.format(snapshot.year)} · Jour {metric.format(snapshot.day)}
           </InformationRow>
@@ -85,24 +110,32 @@ export function GameInformation({ snapshot, stateLabel, saveFeedback }) {
         <InformationRow icon={snapshot?.paused ? "pause" : "play"} label="État" description="Indique si la partie est active, en pause ou arrêtée.">
           {stateLabel}
         </InformationRow>
+        <InformationRow icon="chart" label="FPS" description="Fréquence de rafraîchissement de l’interface.">
+          {fps ?? "—"}
+        </InformationRow>
         {toolbar?.happiness != null && (
-          <InformationRow icon="heart" label="Moral" description="Le moral influence la production des habitants.">
+          <InformationRow icon="heart" label="Bonheur" description="Le bonheur influence la production des habitants.">
             {metric.format(toolbar.happiness)} %
           </InformationRow>
         )}
         {energy && (
           <InformationRow
             icon="energy"
-            label="Énergie"
+            label="Électricité"
             warning={energy.production < energy.consumption}
             description={`Production ${metric.format(energy.production)} · Demande ${metric.format(energy.consumption)} · En hiver ${metric.format(energy.winterProduction)}`}
           >
-            {metric.format(energy.production - energy.consumption)} unités
+            {metric.format(energy.production - energy.consumption)} {toolbar.reference ? "W" : "unités"}
           </InformationRow>
         )}
-        {toolbar?.pollutionVisible && (
-          <InformationRow icon="cloud" label="Pollution" description="La fumée des fours réduit le moral. Les roselières améliorent la qualité de l’air.">
-            {metric.format(toolbar.pollution)} / 500
+        {(toolbar?.reference || toolbar?.pollutionVisible) && (
+          <InformationRow icon="cloud" label="Pollution" description="Niveau de pollution du village.">
+            {toolbar.pollution == null ? "—" : `${metric.format(toolbar.pollution)} ${toolbar.reference ? "ppm" : "/ 500"}`}
+          </InformationRow>
+        )}
+        {toolbar?.sorrow != null && (
+          <InformationRow icon="sorrow" label="Chagrin" description="Stock de chagrin calculé par le moteur du jeu.">
+            {metric.format(toolbar.sorrow)} %
           </InformationRow>
         )}
         {saveFeedback && <InformationRow icon="check" label="Sauvegarde" description="Notification de sauvegarde du jeu.">{saveFeedback}</InformationRow>}

@@ -12,8 +12,9 @@ export function Widget({ element, label, icon }) {
 
   function move(dx, dy) {
     const { left, right, top, bottom } = element.getBoundingClientRect();
-    position.current.x += Math.max(4 - left, Math.min(dx, scope.innerWidth - right - 4));
-    position.current.y += Math.max(4 - top, Math.min(dy, scope.innerHeight - bottom - 4));
+    const area = element.parentElement.getBoundingClientRect();
+    position.current.x += Math.max(area.left - left, Math.min(dx, area.right - right));
+    position.current.y += Math.max(area.top - top, Math.min(dy, area.bottom - bottom));
     element.style.translate = `${position.current.x}px ${position.current.y}px`;
   }
 
@@ -24,8 +25,7 @@ export function Widget({ element, label, icon }) {
 
   function resize(dx, dy) {
     const bounds = element.getBoundingClientRect();
-    const maxWidth = scope.innerWidth - 8;
-    const maxHeight = scope.innerHeight - 8;
+    const { width: maxWidth, height: maxHeight } = element.parentElement.getBoundingClientRect();
     const width = Math.max(Math.min(215, maxWidth), Math.min(bounds.width + dx, maxWidth));
     const height = Math.max(Math.min(110, maxHeight), Math.min(bounds.height + dy, maxHeight));
 
@@ -69,6 +69,7 @@ export function Widget({ element, label, icon }) {
 
   useLayoutEffect(() => {
     function reset() {
+      pointer.current = null;
       position.current = { x: 0, y: 0 };
       element.style.removeProperty("translate");
       element.style.removeProperty("--widget-width");

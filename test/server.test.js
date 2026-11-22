@@ -30,6 +30,20 @@ test("les scripts Windows lancent une seule instance et l’arrêtent proprement
 
   assert.match(html, /AnimalGame LouisLeMaitre/);
   assert.equal((await fetch(`${url}jeu/`)).status, 404);
+  assert.equal((await fetch(`${url}jeu/version.json`)).status, 404);
+  const motor = await fetch(`${url}motorAGLLM`);
+  assert.equal(motor.url, `${url}motorAGLLM/`);
+  assert.equal(motor.status, 200);
+  assert.match(await motor.text(), /<title>Kittens Game/);
+  assert.match(motor.headers.get("content-security-policy"), /default-src 'self'/);
+  const direct = await fetch(`${url}motorAGLLM/`, { headers: { "Sec-Fetch-Dest": "document" }, redirect: "manual" });
+  assert.equal(direct.status, 302);
+  assert.equal(direct.headers.get("location"), "/");
+  const motorScript = await fetch(`${url}motorAGLLM/game.js`);
+  assert.equal(motorScript.status, 200);
+  assert.match(motorScript.headers.get("content-type"), /javascript/);
+  assert.equal((await fetch(`${url}motorAGLLM/.git`)).status, 404);
+  assert.equal((await fetch(`${url}motorAGLLM/.gitmodules`)).status, 404);
 
   const externalHost = await new Promise((resolve, reject) => {
     request(url, { headers: { Host: `outside.example:${port}` } }, (result) => {

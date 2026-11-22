@@ -1,0 +1,257 @@
+.reference-game #midColumn .Bonfire .bldGroupContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  flex: 0 0 100%;
+  align-items: start;
+  gap: .55rem;
+  margin: .35rem 0 0 !important;
+}
+
+.reference-game #midColumn .Bonfire .bldGroupContainer > table {
+  display: contents;
+
+  & > tbody,
+  & > tr,
+  & > tbody > tr,
+  & > tr > td,
+  & > tbody > tr > td { display: contents; }
+}
+
+.reference-game #midColumn .Bonfire .btn.modern {
+  width: 100% !important;
+  margin: 0 !important;
+}
+.reference-game #midColumn .Bonfire .btn[data-building-icon] { border-color: transparent !important; }
+.reference-game #midColumn .Bonfire [data-camp-action] .btnTitle {
+  flex: 1 1 100%;
+  gap: .5rem;
+  min-height: 2.3rem;
+  font-weight: 650;
+}
+.reference-game #midColumn .Bonfire [data-camp-action] .btnTitle::before { width: 2.2rem; height: 2.2rem; }
+.reference-game #midColumn .Bonfire [data-camp-action="gather"] .btnTitle { --element-icon: var(--icon-leaf); }
+.reference-game #midColumn .Bonfire [data-camp-action="refine"] .btnTitle { --element-icon: var(--icon-tools); }
+
+.reference-game #midColumn .Bonfire .btn.modern .camp-building-card {
+  --camp-action-size: 2rem;
+  --camp-quantity-size: 1.7rem;
+  --camp-spacing: .35rem;
+  container-type: inline-size;
+  display: grid;
+  grid-template:
+    "preview heading stages" max(2.4rem, var(--camp-action-size))
+    "quantity quantity quantity" var(--camp-action-size)
+    "actions actions actions" var(--camp-action-size)
+    / 2.5rem minmax(0, 1fr) 2.5rem;
+  align-items: stretch;
+  gap: var(--camp-spacing);
+  padding: .65rem !important;
+}
+
+.reference-game .camp-building-preview {
+  grid-area: preview;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  min-width: 0;
+}
+.reference-game .camp-building-preview img {
+  display: block;
+  width: 2.2rem;
+  height: 2.2rem;
+  object-fit: contain;
+}
+.reference-game .camp-building-quantity {
+  --camp-button-radius: 50%;
+  grid-area: quantity;
+  place-self: center;
+  display: grid;
+  grid-template-columns: 0 minmax(3rem, max-content) 0;
+  grid-template-rows: var(--camp-quantity-size);
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+}
+.reference-game .camp-building-quantity:has(> button):not([data-read-only]) {
+  grid-template-columns: var(--camp-quantity-size) minmax(3rem, max-content) var(--camp-quantity-size);
+  border-radius: 2rem;
+  background: var(--surface);
+}
+.reference-game .camp-building-quantity[data-read-only] button { display: none !important; }
+.reference-game .camp-building-card .camp-building-count {
+  grid-area: 1 / 2;
+  place-self: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 .45rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--control-hover);
+  color: var(--ink);
+  font: 700 .75rem/1.5rem var(--font);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.reference-game .camp-building-quantity:has(> button):not([data-read-only]) .camp-building-count {
+  padding-inline: .3rem;
+  background: transparent;
+  color: var(--accent);
+}
+.reference-game .btn.bldlackResConvert .camp-building-card .camp-building-count { color: var(--warning); }
+.reference-game .camp-building-quantity > [data-camp-tool="minus"] { grid-area: 1 / 1; --camp-icon: var(--control-icon-minus); }
+.reference-game .camp-building-quantity > [data-camp-tool="plus"] {
+  grid-area: 1 / 3;
+  --camp-icon: var(--control-icon-plus);
+  --camp-button-surface: var(--control-hover);
+  --camp-button-hover: color-mix(in srgb, var(--control-hover) 80%, var(--accent));
+}
+.reference-game .camp-building-quantity > button { height: 100%; }
+
+.reference-game .camp-building-heading {
+  grid-area: heading;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+.reference-game #midColumn .Bonfire .camp-building-heading .btnTitle {
+  display: block;
+  min-width: 0;
+  color: #fff !important;
+  font-size: clamp(.9rem, 5.75cqi, 1.05rem);
+  font-weight: 700;
+  line-height: 1.12;
+  text-align: center;
+}
+.reference-game .camp-building-heading .btnTitle::before { content: none !important; }
+.reference-game .camp-building-heading .btnTitle:has(> .label) > :not(.label) { display: none !important; }
+.reference-game #game #midColumn .camp-building-heading .btnTitle :is(.label, .label-content) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.reference-game #game #midColumn .camp-building-heading .btnTitle .label-content {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: inherit;
+}
+.reference-game .camp-building-stages {
+  grid-area: stages;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .15rem;
+}
+.reference-game #midColumn .btnContent .camp-building-stages [data-camp-stage] {
+  flex: 0 1 1.5rem;
+  height: 1.65rem;
+}
+.reference-game [data-camp-stage="down"] { --camp-icon: var(--control-icon-downgrade); }
+.reference-game [data-camp-stage="up"] { --camp-icon: var(--control-icon-upgrade); }
+
+.reference-game .camp-building-actions {
+  grid-area: actions;
+  display: flex;
+  justify-content: center;
+  gap: var(--camp-spacing);
+  min-width: 0;
+}
+.reference-game #midColumn .camp-building-actions :is(button, a) {
+  flex: 0 0 min(3rem, calc((100% - 4 * var(--camp-spacing)) / 5));
+}
+.reference-game #midColumn :is(.camp-building-actions :is(button, a), .camp-building-stages [data-camp-stage], .camp-building-quantity:not([data-read-only]) > button, .camp-quantity-menu :is(button, a)):not([hidden], [style*="display: none"]) {
+  display: grid !important;
+  place-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0 !important;
+  min-height: 0;
+  padding: 0 !important;
+  border: 0;
+  border-radius: var(--camp-button-radius, .42rem);
+  background: var(--camp-button-surface, var(--surface)) !important;
+  color: var(--accent);
+  font: 700 .8rem/1 var(--font);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.reference-game #midColumn :is(.camp-building-actions :is(button, a), .camp-building-stages [data-camp-stage], .camp-building-quantity > button):is(:hover, :focus-visible, :has(+ :popover-open)):not(:disabled) {
+  background: var(--camp-button-hover, var(--control-hover)) !important;
+}
+.reference-game .camp-building-actions button:disabled { opacity: .4; cursor: default; }
+.reference-game .camp-building-card [hidden] { display: none !important; }
+.reference-game #midColumn .camp-building-card .camp-building-actions[data-read-only] a { display: none !important; }
+.reference-game #midColumn .camp-building-actions a[data-camp-native="sell"] { color: var(--warning) !important; }
+.reference-game #midColumn .camp-building-actions a:is(.bld-on, .auto-on) { background: var(--control-hover) !important; }
+.reference-game #midColumn .camp-building-actions a:is(.bld-off, .auto-off) { color: var(--muted) !important; }
+.reference-game .camp-building-card [data-camp-icon] {
+  position: relative;
+  font-size: 0 !important;
+}
+.reference-game .camp-building-card [data-camp-icon]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+  mask: var(--camp-icon) center / contain no-repeat;
+  pointer-events: none;
+}
+.reference-game .camp-building-actions [data-camp-tool="eye"] { --camp-icon: var(--control-icon-eye); }
+.reference-game .camp-building-actions [data-camp-tool="info"] { --camp-icon: var(--control-icon-info); }
+.reference-game .camp-building-actions [data-camp-native="power"] { --camp-icon: var(--control-icon-power); }
+.reference-game .camp-building-actions [data-camp-native="automation"] { --camp-icon: var(--control-icon-automation); }
+.reference-game .camp-building-actions [data-camp-native="sell"] { --camp-icon: var(--control-icon-sell); }
+
+.reference-game .camp-quantity-menu {
+  --camp-button-radius: .42rem;
+  --camp-button-surface: var(--control);
+  position: fixed;
+  box-sizing: border-box;
+  inset: auto .65rem .65rem auto;
+  width: min(3.65rem, calc(100vw - 1.3rem));
+  margin: 0;
+  padding: .35rem;
+  border: 1px solid var(--line);
+  border-radius: .65rem;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 .4rem 1rem #08170e80;
+}
+.reference-game .camp-quantity-menu:popover-open {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: var(--camp-action-size);
+  gap: var(--camp-spacing);
+}
+.reference-game #midColumn .camp-quantity-menu :is(a, button):is(:hover, :focus-visible) { background: var(--control-hover) !important; }
+
+@supports (position-area: inline-end span-block-end) {
+  .reference-game .camp-quantity-menu {
+    inset: auto;
+    position-area: inline-end span-block-end;
+    position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
+    align-self: start;
+    margin-inline: .25rem;
+  }
+  .reference-game .camp-building-quantity [data-camp-tool="minus"] + .camp-quantity-menu {
+    position-area: inline-start span-block-end;
+  }
+}
+
+@media (pointer: coarse) {
+  .reference-game #midColumn .Bonfire .btn.modern .camp-building-card {
+    --camp-action-size: 2.75rem;
+    --camp-quantity-size: var(--camp-action-size);
+  }
+  .reference-game #midColumn .btnContent .camp-building-stages [data-camp-stage] {
+    flex-basis: 2rem;
+    height: 2rem;
+  }
+}

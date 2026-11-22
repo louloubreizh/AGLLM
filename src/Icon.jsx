@@ -5,6 +5,14 @@ import { illustration } from "./illustration.js";
 
 const shapes = {
   brand: "M12 3 21 12 12 21 3 12Z M8 13l3-4 2 3 1-1 2 2",
+  account: "M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z M4 21v-2a8 8 0 0 1 16 0v2",
+  chart: "M3 3v18h18M7 17v-4m5 4V8m5 9V5",
+  queue: "M4 6h16M4 12h12m-12 6h8m6-2 2 2-2 2",
+  fire: "M12 22c-6 0-8-4-6-9l3 1c-1-5 1-8 4-12 0 5 5 6 7 12 1 5-3 8-8 8z",
+  flag: "M5 21V4m0 1h12l-2 4 2 4H5",
+  up: "m5 13 7-7 7 7m-7-7v14",
+  down: "m5 11 7 7 7-7m-7 7V4",
+  power: "M12 2v9m5-6a8 8 0 1 1-10 0",
   save: "M4 3h13l4 4v14H3V3z M7 3v6h9V3 M7 21v-8h10v8",
   settings: "M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M19 5l-3 3m-8 8-3 3 M18 12a6 6 0 1 1-12 0 6 6 0 1 1 12 0Z M14 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0Z",
   info: "M22 12a10 10 0 1 1-20 0 10 10 0 1 1 20 0Z M12 11v6m0-10v.1",
@@ -50,8 +58,8 @@ const interfaceImages = imageCatalog(shapes);
 const resourceImages = imageCatalog(resourceIcons);
 const buildingImages = imageCatalog(buildingIcons);
 
-function iconImage(name) {
-  return interfaceImages[name] ?? resourceImages[name];
+export function iconImage(name) {
+  return interfaceImages[name] ?? resourceImages[name] ?? interfaceImages.resources;
 }
 
 export function buildingImage(name) {

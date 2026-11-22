@@ -6,11 +6,13 @@
   --line: #466456;
   --divider: #314a3d;
   --surface: #152820;
+  --surface-raised: #20382d;
   --panel: rgb(20 37 29 / 94%);
   --control: #233d30;
   --control-hover: #30533e;
   --control-disabled: #1a2e25;
   --focus: #e4f6c4;
+  --panel-shadow: 0 .55rem 1.45rem #08120e70;
   --warning: #f1bc87;
   --panel-gutter: clamp(.6rem, 1.6vw, 1.4rem);
   --font: "Segoe UI", system-ui, sans-serif;
