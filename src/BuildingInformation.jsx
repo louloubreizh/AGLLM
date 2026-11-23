@@ -1,7 +1,8 @@
 import React, { useEffect, useId, useRef } from "react";
 import { Icon } from "./Icon.jsx";
+import { residentText } from "./resident-species.js";
 
-export function BuildingInformation({ building, onClose }) {
+export function BuildingInformation({ building, species, onClose }) {
   const titleId = useId();
   const dialog = useRef(null);
 
@@ -21,8 +22,8 @@ export function BuildingInformation({ building, onClose }) {
         aria-label="Fermer la fiche du bâtiment"><Icon name="close" /></button>
       <img className="building-info-picture" src={building.picture} alt="" />
       <div className="building-info-copy">
-        <h2 id={titleId}>{building.name}</h2>
-        <p>{building.description}</p>
+        <h2 id={titleId}>{residentText(building.name, species)}</h2>
+        <p>{residentText(building.description, species)}</p>
       </div>
     </dialog>
   );

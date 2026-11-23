@@ -4,7 +4,7 @@
 
 Le jeu se lance directement dans le navigateur, sans installation ni compte. La partie est sauvegardée dans ce navigateur. La version en ligne est publiée sur GitHub Pages à partir de la branche `prod`.
 
-AGLLM est un jeu de gestion et de progression dans lequel vous développez une colonie de chats. Cueillez vos premières ressources, construisez un campement, répartissez le travail et faites évoluer le village au fil des saisons. Le moteur interne d’AGLLM simule l’économie, la population, le calendrier et les déblocages. La scène 3D suit l’évolution de la partie.
+AGLLM est un jeu de gestion et de progression dans lequel vous développez un village d’animaux. Le bouton **AGLLM**, à gauche de la barre principale, permet de choisir les chats, les chiens, les lapins, les vélociraptors ou les drakes des brumes. Le choix s’applique à la partie en cours et reste mémorisé dans le navigateur. Cueillez vos premières ressources, construisez un campement, répartissez le travail et faites évoluer le village au fil des saisons. Le moteur interne d’AGLLM simule l’économie, la population, le calendrier et les déblocages. La scène 3D suit l’évolution de la partie.
 
 ## Installer et lancer en local sous Windows
 
@@ -60,7 +60,7 @@ Le panneau **Ressources** affiche les stocks, les capacités et les variations d
 | **Écran tactile** | Touchez un bâtiment pour le cadrer. Faites glisser un doigt sur une zone dégagée pour pivoter et pincez à deux doigts pour zoomer. |
 | **Clavier** | Placez le focus sur **Caméra du village**. Les flèches font pivoter la vue, `+` et `-` règlent le zoom, et `Origine` réinitialise la caméra. Depuis une carte du **Campement**, activez **Observer** pour cadrer le bâtiment. Utilisez `Échap` pour revenir à la vue précédente. |
 
-Les rues de l’île s’ouvrent avec les constructions et les chats les empruntent entre les quartiers. Le relief, les saisons et la météo influencent l’apparence du décor. La caméra tient compte du réglage système de réduction des animations lors du cadrage.
+Les rues de l’île s’ouvrent avec les constructions et les habitants les empruntent entre les quartiers. Chaque espèce se déplace et réagit à sa manière en arrivant à destination. Le relief, les saisons et la météo influencent l’apparence du décor. La caméra tient compte du réglage système de réduction des animations lors du cadrage.
 
 ## Pause, sauvegardes et connexion
 

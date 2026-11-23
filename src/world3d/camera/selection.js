@@ -1,16 +1,13 @@
 import { Raycaster, Vector2 } from "three";
 
 const labels = {
-  "Island plateau": "Plateau de l’île",
   Cliff: "Falaise",
-  Lake: "Lac",
   River: "Rivière",
   "Village paths": "Chemins du village",
   "Village square": "Place du village",
   Bridge: "Pont",
   Rock: "Rocher",
   Tree: "Arbre",
-  Cat: "Chat",
 };
 
 export function createScenePicker(camera, buildings, terrain, trails, residents) {
@@ -19,6 +16,8 @@ export function createScenePicker(camera, buildings, terrain, trails, residents)
 
   return function pick(x, y) {
     const targets = new Map();
+    camera.updateMatrixWorld();
+    raycaster.setFromCamera(pointer.set(x * 2 - 1, 1 - y * 2), camera);
     function add(model, target) {
       if (!model.visible) return;
       model.updateWorldMatrix(true, true);
@@ -27,22 +26,34 @@ export function createScenePicker(camera, buildings, terrain, trails, residents)
       });
     }
 
-    for (const [type, models] of buildings) {
-      models.forEach((model, index) => add(model, {
-        label: model.name,
-        type, index,
-        resolve: () => buildings.get(type)?.[index],
-      }));
-    }
-    for (const model of [...terrain.children, trails, ...residents.children]) {
-      add(model, {
-        label: labels[model.name] ?? model.name,
-        resolve: () => model.parent && model.visible ? model : null,
-        follow: model.parent === residents,
+    for (const [type, models] of buildings.instances) {
+      models.forEach((model, index) => {
+        if (!raycaster.ray.intersectsBox(buildings.bounds.get(model))) return;
+        add(model, {
+          label: model.name,
+          type, index,
+          resolve: () => buildings.instances.get(type)?.[index],
+        });
       });
     }
-    camera.updateMatrixWorld();
-    raycaster.setFromCamera(pointer.set(x * 2 - 1, 1 - y * 2), camera);
+    for (const model of [...terrain.children, trails]) {
+      if (model.name === "Island plateau" || model.name === "Lake") {
+        add(model, null);
+        continue;
+      }
+      add(model, {
+        label: model.userData.species ?? labels[model.name] ?? model.name,
+        resolve: () => model.parent && model.visible ? model : null,
+      });
+    }
+    for (const model of residents.children) {
+      if (raycaster.ray.distanceSqToPoint(model.position) > 0.38 ** 2) continue;
+      add(model, {
+        label: model.name,
+        resolve: () => model.parent === residents ? model : null,
+        follow: true,
+      });
+    }
     const hit = raycaster.intersectObjects([...targets.keys()], false)[0];
     return hit ? targets.get(hit.object) : null;
   };

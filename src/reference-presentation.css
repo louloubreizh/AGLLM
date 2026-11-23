@@ -154,6 +154,9 @@
   vertical-align: -.12em;
   background: var(--resource-mark) center / contain no-repeat;
 }
+.reference-game #leftColumn .resource_kittens .resource-name::before {
+  background-image: var(--resident-icon, var(--resource-mark));
+}
 .reference-game #leftColumn .widget-content { padding: .55rem; }
 .reference-game #leftColumn .reference-resource-header,
 .reference-game #leftColumn .reference-resource-sizes {

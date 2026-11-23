@@ -1,5 +1,6 @@
 import { control, element, setText, villageIcon } from "./village-ui.js";
 import { placeTooltip } from "./reference-tooltips.js";
+import { residentId } from "./resident-identity.js";
 
 export function createResidentActions(document, game, context, getResident, refresh) {
   const { copy, translate } = context;
@@ -72,12 +73,28 @@ export function createResidentDetails(document, game, nativeCensus, context) {
   const skills = document.createElement("ul");
   skillSection.append(element(document, "h4", "", copy.skills), skills);
   const promotionCost = element(document, "p", "village-resident-promotion-cost");
-  popover.append(heading, facts, skillSection, promotionCost);
+  const french = context.language === "fr";
+  const travel = element(document, "p", "village-resident-journey");
+  const preview = control(document, "village-control", french ? "Voir en 3D" : "View in 3D");
+  preview.addEventListener("click", () => {
+    if (!resident) return;
+    context.residentView?.inspect(residentId(resident));
+    close();
+  });
+  popover.append(heading, facts, travel, preview, skillSection, promotionCost);
 
   let resident;
   let trigger;
   let previousSkills;
   let hintOwner;
+  let journeyTimer;
+
+  function updateJourney() {
+    const trip = resident && context.residentView?.journey(residentId(resident));
+    preview.hidden = !trip;
+    setText(travel, trip ? `Destination · ${trip.destination} · ${number.format(Math.ceil(trip.meters))} m · ${number.format(Math.round(trip.progress * 100))} %`
+      : french ? "Trajet en cours de préparation" : "Preparing route");
+  }
 
   function hideHint() {
     if (!hintOwner) return;
@@ -103,6 +120,7 @@ export function createResidentDetails(document, game, nativeCensus, context) {
 
   function update() {
     if (!resident) return;
+    updateJourney();
     const { name, job, trait, age, rank, exp } = context.read(resident);
     setText(heading, name);
     popover.setAttribute("aria-label", `${copy.details} · ${name}`);
@@ -151,7 +169,15 @@ export function createResidentDetails(document, game, nativeCensus, context) {
     return button;
   }
 
-  popover.addEventListener("toggle", () => trigger?.setAttribute("aria-expanded", String(popover.matches(":popover-open"))));
+  popover.addEventListener("toggle", () => {
+    const active = popover.matches(":popover-open");
+    trigger?.setAttribute("aria-expanded", String(active));
+    document.defaultView.clearInterval(journeyTimer);
+    if (active) journeyTimer = document.defaultView.setInterval(() => {
+      if (popover.isConnected && popover.matches(":popover-open")) updateJourney();
+      else document.defaultView.clearInterval(journeyTimer);
+    }, 250);
+  });
 
   return {
     popover,

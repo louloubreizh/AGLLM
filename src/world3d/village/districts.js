@@ -1,39 +1,56 @@
+import { smoothstep } from "../models/landscape/noise.js";
+import { edgeRatio, riverWidth, riverX } from "../models/landscape/terrain-profile.js";
+
 const turn = Math.PI * 2;
 export const sectors = [-0.32, 1.15, 2.78, 4.36, turn - 0.32];
-export const streetRadii = [2.64, 7.36, 11.79];
+export const streetRadii = [3.15, 9.1, 12.15, 17.5];
+export const smallFootprint = 1.62;
 const sectorOrder = [0, 2, 1, 3];
 
 const districts = {
   center: {
-    radius: 5.06, street: 1, footprint: 1.47, slots: [1, 0, 2],
-    extra: [{ radius: 3.58, street: 0 }, { radius: 6.52, street: 1 }],
+    radius: 5.35, street: 1, slots: [1, 0, 3, 2],
+    extra: [{ radius: 4.38, street: 0 }, { radius: 7.05, street: 1 }],
     buildings: ["hut", "tradepost", "logHouse", "barn", "library", "mint", "mansion", "warehouse",
-      "academy", "brewery", "chapel", "amphitheatre"],
+      "academy", "brewery", "chapel", "amphitheatre", "workshop", "biolab"],
   },
   outskirts: {
-    radius: 9.59, street: 2, footprint: 1.29, slots: [2, 0, 4, 1, 3],
-    extra: [{ radius: 8.27, street: 1 }, { radius: 10.94, street: 2 }],
-    compactPlots: { zebraForge: 1.12 },
-    buildings: ["workshop", "quarry", "smelter", "lumberMill", "mine", "factory", "calciner", "steamworks",
-      "magneto", "oilWell", "biolab", "reactor", "aqueduct", "harbor", "accelerator", "aiCore",
+    radius: 9.95, street: 2, slots: [2, 0, 4, 1, 3],
+    extra: [{ radius: 9.15, street: 1 }, { radius: 11.05, street: 2 }],
+    buildings: [null, "quarry", "smelter", "lumberMill", "mine", "factory", "calciner", "steamworks",
+      "magneto", "oilWell", null, "reactor", "aqueduct", "harbor", "accelerator", "aiCore",
       "zebraWorkshop", "zebraForge", "stasisPod", "chronosphere"],
   },
   countryside: {
-    radius: 14.28, street: 2, footprint: 1.68,
+    radius: 14.3, street: 2,
     angles: [0.70, 3.98, 1.42, -1.43, 0.23, 4.18, 1.92, -0.63],
     outerBends: [0.135, -0.135, 0.135, 0.135, 0.135, 0.135, 0.135, 0.135],
-    extra: [{ radius: 12.77, street: 2 }, { radius: 15.63, street: 2 }],
-    buildings: ["field", "pasture", "unicornPasture", "observatory", "temple", "ziggurat", "zebraOutpost", "ivoryTemple"],
+    extra: [{ radius: 13.4, street: 2 }, { radius: 15.25, street: 2 }],
+    buildings: ["field", "pasture", "unicornPasture", "observatory", null, null, "zebraOutpost"],
   },
 };
 
 export function landscapePoint(radius, angle) {
   const bend = angle + 0.054 * Math.sin(angle * 3) + 0.105 * Math.min(1, radius / 12) ** 2;
   const irregularity = 1 + 0.073 * Math.sin(angle * 3 - 0.3) + 0.026 * Math.cos(angle * 5 + radius * 0.32);
-  const x = radius * irregularity * Math.cos(bend);
+  let x = radius * irregularity * Math.cos(bend);
   const z = radius * irregularity * Math.sin(bend);
   // The western streets follow the inside of the river bank.
-  return { x: x < 0 ? x * (1 - 0.123 * Math.min(1, radius / 11)) : x, z };
+  if (x < 0) {
+    x *= 1 - 0.123 * Math.min(1, radius / 11);
+    x += Math.max(0, riverX(z) + riverWidth(z) + 0.67 - x) * (1 - smoothstep(9.2, 11.9, Math.abs(z)));
+  }
+  return { x, z };
+}
+
+export function streetPoint(street, angle) {
+  const radius = streetRadii[street];
+  if (street < 3) return landscapePoint(radius, angle);
+  const distance = radius * edgeRatio(angle);
+  const x = distance * Math.cos(angle);
+  const z = distance * Math.sin(angle);
+  const bankShift = x < -11 ? Math.min(0, riverX(z) - riverWidth(z) - 0.70 - x) : 0;
+  return { x: x + bankShift * (1 - smoothstep(9.2, 11.9, Math.abs(z))), z };
 }
 
 function angleFor(district, index, copy) {
@@ -52,24 +69,34 @@ function angleFor(district, index, copy) {
 }
 
 export const buildingSites = new Map();
+
+function streetSite(id, copy, zone, radius, street, angle) {
+  const sector = sectors.findIndex((boundary) => boundary > angle) - 1;
+  const center = landscapePoint(radius, angle);
+  const entrance = landscapePoint(streetRadii[street], angle);
+  const dx = entrance.x - center.x;
+  const dz = entrance.z - center.z;
+  const setback = (smallFootprint * 0.27) / Math.hypot(dx, dz);
+  return {
+    ...center, angle, sector, zone, street, yaw: Math.atan2(dx, dz),
+    access: copy ? `access:${id}:${copy + 1}` : `access:${id}`,
+    footprint: smallFootprint,
+    entry: { x: center.x + dx * setback, z: center.z + dz * setback },
+  };
+}
+
 for (const [zone, district] of Object.entries(districts)) {
   district.buildings.forEach((id, index) => {
-    buildingSites.set(id, [district, ...district.extra].map(({ radius, street }, copy) => {
-      const angle = angleFor(district, index, copy);
-      const sector = sectors.findIndex((boundary) => boundary > angle) - 1;
-      const center = landscapePoint(radius, angle);
-      const entrance = landscapePoint(streetRadii[street], angle);
-      const dx = entrance.x - center.x;
-      const dz = entrance.z - center.z;
-      const length = Math.hypot(dx, dz);
-      const footprint = copy ? 0.61 : district.compactPlots?.[id] ?? district.footprint;
-      const setback = footprint / 2 + 0.06;
-      return {
-        ...center, angle, sector, zone, street, yaw: Math.atan2(dx, dz),
-        access: copy ? `access:${id}:${copy + 1}` : `access:${id}`,
-        footprint,
-        entry: { x: center.x + dx / length * setback, z: center.z + dz / length * setback },
-      };
-    }));
+    if (!id) return;
+    buildingSites.set(id, [district, ...district.extra].map(({ radius, street }, copy) =>
+      streetSite(id, copy, zone, radius, street, angleFor(district, index, copy))));
   });
+}
+
+for (const [id, angles] of [
+  ["temple", [1.47, 3.42, 0.24]],
+  ["ziggurat", [2.12, 4.72, 0.84]],
+  ["ivoryTemple", [2.72, 4.07, 5.37]],
+]) {
+  buildingSites.set(id, angles.map((angle, copy) => streetSite(id, copy, "center", 2.39, 0, angle)));
 }

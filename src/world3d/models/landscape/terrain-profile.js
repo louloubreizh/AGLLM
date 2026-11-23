@@ -1,10 +1,11 @@
 import { noise, smoothstep } from "./noise.js";
 
-export const terraceRadius = 18.6;
-export const segmentCount = 224;
+export const terraceRadius = 25.5;
+export const segmentCount = 336;
 export const riverLevel = 0.072;
 export const riverExtent = 9.12;
-export const lakeLevel = -2.45;
+export const lakeLevel = -3.15;
+export const lakeHorizonRadius = 380;
 
 export const riverX = (z) => -13.8 + 1.25 * Math.sin(z * 0.23);
 

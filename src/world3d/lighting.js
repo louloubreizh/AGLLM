@@ -10,13 +10,13 @@ const palettes = {
 };
 
 export function createLighting(scene, materials) {
-  scene.fog = new Fog(backgroundColor, 55, 105);
+  scene.fog = new Fog(backgroundColor, 90, 175);
   scene.add(new HemisphereLight(0xdcedde, 0x43503a, 2.2), new AmbientLight(0xffffff, 0.13));
   const sun = new DirectionalLight(0xffe0ac, 2.3);
   sun.position.set(-14, 25, 12);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024);
-  Object.assign(sun.shadow.camera, { left: -22, right: 22, top: 22, bottom: -22, near: 1, far: 64 });
+  Object.assign(sun.shadow.camera, { left: -31, right: 31, top: 31, bottom: -31, near: 1, far: 68 });
   sun.shadow.normalBias = 0.035;
   scene.add(sun);
 
@@ -28,7 +28,9 @@ export function createLighting(scene, materials) {
         for (const key of ["grass", "water", "dark", "leaf", "crop"]) {
           materials[key].color.setHex(palette[key]);
         }
-        materials.groundCover.color.setHex(palette.leaf);
+        materials.groundCover.color.setHex({
+          summer: 0xece5c6, autumn: 0xc8ae85, winter: 0xaebfc3,
+        }[snapshot?.season] ?? 0xffffff);
         materials.buildingLeaves.color.setHex(palette.leaf);
         materials.pool.color.copy(materials.water.color).multiplyScalar(0.55);
         sun.color.setHex(palette.light);

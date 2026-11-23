@@ -5,6 +5,10 @@ import { illustration } from "./illustration.js";
 
 const shapes = {
   brand: "M12 3 21 12 12 21 3 12Z M8 13l3-4 2 3 1-1 2 2",
+  residentDog: "M6 6Q12 2 18 6l3 7-3 2-2-5m-10-4-3 7 3 2 2-5M6 14c0 9 12 9 12 0M9 12h.1m6 0h.1M10 16h4l-2 2z",
+  residentRabbit: "M7 13C2 2 7-1 10 10m4 0C17-1 22 2 17 13M6 16c0-8 12-8 12 0 0 7-12 7-12 0Zm3-1h.1m6 0h.1m-4 3 1 1 1-1",
+  residentRaptor: "M3 16q3 4 7 0l2-7 4-4 4 1 2 4-6 1-2 3 4 2-1 2m-6-2 2 4 4 1m0-13h.1",
+  residentDrake: "M12 12 5 4 2 14l6 2 4 5 4-5 6-2-3-10-7 8Zm-3-4 3-5 3 5M8 13l2 1m6-1-2 1",
   account: "M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z M4 21v-2a8 8 0 0 1 16 0v2",
   chart: "M3 3v18h18M7 17v-4m5 4V8m5 9V5",
   queue: "M4 6h16M4 12h12m-12 6h8m6-2 2 2-2 2",

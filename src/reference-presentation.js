@@ -128,7 +128,7 @@ function updateNavigation(document, game) {
   }
 }
 
-export function decorateReferenceGame(document, game, inspect, showBuilding) {
+export function decorateReferenceGame(document, game, inspect, showBuilding, residentView) {
   if (!game?.ui?.activeTabId) return;
   updateNavigation(document, game);
   if (game.ui.activeTabId === "Bonfire") {
@@ -187,7 +187,7 @@ export function decorateReferenceGame(document, game, inspect, showBuilding) {
   if (game.ui.activeTabId === "Village") {
     updateVillageJobs(document, game);
     updateVillageManagement(document, game);
-    updateVillageCensus(document, game);
+    updateVillageCensus(document, game, residentView);
   }
   if (game.ui.activeTabId === "Workshop") updateWorkshop(document, game);
   if (game.ui.activeTabId === "Trade") updateTrade(document, game);

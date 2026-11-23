@@ -1,47 +1,59 @@
 import { BufferGeometry, Float32BufferAttribute } from "three";
 import { noise, smoothstep } from "./noise.js";
-import { edgeRatio, riverExtent, riverWidth, riverX, segmentCount, terraceRadius, terrainY } from "./terrain-profile.js";
+import { edgeRatio, lakeLevel, riverExtent, riverWidth, riverX, segmentCount, terraceRadius, terrainY } from "./terrain-profile.js";
 
-const plateauRings = 68;
-const cliffRings = 24;
+const plateauRings = 106;
+const cliffRings = 50;
+const cliffDepth = 4.35;
 
 function plateauPoint(radius, angle) {
   const x = radius * Math.cos(angle);
   const z = radius * Math.sin(angle);
   const broad = noise(x * 0.2, z * 0.2);
   const fine = noise(x * 0.62, z * 0.62);
+  const moss = smoothstep(-0.32, 0.66, noise(x * 0.31 + 4, z * 0.30) + fine * 0.29);
+  const rim = smoothstep(0.86, 1, radius / (terraceRadius * edgeRatio(angle)));
   const bankDistance = Math.abs(Math.abs(x - riverX(z)) - riverWidth(z));
   const riverbank = (1 - smoothstep(0.03, 0.65, bankDistance)) * (1 - smoothstep(8.6, riverExtent + 0.2, Math.abs(z)));
-  const dry = Math.max(riverbank * 0.75, smoothstep(0.33, 0.92, broad + fine * 0.33) * 0.7);
-  const shade = 0.87 + broad * 0.17 + fine * 0.07;
+  const dry = Math.max(riverbank * 0.72, smoothstep(0.19, 0.86, broad + fine * 0.40) * 0.74, rim * 0.40);
+  const shade = 0.85 + broad * 0.095 + fine * 0.085 - moss * 0.12;
   return {
     position: [x, terrainY(x, z), z],
-    color: [shade + dry * 0.31, shade - dry * 0.12, shade - dry * 0.27],
-    uv: [x * 0.61, z * 0.61],
+    color: [shade + dry * 0.48, shade - dry * 0.09 + moss * 0.075, shade - dry * 0.25 + moss * 0.035],
+    uv: [x * 0.72, z * 0.72],
   };
 }
 
-function cliffPoint(angle, depth, progress) {
+function cliffPoint(angle, progress) {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
   const rim = terraceRadius * edgeRatio(angle);
-  const erosion = noise(cos * 9 + progress * 1.2, sin * 9 + progress * 2.2);
-  const fissure = noise(cos * 28 + progress * 0.9, sin * 28 + progress * 2.1);
-  const phase = progress * 25 + noise(cos * 3.4, sin * 3.4) * 2.1;
-  const band = Math.sin(phase) * 0.72 + Math.sin(phase * 1.77 + 1.6) * 0.28;
-  const radius = rim + smoothstep(0, 0.18, progress) * (0.34 + erosion * 0.71 + fissure * 0.15 + band * 0.12)
-    - 0.96 * smoothstep(0.38, 1, progress);
+  const spur = noise(cos * 6.5 + progress * 0.8, sin * 6.5 - progress * 0.9);
+  const blocks = noise(cos * 21 + progress * 1.1, sin * 21 + progress * 2.1);
+  const fractured = noise(cos * 43 + progress * 2.5, sin * 43 - progress * 3.1);
+  const joint = smoothstep(0.23, 0.69, -blocks - fractured * 0.27);
+  const tilt = noise(cos * 3.5, sin * 3.5) * 0.38 + Math.sin(angle * 3 + 0.4) * 0.19;
+  const layer = (progress * cliffDepth + tilt) * 1.60
+    + noise(cos * 13 + progress * 4, sin * 13 + progress * 1.8) * 0.48;
+  const bedding = layer - Math.floor(layer);
+  const bedStrength = smoothstep(-0.72, 0.52, noise(cos * 10 + progress * 8, sin * 10 + progress * 5));
+  const ledge = smoothstep(0.06, 0.23, bedding) * (1 - smoothstep(0.37, 0.91, bedding)) * bedStrength;
+  const face = smoothstep(0, 0.16, progress);
+  // Keep the top edge welded to the plateau while the lower beds overhang or recede.
+  const radius = rim + face * (0.11 + spur * (0.7 + progress * 0.67) + blocks * 0.21
+    + fractured * 0.14 + ledge * (0.34 + spur * 0.13) - joint * 0.53)
+    + smoothstep(0.33, 1, progress) * (0.28 + spur * 0.36);
   const x = radius * cos;
   const z = radius * sin;
   const seamHeight = terrainY(rim * cos, rim * sin);
-  const y = seamHeight - depth + Math.sin(angle * 3 + 0.4) * 0.13 * progress;
-  const wet = smoothstep(0.65, 1, progress);
-  const shade = 0.74 + erosion * 0.27 + fissure * 0.11 + band * 0.085 - wet * 0.28;
-  const moss = (1 - smoothstep(0.07, 0.41, progress)) * (0.44 + erosion * 0.35);
+  const y = seamHeight - progress * cliffDepth + tilt * face * 0.55 + fractured * face * 0.06;
+  const wet = 1 - smoothstep(lakeLevel + 0.10, lakeLevel + 0.72 + spur * 0.27, y);
+  const shade = 0.88 + spur * 0.15 + blocks * 0.11 + ledge * 0.13 - joint * 0.19 - wet * 0.29;
+  const moss = (1 - smoothstep(0.03, 0.33, progress)) * smoothstep(-0.5, 0.65, blocks + spur * 0.5);
   return {
     position: [x, y, z],
-    color: [shade + 0.035 - moss * 0.15, shade + moss * 0.19, shade * 0.94 - moss * 0.19],
-    uv: [angle / (2 * Math.PI) * 56, y * 0.85],
+    color: [shade + ledge * 0.045 - moss * 0.20, shade + moss * 0.12, shade * 0.96 - moss * 0.25],
+    uv: [angle / (2 * Math.PI) * 21, (y - tilt * 0.7) * 0.46],
   };
 }
 
@@ -57,7 +69,7 @@ export function islandGeometry(cliff) {
     for (let index = 0; index <= segmentCount; index += 1) {
       const angle = index / segmentCount * 2 * Math.PI;
       const point = cliff
-        ? cliffPoint(angle, progress * 3.12, progress)
+        ? cliffPoint(angle, progress)
         : plateauPoint(progress * terraceRadius * edgeRatio(angle), angle);
       positions.push(...point.position);
       colors.push(...point.color);

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BuildingInformation } from "./BuildingInformation.jsx";
 import { decorateReferenceGame, referenceControlIcons, referenceResourceIcons } from "./reference-presentation.js";
 import { installReferenceControls } from "./reference-controls.js";
+import { presentReferenceResidents } from "./reference-residents.js";
 import { installSceneInput } from "./world3d/camera/scene-input.js";
 import { keepReferenceTooltipsVisible } from "./reference-tooltips.js";
 import { Widget } from "./Widget.jsx";
@@ -76,9 +77,10 @@ function groupNativeLinks(document) {
   document.getElementById("footerLinks").remove();
 }
 
-export function ReferenceInterface({ frame, panel, cameraView, onInspect, onSelect, onHover, onExit, onDocument, onNotice }) {
+export function ReferenceInterface({ frame, panel, species, cameraView, onInspect, onInspectResident, onSelect, onHover, onExit, onDocument, onNotice }) {
   const [styled, setStyled] = useState(null);
   const [building, setBuilding] = useState(null);
+  const residentPresentation = useRef(null);
 
   function styleFrame(event) {
     setBuilding(null);
@@ -126,11 +128,25 @@ export function ReferenceInterface({ frame, panel, cameraView, onInspect, onSele
 
   useEffect(() => {
     if (!styled) return;
+    const presentation = presentReferenceResidents(styled.document);
+    residentPresentation.current = presentation;
+    return () => presentation.dispose();
+  }, [styled]);
+
+  useEffect(() => {
+    if (styled) residentPresentation.current.update(species);
+  }, [styled, species]);
+
+  useEffect(() => {
+    if (!styled) return;
     const { document } = styled;
     const view = document.defaultView;
     const removeControls = installReferenceControls(document);
     const removeSceneInput = installSceneInput(document, cameraView, onSelect, onHover, onExit);
-    const update = (game) => decorateReferenceGame(document, game, onInspect, setBuilding);
+    const update = (game) => decorateReferenceGame(document, game, onInspect, setBuilding, {
+      inspect: onInspectResident,
+      journey: (id) => cameraView.current?.residentJourney(id),
+    });
     update(view.gamePage);
     const subscription = view.dojo?.subscribe("ui/update", update);
     const removeTooltipPlacement = keepReferenceTooltipsVisible(document);
@@ -146,7 +162,7 @@ export function ReferenceInterface({ frame, panel, cameraView, onInspect, onSele
       removeControls();
       removeSceneInput();
     };
-  }, [styled, cameraView, onInspect, onSelect, onHover, onExit, onNotice]);
+  }, [styled, cameraView, onInspect, onInspectResident, onSelect, onHover, onExit, onNotice]);
 
   return (
     <>
@@ -155,7 +171,7 @@ export function ReferenceInterface({ frame, panel, cameraView, onInspect, onSele
       {styled && columns.map(([id, , label, icon], index) => (
         <Widget key={id} element={styled.elements[index]} label={label} icon={icon} />
       ))}
-      {building && <BuildingInformation building={building} onClose={() => setBuilding(null)} />}
+      {building && <BuildingInformation building={building} species={species} onClose={() => setBuilding(null)} />}
     </>
   );
 }

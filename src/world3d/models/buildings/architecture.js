@@ -4,6 +4,7 @@ import {
 } from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { createModelGroup } from "../model-group.js";
+import { plantGeometry } from "../vegetation/plant-geometry.js";
 
 export function createBuildingArchitecture(finishes) {
   const unitBox = new BoxGeometry();
@@ -15,6 +16,7 @@ export function createBuildingArchitecture(finishes) {
 
   function build(name, design) {
     const parts = new Map();
+    let doorway;
 
     function add(finish, geometry, x, y, z, width = 1, height = 1, depth = 1, orientation = new Quaternion()) {
       const material = finishes[finish];
@@ -45,6 +47,16 @@ export function createBuildingArchitecture(finishes) {
       rotation.setFromUnitVectors(up, direction.normalize());
       add(finish, new CylinderGeometry(diameter / 2, diameter / 2, length, 8),
         center.x, center.y, center.z, 1, 1, 1, rotation);
+    }
+
+    function leaf(finish, x, y, z, width, length, yaw, pitch, roll) {
+      const profile = [[0, 0.14], [0.19, 0.46], [0.43, 0.50], [0.67, 0.38], [0.84, 0.21], [1, 0.01]];
+      const shape = plantGeometry();
+      shape.strip(profile.map(([t, half]) => [0, t, t ** 1.4 * 0.45, half, 0]), 0xffffff);
+      const geometry = shape.build();
+      geometry.deleteAttribute("color");
+      rotation.setFromEuler(new Euler(pitch, yaw, roll));
+      add(finish, geometry, x, y, z, width, length, length, rotation);
     }
 
     function ring(finish, x, y, z, diameter, thickness, horizontal = false) {
@@ -92,6 +104,7 @@ export function createBuildingArchitecture(finishes) {
     }
 
     function door(x, y, z, width, height, frame = "walnut", panel = "cedar") {
+      doorway ??= { x, z: z + 0.065, width, height };
       box(frame, x, y + height / 2, z, width + 0.085, height + 0.055, 0.065);
       box(panel, x, y + height / 2, z + 0.037, width, height, 0.017);
       for (const direction of [-1, 1]) {
@@ -120,7 +133,7 @@ export function createBuildingArchitecture(finishes) {
       round("walnut", x, y + height + 0.007, z, width * 0.92, 0.018);
     }
 
-    design({ box, round, beam, ring, dome, sphere, roof, window, door, arch, barrel });
+    design({ box, round, beam, leaf, ring, dome, sphere, roof, window, door, arch, barrel });
 
     const group = createModelGroup(name);
     for (const [material, components] of parts) {
@@ -133,7 +146,9 @@ export function createBuildingArchitecture(finishes) {
     const bounds = new Box3().setFromObject(group);
     const center = bounds.getCenter(new Vector3());
     group.children.forEach((mesh) => mesh.geometry.translate(-center.x, -bounds.min.y, -center.z));
-    return { group, footprint: Math.max(bounds.max.x - bounds.min.x, bounds.max.z - bounds.min.z) };
+    const depth = bounds.max.z - bounds.min.z;
+    return { group, doorway, center, depth, height: bounds.max.y - bounds.min.y,
+      footprint: Math.hypot(bounds.max.x - bounds.min.x, depth) };
   }
 
   return { build, dispose: () => unitBox.dispose() };

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { residentId } from "./resident-identity.js";
 
 const seasons = ["spring", "summer", "autumn", "winter"];
 
@@ -17,12 +18,20 @@ function snapshotFor(frame) {
   const { calendar, bld, village, resPool } = game;
   const document = frame.current.contentDocument;
   const pollutionBase = bld.getPollutionLevelBase();
+  const obscured = game.religion.getPact?.("fractured")?.val && game.getFeatureFlag("MAUSOLEUM_PACTS");
+  const nameTemplate = obscured ? document.createElement("template") : null;
   return {
     calendarText: document.getElementById("calendarDiv")?.textContent ?? "",
     season: calendar.getCurSeason()?.name ?? seasons[calendar.season],
     weather: calendar.weather,
     paused: Boolean(game.isPaused),
     population: village.getKittens(),
+    residents: village.sim.kittens.map((kitten) => {
+      if (nameTemplate) nameTemplate.innerHTML = village.getStyledName(kitten);
+      const color = obscured ? kitten.fakeColor : kitten.color;
+      return { id: residentId(kitten), name: nameTemplate?.content.textContent ?? `${kitten.name} ${kitten.surname}`,
+        coat: (color && kitten.colors?.[color + 1]?.color) || undefined };
+    }),
     loginOpen: Boolean(document.querySelector(".login-popup")),
     toolbar: {
       happiness: Math.floor(village.happiness * 100),

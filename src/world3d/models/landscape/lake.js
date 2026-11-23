@@ -1,27 +1,27 @@
 import { BufferGeometry, Float32BufferAttribute } from "three";
 import { createModelGroup } from "../model-group.js";
-import { noise } from "./noise.js";
-import { edgeRatio, lakeLevel, segmentCount, terraceRadius } from "./terrain-profile.js";
+import { edgeRatio, lakeHorizonRadius, lakeLevel, segmentCount, terraceRadius } from "./terrain-profile.js";
 
 export function lakeGeometry() {
   const positions = [];
   const uvs = [];
   const indices = [];
   const columns = segmentCount + 1;
-  const rings = [0, 0.12, 0.36, 0.65, 0.82, 0.94, 1];
-  const offset = 0.88;
+  const shoreOffsets = [-2.4, 0, 1.3, 3.5, 8];
+  const openWaterRadii = [60, 140, 260, lakeHorizonRadius];
+  const rings = shoreOffsets.length + openWaterRadii.length;
 
-  // The inner ring sits beneath the cliff. The intermediate rings carry the shallows.
-  for (let ring = 0; ring < rings.length; ring += 1) {
+  for (let ring = 0; ring < rings; ring += 1) {
     for (let i = 0; i <= segmentCount; i += 1) {
       const angle = i / segmentCount * 2 * Math.PI;
       const cos = Math.cos(angle);
       const sin = Math.sin(angle);
-      const inner = terraceRadius * edgeRatio(angle) - offset;
-      const shore = inner + 3.75 + cos * 0.7 + sin * 0.35 + noise(cos * 4.1 + 8, sin * 4.1) * 1.45;
-      const radius = inner + (shore - inner) * rings[ring];
+      const rim = terraceRadius * edgeRatio(angle);
+      const radius = ring < shoreOffsets.length
+        ? rim + shoreOffsets[ring]
+        : openWaterRadii[ring - shoreOffsets.length];
       positions.push(radius * cos, lakeLevel, radius * sin);
-      uvs.push(rings[ring], 0);
+      uvs.push(radius - rim, 0);
       if (ring === 0 || i === segmentCount) continue;
       const c = ring * columns + i;
       const a = c - columns;

@@ -40,7 +40,44 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   font-size: 1.05rem;
   font-weight: 750;
   letter-spacing: .16em;
+  padding: .3rem .4rem;
+  border: 0;
+  border-radius: .5rem;
+  background: transparent;
+  color: var(--ink);
 }
+.wordmark:hover, .wordmark:has(+ :popover-open) { background: var(--control-hover); }
+.wordmark-chevron .agllm-icon { width: .85rem; }
+.species-popover {
+  inset: 3.75rem auto auto clamp(.65rem, 2vw, 1.6rem);
+  width: min(19rem, calc(100vw - 1.3rem));
+  max-height: calc(100dvh - 4.4rem);
+  margin: 0;
+  padding: .7rem;
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--panel-shadow);
+}
+.species-popover fieldset { display: grid; gap: .25rem; min-width: 0; margin: 0; padding: 0; border: 0; }
+.species-popover legend { padding: .22rem .45rem .55rem; color: var(--muted); font-size: .85rem; }
+.species-option {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: .6rem;
+  padding: .42rem .55rem;
+  border: 1px solid transparent;
+  border-radius: .5rem;
+  cursor: pointer;
+}
+.species-option:hover { background: var(--control); }
+.species-option:has(:checked) { border-color: var(--line); background: var(--surface-raised); }
+.species-option:has(:focus-visible) { outline: 2px solid var(--focus); }
+.species-option input { margin: 0; accent-color: var(--accent); }
+.species-option .agllm-icon { width: 1.5rem; height: 1.5rem; }
+.species-option small { display: block; color: var(--muted); }
 .game-actions { display: grid; grid-auto-flow: column; gap: .35rem; }
 .game-actions button {
   display: inline-flex;
@@ -238,6 +275,7 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
 }
 
 @media (max-width: 360px) {
+  .wordmark-chevron { display: none; }
   .panel-switcher button { gap: .25rem; padding-inline: .25rem; font-size: .78rem; }
 }
 

@@ -1,17 +1,21 @@
-import { Box3, MOUSE, PerspectiveCamera, Sphere, Vector3 } from "three";
+import { Box3, MOUSE, PerspectiveCamera, Quaternion, Sphere, Spherical, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { mix, smoothstep } from "../models/landscape/noise.js";
+import { lakeHorizonRadius } from "../models/landscape/terrain-profile.js";
 import { chooseObservation } from "./observation.js";
 
 export function createVillageCamera(canvas, renderer, instances) {
-  const camera = new PerspectiveCamera(34, 1, 0.1, 150);
+  const camera = new PerspectiveCamera(34, 1, 0.1, lakeHorizonRadius * 2);
   const controls = new OrbitControls(camera, canvas);
+  const orbitLimit = Math.PI * 0.45;
+  let overviewLimit = orbitLimit;
   controls.mouseButtons = { LEFT: null, MIDDLE: MOUSE.ROTATE, RIGHT: MOUSE.PAN };
   controls.addEventListener("start", () => canvas.classList.add("is-moving"));
   controls.addEventListener("end", () => canvas.classList.remove("is-moving"));
   controls.target.set(0, -0.7, 0);
   controls.minDistance = 13;
   controls.maxDistance = 85;
-  controls.maxPolarAngle = Math.PI * 0.45;
+  controls.maxPolarAngle = orbitLimit;
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
   camera.position.set(32, 26, 37);
@@ -19,6 +23,8 @@ export function createVillageCamera(canvas, renderer, instances) {
   controls.saveState();
 
   const axis = new Vector3();
+  const orientation = new Quaternion();
+  const orbit = new Spherical();
   const lastObserved = new Map();
   const followedPosition = new Vector3();
   let observation = null;
@@ -34,6 +40,18 @@ export function createVillageCamera(canvas, renderer, instances) {
     camera.fov = Math.min(85, Math.max(38, verticalFov));
     const offset = width <= 1050 ? 0.19 : 0.13;
     camera.setViewOffset(width, height, 0, height * offset, width, height);
+    const projection = camera.projectionMatrix.elements;
+    const topRay = Math.atan((1 + projection[9]) / projection[5]);
+    // Keep the top of the overview pointed into the lake on narrow screens and low orbits.
+    overviewLimit = Math.min(orbitLimit, Math.PI / 2 - topRay - Math.PI / 15);
+    updateControls();
+  }
+
+  function updateControls() {
+    const distance = camera.position.distanceTo(controls.target);
+    const overview = smoothstep(controls.maxDistance * 0.77, controls.maxDistance, distance);
+    controls.maxPolarAngle = mix(orbitLimit, overviewLimit, overview);
+    controls.update();
   }
 
   function zoom(factor) {
@@ -41,27 +59,37 @@ export function createVillageCamera(canvas, renderer, instances) {
     axis.subVectors(camera.position, controls.target);
     axis.setLength(Math.min(controls.maxDistance, Math.max(controls.minDistance, axis.length() * factor)));
     camera.position.copy(controls.target).add(axis);
-    controls.update();
+    updateControls();
   }
 
   function moveCamera(position, target, minDistance) {
     controls.enableDamping = false;
-    controls.update();
+    updateControls();
     controls.minDistance = minDistance;
     controls.target.copy(target);
     camera.position.copy(position);
-    controls.update();
+    updateControls();
     controls.enableDamping = true;
   }
 
-  function frameModel(model) {
+  function frameModel(model, faceFront) {
     model.updateWorldMatrix(true, false);
     const { center, radius } = new Box3().setFromObject(model).getBoundingSphere(new Sphere());
     const verticalAngle = camera.fov * Math.PI / 360;
     const horizontalAngle = Math.atan(Math.tan(verticalAngle) * camera.aspect);
     const distance = Math.max(1, 1.24 * radius / Math.sin(Math.min(verticalAngle, horizontalAngle)));
-    center.y -= radius * 0.24;
-    axis.subVectors(camera.position, controls.target).normalize();
+    if (faceFront) {
+      const elevation = Math.PI / 8;
+      axis.set(0, 0, 1).applyQuaternion(model.getWorldQuaternion(orientation)).setY(0).normalize();
+      axis.multiplyScalar(Math.cos(elevation)).setY(Math.sin(elevation));
+      // Compensate for the overview's vertical view offset when centering a facade.
+      const projection = camera.projectionMatrix.elements;
+      const shift = -projection[9] / projection[5];
+      center.y += distance * shift / (Math.cos(elevation) - shift * Math.sin(elevation));
+    } else {
+      center.y -= radius * 0.24;
+      axis.subVectors(camera.position, controls.target).normalize();
+    }
     glideTo(center.clone().addScaledVector(axis, distance), center, distance * 0.75);
   }
 
@@ -71,10 +99,11 @@ export function createVillageCamera(canvas, renderer, instances) {
       moveCamera(position, target, minDistance);
       return;
     }
-    transition = {
-      from: camera.position.clone(), fromTarget: controls.target.clone(),
-      position, target, minDistance, start: performance.now(),
-    };
+    const from = new Spherical().setFromVector3(axis.subVectors(camera.position, controls.target));
+    const to = new Spherical().setFromVector3(axis.subVectors(position, target));
+    const turn = to.theta - from.theta;
+    to.theta = from.theta + Math.atan2(Math.sin(turn), Math.cos(turn));
+    transition = { from, to, fromTarget: controls.target.clone(), target, minDistance, start: performance.now() };
   }
 
   function preview(subject) {
@@ -89,7 +118,7 @@ export function createVillageCamera(canvas, renderer, instances) {
     };
     observation = { subject, previous };
     if (subject.follow) model.getWorldPosition(followedPosition);
-    frameModel(model);
+    frameModel(model, Boolean(subject.type));
     return subject.label;
   }
 
@@ -116,17 +145,18 @@ export function createVillageCamera(canvas, renderer, instances) {
     camera,
     update(time) {
       if (transition) {
-        const { from, fromTarget, position, target, start, minDistance } = transition;
+        const { from, to, fromTarget, target, start, minDistance } = transition;
         const followed = observation?.subject.follow && observation.subject.resolve();
         if (followed) {
           followed.getWorldPosition(axis).sub(followedPosition);
-          position.add(axis);
           target.add(axis);
           followedPosition.add(axis);
         }
         const progress = Math.max(0, Math.min(1, (time - start) / 720));
         const ease = progress * progress * (3 - 2 * progress);
-        moveCamera(from.clone().lerp(position, ease), fromTarget.clone().lerp(target, ease), progress === 1 ? minDistance : 0.1);
+        const focus = fromTarget.clone().lerp(target, ease);
+        orbit.set(mix(from.radius, to.radius, ease), mix(from.phi, to.phi, ease), mix(from.theta, to.theta, ease));
+        moveCamera(axis.setFromSpherical(orbit).add(focus), focus, progress === 1 ? minDistance : 0.1);
         if (progress === 1) transition = null;
         return;
       }
@@ -140,7 +170,7 @@ export function createVillageCamera(canvas, renderer, instances) {
           followedPosition.add(axis);
         }
       }
-      controls.update();
+      updateControls();
     },
     zoom,
     pan: (dx, dy) => { transition = null; controls.pan(dx, dy); },
@@ -157,7 +187,7 @@ export function createVillageCamera(canvas, renderer, instances) {
     reset() {
       transition = null;
       const subject = observation?.subject.resolve();
-      if (subject) frameModel(subject);
+      if (subject) frameModel(subject, Boolean(observation.subject.type));
       else if (observation) endInspection();
       else controls.reset();
     },

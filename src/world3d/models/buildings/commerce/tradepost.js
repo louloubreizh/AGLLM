@@ -9,8 +9,8 @@ export function tradepost({ box, roof, barrel, sphere }) {
     box(color, x, .767, .32, .181, .057, .66, 0, .21);
     box(color, x, .67, .66, .181, .13, .055);
   }
-  box("walnut", 0, .32, .46, 1.11, .32, .30);
-  box("oak", 0, .50, .46, 1.15, .07, .34);
+  box("walnut", 0, .192, .46, 1.11, .144, .30);
+  box("oak", 0, .281, .46, 1.15, .038, .34);
   barrel("oak", -.64, .12, .27, .23, .35);
-  sphere("ochreCloth", .34, .56, .46, .14);
+  sphere("ochreCloth", .34, .345, .46, .092);
 }

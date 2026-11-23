@@ -2,7 +2,7 @@ import { MeshStandardMaterial } from "three";
 import { createSurfaceTexture } from "../landscape/surface-texture.js";
 
 export function createBuildingMaterials(seasonal) {
-  const grain = createSurfaceTexture(true);
+  const grain = createSurfaceTexture("stone");
   const palette = {
     limestone: 0xd2bf9d, sandstone: 0xb99a6a, basalt: 0x485456, granite: 0x7b8588,
     brick: 0xa45940, stucco: 0xdbc4a1, slate: 0x415461, terracotta: 0xb26042,

@@ -4,6 +4,42 @@ import { test } from "node:test";
 import { chromium } from "playwright-core";
 import { runLifecycle, unusedPort } from "../test/fixture.mjs";
 
+test("le bouton AGLLM change l’espèce du village et mémorise le choix", { timeout: 40000 }, async (t) => {
+  const port = await unusedPort();
+  const url = `http://127.0.0.1:${port}/`;
+  await runLifecycle("start", port);
+  t.after(() => runLifecycle("stop", port));
+  const browser = await chromium.launch({ channel: process.env.AGLLM_TEST_BROWSER || "chrome" });
+  t.after(() => browser.close());
+  const page = await browser.newPage({ locale: "fr-FR" });
+  await page.route("**/*", (route) => route.request().url().startsWith(url) ? route.continue() : route.abort());
+  await page.goto(url);
+  const frame = page.frameLocator('iframe[title="Moteur AGLLM"]');
+  const gather = frame.getByText("Cueillir de l'herbe à chat", { exact: true });
+  await gather.waitFor();
+  await page.getByRole("button", { name: "Mettre en pause", exact: true }).click();
+  const journal = frame.locator("#rightColumn");
+  const intro = (animal) => journal.getByText(`Vous êtes un ${animal} dans une forêt d'herbe à chat.`, { exact: true });
+  await intro("chat").waitFor();
+
+  const trigger = page.getByRole("button", { name: "AGLLM", exact: true });
+  await trigger.click();
+  const picker = page.getByRole("region", { name: "Habitants du village" });
+  assert.equal(await picker.getByRole("radio").count(), 5);
+  for (const animal of ["Chien", "Lapin", "Vélociraptor", "Drake des brumes", "Chat", "Lapin"]) {
+    await picker.getByRole("radio", { name: new RegExp(`^${animal}`) }).check();
+    await intro(animal.toLowerCase()).waitFor();
+  }
+  await page.keyboard.press("Escape");
+  await picker.waitFor({ state: "hidden" });
+  assert.equal(await gather.isVisible(), true);
+
+  await page.reload();
+  await gather.waitFor();
+  await trigger.click();
+  assert.equal(await picker.getByRole("radio", { name: /^Lapin/ }).isChecked(), true);
+});
+
 test("joue dans l’interface moderne et échange des sauvegardes natives complètes", { timeout: 60000 }, async (t) => {
   const port = await unusedPort();
   const url = `http://127.0.0.1:${port}/`;

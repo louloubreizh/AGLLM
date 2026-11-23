@@ -46,7 +46,7 @@ function createRow(document, game, kitten, context, details, refresh) {
   identity.scope = "row";
   const person = element(document, "div", "village-resident-person");
   const avatar = element(document, "span", "village-resident-avatar");
-  avatar.append(villageIcon(document, "kittens"));
+  avatar.setAttribute("aria-hidden", "true");
   const name = details.openButton(kitten, copy.details, "village-resident-name");
   const flags = element(document, "span", "village-resident-flags");
   const favorite = villageIcon(document, "star");
@@ -87,7 +87,7 @@ function createRow(document, game, kitten, context, details, refresh) {
   } };
 }
 
-function createCensus(document, game, panel, nativeCensus) {
+function createCensus(document, game, panel, nativeCensus, residentView) {
   const language = villageLocale(document);
   const copy = labels[language] ?? labels.en;
   const translate = document.defaultView.$I;
@@ -98,7 +98,7 @@ function createCensus(document, game, panel, nativeCensus) {
   const state = preferences.get(document) ?? { search: "", job: "", trait: "", sort: "exp", page: 0 };
   preferences.set(document, state);
 
-  const context = { copy, number, translate, village, obscured: false, read };
+  const context = { copy, number, translate, village, obscured: false, read, residentView, language };
   const details = createResidentDetails(document, game, nativeCensus, context);
   const government = createGovernment(document, game, context, details, refresh);
   const toolbar = element(document, "div", "village-census-toolbar");
@@ -270,12 +270,12 @@ function createCensus(document, game, panel, nativeCensus) {
   return { render: refresh, update };
 }
 
-export function updateVillageCensus(document, game) {
+export function updateVillageCensus(document, game, residentView) {
   const panel = game.villageTab.censusPanel;
   if (!panel?.visible || !panel.panelDiv?.isConnected || mounted.has(panel)) return;
   panel.panelDiv.classList.add("village-section", "village-census");
   // Use the native panel's render and update lifecycle for the new census view.
-  panel.census = createCensus(document, game, panel, panel.census);
+  panel.census = createCensus(document, game, panel, panel.census, residentView);
   mounted.add(panel);
   panel.census.render();
 }
