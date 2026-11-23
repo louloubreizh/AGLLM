@@ -1,7 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "./Icon.jsx";
 
-const seasons = { spring: "Printemps", summer: "Été", autumn: "Automne", winter: "Hiver" };
 const metric = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 
 function InformationRow({ icon, label, description, warning, children }) {
@@ -102,11 +101,6 @@ export function GameInformation({ snapshot, stateLabel, saveFeedback }) {
             {snapshot.calendarText}
           </InformationRow>
         )}
-        {snapshot?.year !== undefined && (
-          <InformationRow icon="calendar" label={seasons[snapshot.season]} description="Saison, année et jour dans la partie.">
-            An {metric.format(snapshot.year)} · Jour {metric.format(snapshot.day)}
-          </InformationRow>
-        )}
         <InformationRow icon={snapshot?.paused ? "pause" : "play"} label="État" description="Indique si la partie est active, en pause ou arrêtée.">
           {stateLabel}
         </InformationRow>
@@ -125,12 +119,12 @@ export function GameInformation({ snapshot, stateLabel, saveFeedback }) {
             warning={energy.production < energy.consumption}
             description={`Production ${metric.format(energy.production)} · Demande ${metric.format(energy.consumption)} · En hiver ${metric.format(energy.winterProduction)}`}
           >
-            {metric.format(energy.production - energy.consumption)} {toolbar.reference ? "W" : "unités"}
+            {metric.format(energy.production - energy.consumption)} W
           </InformationRow>
         )}
-        {(toolbar?.reference || toolbar?.pollutionVisible) && (
+        {toolbar && (
           <InformationRow icon="cloud" label="Pollution" description="Niveau de pollution du village.">
-            {toolbar.pollution == null ? "—" : `${metric.format(toolbar.pollution)} ${toolbar.reference ? "ppm" : "/ 500"}`}
+            {toolbar.pollution == null ? "—" : `${metric.format(toolbar.pollution)} ppm`}
           </InformationRow>
         )}
         {toolbar?.sorrow != null && (

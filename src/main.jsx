@@ -1,13 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { GameInformation } from "./GameInformation.jsx";
-import { GameOptions } from "./GameOptions.jsx";
 import { Icon } from "./Icon.jsx";
-import { GameInterface } from "./GameInterface.jsx";
 import { ReferenceInterface } from "./ReferenceInterface.jsx";
-import { useGame } from "./use-game.js";
 import { useReferenceGame } from "./use-reference-game.js";
-import { WorldView } from "./WorldView.jsx";
+import { WorldView } from "./world3d/WorldView.jsx";
 import "./style.css";
 
 const panels = [["resources", "Ressources", "resources"], ["play", "Jeu", "camp"], ["journal", "Journal", "journal"]];
@@ -15,23 +12,35 @@ const statuses = {
   checking: "Démarrage",
   waiting: "Partie ouverte dans un autre onglet",
   playing: "Partie en cours",
-  loading: "Chargement de Kittens Game",
-  missing: "Moteur de référence indisponible",
+  loading: "Chargement du moteur AGLLM",
+  missing: "Moteur AGLLM indisponible",
   stopped: "AGLLM est arrêté",
 };
 
-function App({ game }) {
+function App() {
+  const game = useReferenceGame();
   const { snapshot, state, status, notice } = game;
   const ready = status === "playing";
   const [camera, setCamera] = useState(null);
   const [panel, setPanel] = useState("play");
-  const [options, setOptions] = useState(false);
-  const cameraButton = useRef(null);
+
   const cameraView = useRef(null);
   const pauseLabel = snapshot?.paused ? "Reprendre la partie" : "Mettre en pause";
 
   const inspect = useCallback((type, name) => {
     if (cameraView.current?.inspect(type)) setCamera(name);
+  }, []);
+
+  const [hover, setHover] = useState(null);
+  const onHover = useCallback((point) => {
+    const name = cameraView.current?.hover(point);
+    setHover(name ? { ...point, name } : null);
+    return Boolean(name);
+  }, []);
+
+  const select = useCallback((x, y) => {
+    const name = cameraView.current?.pick(x, y);
+    if (name) setCamera(name);
   }, []);
 
   const closeCamera = useCallback(() => {
@@ -46,7 +55,6 @@ function App({ game }) {
     function exitCamera(event) {
       if (event.key === "Escape") {
         closeCamera();
-        cameraButton.current?.focus();
       }
     }
     window.addEventListener("keydown", exitCamera);
@@ -57,7 +65,7 @@ function App({ game }) {
     <div className="shell">
       <nav className="topbar" aria-label="Navigation AGLLM">
         <div className="wordmark" aria-label="AnimalGame LouisLeMaitre"><span className="brand-icon"><Icon name="brand" /></span>AGLLM</div>
-        {ready && !camera && (
+        {ready && (
           <div className="game-actions">
             <button type="button" aria-label={pauseLabel} title={pauseLabel} onClick={() => game.act("pause")}>
               <Icon name={snapshot?.paused ? "play" : "pause"} />
@@ -65,47 +73,36 @@ function App({ game }) {
             <button type="button" aria-label="Sauvegarder" title="Sauvegarder" onClick={game.save}>
               <Icon name="save" /><span className="action-label">Sauvegarder</span>
             </button>
-            <button type="button" aria-label="Options" title="Options" onClick={() => game.openOptions ? game.openOptions() : setOptions(true)}>
+            <button type="button" aria-label="Options" title="Options" onClick={game.openOptions}>
               <Icon name="settings" /><span className="action-label">Options</span>
             </button>
-            {game.openConnection && (
-              <button type="button" aria-label="Connexion" title="Connexion" aria-haspopup="dialog"
-                aria-expanded={snapshot?.loginOpen ?? false} onClick={game.openConnection}>
-                <Icon name="account" /><span className="action-label">Connexion</span>
-              </button>
-            )}
+            <button type="button" aria-label="Connexion" title="Connexion" aria-haspopup="dialog"
+              aria-expanded={snapshot?.loginOpen ?? false} onClick={game.openConnection}>
+              <Icon name="account" /><span className="action-label">Connexion</span>
+            </button>
           </div>
         )}
         <GameInformation snapshot={snapshot} stateLabel={snapshot?.paused ? "Partie en pause" : statuses[status]}
           saveFeedback={state ? notice : ""} />
-        {status !== "stopped" && (
-          <button ref={cameraButton} className="camera-toggle" type="button" aria-label={camera ? "Revenir au jeu" : "Caméra 3D"}
-            onClick={() => { if (camera) closeCamera(); else setCamera(true); }}>
-            <Icon name={camera ? "camp" : "world"} />
-            <span className="action-label">{camera ? "Revenir au jeu" : "Caméra 3D"}</span>
-          </button>
-        )}
+
       </nav>
       <main className="playfield" aria-label="Village et commandes de la partie">
         {status !== "stopped" && (
-          <WorldView snapshot={snapshot} active={Boolean(camera)} subject={typeof camera === "string" ? camera : null} view={cameraView} />
+          <WorldView snapshot={snapshot} subject={typeof camera === "string" ? camera : null} view={cameraView} hover={hover} onSelect={select} onHover={onHover} />
         )}
-        {state && (game.frame
-          ? <ReferenceInterface frame={game.frame} panel={panel} visible={!camera} cameraView={cameraView} onInspect={inspect}
-            onDocument={game.onDocument} onNotice={game.setNotice} />
-          : <GameInterface state={state} act={game.act} panel={panel} visible={!camera} onInspect={inspect} />)}
-        {state && options && <GameOptions game={game} onClose={() => setOptions(false)} />}
+        {state && <ReferenceInterface frame={game.frame} panel={panel} cameraView={cameraView} onInspect={inspect}
+          onSelect={select} onHover={onHover} onExit={closeCamera} onDocument={game.onDocument} onNotice={game.setNotice} />}
         {(!state || status === "missing") && (
           <div className="game-message">
             <strong role="status"><Icon name="info" />{statuses[status]}</strong>
             {status === "stopped" && <p>Relancez AGLLM avec start.cmd pour reprendre votre partie.</p>}
             {status === "waiting" && <p>Fermez l’autre onglet AGLLM pour poursuivre votre partie ici.</p>}
             {status === "checking" && <p>Préparation de la partie…</p>}
-            {status === "missing" && <p>Vérifiez le sous-module motorAGLLM/source. <a href="/?mode=agllm">Ouvrir le mode autonome</a></p>}
+            {status === "missing" && <p>Vérifiez l’installation du moteur dans motorAGLLM/source.</p>}
           </div>
         )}
       </main>
-      {ready && !camera && (
+      {ready && (
         <nav className="panel-switcher" aria-label="Panneaux de jeu">
           {panels.map(([name, label, icon]) => (
             <button key={name} type="button" aria-label={label} onClick={() => setPanel(name)} aria-pressed={panel === name}>
@@ -119,13 +116,4 @@ function App({ game }) {
   );
 }
 
-function ReferenceApp() {
-  return <App game={useReferenceGame()} />;
-}
-
-function StandaloneApp() {
-  return <App game={useGame()} />;
-}
-
-const standalone = new URLSearchParams(window.location.search).get("mode") === "agllm";
-createRoot(document.getElementById("root")).render(standalone ? <StandaloneApp /> : <ReferenceApp />);
+createRoot(document.getElementById("root")).render(<App />);

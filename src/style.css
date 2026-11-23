@@ -113,7 +113,7 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
 .information-row .information-description { display: none; flex-basis: 100%; margin-top: .2rem; font-size: .8rem; }
 .information-row:hover .information-description, .information-row:focus .information-description { display: block; }
 
-.camera-toggle, .info-button, .panel-switcher button {
+.info-button, .panel-switcher button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -126,63 +126,12 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
   color: var(--ink);
   white-space: nowrap;
 }
-.camera-toggle:hover, .info-button:hover, .info-button[aria-expanded="true"], .panel-switcher button:hover { background: var(--control-hover); }
+.info-button:hover, .info-button[aria-expanded="true"], .panel-switcher button:hover { background: var(--control-hover); }
 
 .playfield { position: relative; isolation: isolate; container: playfield / size; min-height: 0; background: #14251f; }
-.world, .reference-frame { position: absolute; inset: 0; width: 100%; height: 100%; }
-.reference-frame { border: 0; background: transparent; }
+.reference-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; }
 .reference-frame:not([data-styled]) { visibility: hidden; }
 
-.world canvas { display: block; width: 100%; height: 100%; }
-.camera-active canvas { cursor: grab; touch-action: none; }
-.camera-active canvas:active { cursor: grabbing; }
-.world canvas:focus-visible { outline-offset: -4px; }
-.camera {
-  position: absolute;
-  inset: auto .8rem .8rem;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: .55rem;
-  pointer-events: none;
-}
-.camera p, .camera-actions, .render-status, .game-message {
-  border: 1px solid var(--line);
-  border-radius: .7rem;
-  background: var(--panel);
-  box-shadow: var(--panel-shadow);
-}
-.camera p { justify-self: start; padding: .6rem .75rem; color: var(--muted); font-size: .875rem; }
-.camera-actions { display: grid; grid-auto-flow: column; padding: .2rem; pointer-events: auto; }
-.camera-actions button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .45rem;
-  min-width: 2.65rem;
-  min-height: 2.65rem;
-  padding: .4rem .65rem;
-  border: 0;
-  border-radius: .4rem;
-  color: var(--ink);
-  background: transparent;
-  font-size: .875rem;
-}
-.camera-actions button:hover:not(:disabled) { background: var(--control-hover); }
-.camera-subject {
-  position: absolute;
-  top: .8rem;
-  left: .8rem;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  max-width: calc(100% - 1.6rem);
-  padding: .5rem .7rem;
-  border: 1px solid var(--line);
-  border-radius: .6rem;
-  background: var(--panel);
-  pointer-events: none;
-}
 .building-information {
   position: fixed;
   width: min(28rem, calc(100% - 1.5rem));
@@ -219,7 +168,11 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
 .building-info-copy h2 { margin: 0 0 .45rem; color: var(--accent); font-size: 1.35rem; }
 .building-info-copy { overflow-wrap: anywhere; }
 .building-info-copy p { color: var(--muted); white-space: pre-line; line-height: 1.5; }
-.render-status, .game-message {
+.game-message {
+  border: 1px solid var(--line);
+  border-radius: .7rem;
+  background: var(--panel);
+  box-shadow: var(--panel-shadow);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -267,17 +220,14 @@ button:focus-visible, canvas:focus-visible { outline: 2px solid var(--focus); ou
 
 @media (max-width: 840px) {
   .topbar { gap: .45rem; }
-  .camera-toggle, .info-button, .game-actions button { padding-inline: .55rem; font-size: .875rem; }
-  .camera-toggle .action-label { display: none; }
+  .info-button, .game-actions button { padding-inline: .55rem; font-size: .875rem; }
 }
 
 @media (max-width: 680px) {
   .topbar { gap: .25rem; }
   .wordmark { gap: .25rem; font-size: .9rem; letter-spacing: .08em; }
   .wordmark .brand-icon { display: none; }
-  .camera-toggle, .info-button, .game-actions button, .panel-switcher button { padding-inline: .45rem; font-size: .82rem; }
-  .camera { grid-template-columns: minmax(0, 1fr); justify-items: end; }
-  .camera p { grid-row: 2; justify-self: end; max-width: 15rem; }
+  .info-button, .game-actions button, .panel-switcher button { padding-inline: .45rem; font-size: .82rem; }
 }
 
 @media (max-width: 560px) {

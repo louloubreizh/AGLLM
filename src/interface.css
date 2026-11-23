@@ -9,7 +9,6 @@
   gap: .65rem;
   pointer-events: none;
 }
-.game-panels[hidden] { display: none; }
 .game-widget {
   position: relative;
   display: grid;
@@ -60,7 +59,7 @@
 .widget-resize { cursor: nwse-resize; touch-action: none; }
 .widget-content { min-height: 0; min-width: 0; overflow: auto; padding: .65rem; }
 
-.game-widget button, .game-options :is(button, input, textarea, select), .village-panel :is(input, select), .automation-setting select {
+.game-widget button {
   min-width: 0;
   padding: .4rem .5rem;
   color: var(--ink);
@@ -69,7 +68,7 @@
   border-radius: .42rem;
   font: inherit;
 }
-.game-widget button, .game-options button {
+.game-widget button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -77,118 +76,13 @@
   min-height: 2rem;
 }
 .game-widget .widget-bar button { border-color: transparent; background: transparent; }
-.game-widget button:hover:not(:disabled), .game-options button:hover:not(:disabled) { background-color: var(--control-hover); }
+.game-widget button:hover:not(:disabled) { background-color: var(--control-hover); }
 .game-widget button[aria-pressed="true"] { background: var(--accent); color: #15281d; }
-.game-widget :is(button, summary, select, input):focus-visible, .game-options :is(button, input, textarea, select):focus-visible {
+.game-widget :is(button, summary, select, input):focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: -2px;
 }
-.game-sections, .gathering-actions, .resident-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
-.game-sections { padding-bottom: .65rem; margin-bottom: .65rem; border-bottom: 1px solid var(--divider); }
-.game-sections button { font-size: .875rem; }
-.section-art {
-  display: block;
-  width: 100%;
-  height: 3.8rem;
-  object-fit: contain;
-  margin: -.3rem 0 .65rem;
-  background: linear-gradient(90deg, transparent, var(--surface), transparent);
-}
-.gathering-actions, .automation-setting, .expedition-status { margin-bottom: .7rem; }
-.automation-setting, .resident-details label { display: grid; gap: .3rem; }
-.game-cards, .job-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: .55rem; }
-.game-card {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: .4rem;
-  padding: .65rem;
-  border: 1px solid var(--divider);
-  border-radius: .65rem;
-  background: var(--surface);
-  overflow-wrap: anywhere;
-}
-.game-card h3 { display: flex; align-items: center; gap: .4rem; margin: 0; font-size: .93rem; }
-.game-card p, .job-card, .resident-details, .resident-filters, .game-options label { color: var(--muted); font-size: .83rem; }
-.game-card p.card-cost { color: var(--accent); }
-.game-card > button:first-of-type { margin-top: auto; }
-.building-card-header { display: flex; align-items: center; gap: .45rem; }
-.building-card-header > img { width: 2.65rem; height: 2.65rem; }
-.building-card-header > span { color: var(--accent); font-variant-numeric: tabular-nums; }
-.building-card-tools { display: flex; gap: .2rem; margin-left: auto; }
-.building-card-tools .agllm-icon { width: 1rem; height: 1rem; }
-
-.resource-list, .journal-list { display: grid; gap: .4rem; margin: 0; padding: 0; font-size: .85rem; }
-.resource-list > div {
-  display: flex;
-  justify-content: space-between;
-  gap: .3rem;
-  align-items: baseline;
-  padding: .3rem .15rem;
-  border-bottom: 1px solid var(--divider);
-}
-.resource-list dt { min-width: 0; }
-.resource-details summary { display: flex; align-items: center; gap: .35rem; cursor: pointer; }
-.resource-details summary .agllm-icon { width: 1em; height: 1em; flex: none; }
-.resource-details summary::-webkit-details-marker { display: none; }
-.resource-details summary:hover { color: var(--accent); }
-.resource-details p { margin-top: .25rem; color: var(--muted); }
-.resource-list dd { margin: 0; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.resource-list small { display: block; color: var(--accent); }
-.resource-list .resource-shortage small, .game-options [role="alert"] { color: var(--warning); }
-.journal-list { list-style: none; }
-.journal-list li + li { padding-top: .35rem; border-top: 1px solid var(--divider); }
-.journal-list small { color: var(--muted); }
-.journal-list p { margin-top: .15rem; }
-
-.village-panel { display: grid; gap: .6rem; }
-.village-group, .resident { border: 1px solid var(--divider); border-radius: .55rem; background: var(--surface); }
-.village-group > summary, .resident > summary { padding: .6rem; cursor: pointer; }
-.village-group > summary { font-weight: 650; }
-.job-cards, .resident-details, .resident-filters { padding: .6rem; }
-.job-cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr)); }
-.job-card { display: grid; gap: .35rem; justify-items: center; overflow: hidden; padding-bottom: .4rem; border: 1px solid var(--divider); border-radius: .5rem; }
-.job-card > img { width: 100%; aspect-ratio: 2; object-fit: cover; }
-.job-actions { display: grid; grid-template-columns: 2rem 1.2rem 2rem; gap: .4rem; align-items: center; text-align: center; }
-.resident-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr)); align-items: end; gap: .5rem; }
-.resident-filters label { display: grid; gap: .25rem; }
-.resident-filters .check { display: flex; align-items: center; padding-block: .45rem; }
-.resident { margin: 0 .6rem .45rem; }
-.resident summary small { color: var(--muted); }
-.resident summary > span:last-child { float: right; color: var(--accent); font-size: .8rem; }
-.resident-details { display: grid; gap: .45rem; align-items: start; }
-.resident-empty { padding: .6rem; color: var(--muted); }
-
-.game-options {
-  position: fixed;
-  width: min(29rem, calc(100% - 1.4rem));
-  max-height: calc(100dvh - 1.4rem);
-  padding: 1rem 1.1rem 1.15rem;
-  border: 1px solid var(--line);
-  border-radius: .8rem;
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--panel-shadow);
-}
-.game-options::backdrop { background: #07100ccc; }
-.game-options h2 { margin: 0 2.6rem .8rem 0; font-size: 1.25rem; }
-.game-options h3 { margin: .75rem 0 .35rem; font-size: 1rem; }
-.game-options form, .game-options label { display: grid; gap: .45rem; }
-.game-options form { margin-top: .6rem; }
-.game-options textarea { resize: vertical; }
-.game-options a { color: var(--accent); }
-.save-transfer { margin-top: .85rem; border-top: 1px solid var(--divider); padding-top: .65rem; }
-.save-transfer summary { cursor: pointer; font-weight: 600; }
-.save-transfer > div { display: grid; gap: .55rem; margin-top: .55rem; }
-.save-transfer p { color: var(--muted); font-size: .85rem; }
-.save-transfer table { width: 100%; border-collapse: collapse; font-size: .85rem; }
-.save-transfer :is(th, td) { padding: .3rem; border-bottom: 1px solid var(--divider); text-align: end; }
-.save-transfer th:first-child { text-align: start; }
-.save-transfer td { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-
 @media (max-width: 1050px) {
-  .section-art { display: none; }
   .game-panels {
     grid-template: "scene" minmax(0, var(--scene-row, 1fr)) "play" minmax(0, 1.65fr) / minmax(0, 1fr);
   }
@@ -200,5 +94,4 @@
 
 @media (max-height: 480px) {
   .game-panels { --scene-row: .25fr; }
-  .section-art { display: none; }
 }

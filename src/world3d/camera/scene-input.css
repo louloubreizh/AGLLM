@@ -1,0 +1,13 @@
+.reference-game .reference-scene-input {
+  position: fixed;
+  inset: 0;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+.reference-game .reference-scene-input.is-moving { cursor: grabbing; }
+.world canvas.is-inspectable,
+.reference-game .reference-scene-input.is-inspectable {
+  /* OrbitControls can leave an inline cursor on the canvas after a gesture. */
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M2 14C8 4 20 4 26 14C20 24 8 24 2 14Z' fill='%2314251f' stroke='%23ffde8d' stroke-width='2'/%3E%3Ccircle cx='14' cy='14' r='4' fill='%23ffde8d'/%3E%3C/svg%3E") 14 14, zoom-in !important;
+}

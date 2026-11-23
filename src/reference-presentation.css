@@ -290,14 +290,6 @@
 @media (max-height: 480px) {
   .reference-game .reference-section-art { display: none; }
 }
-.reference-game .reference-scene-input {
-  position: fixed;
-  inset: 0;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-.reference-game .reference-scene-input.is-moving { cursor: grabbing; }
 .reference-game #gamePageContainer { pointer-events: none; }
 .reference-game :is(.game-widget, .dialog, .login-popup) { pointer-events: auto; }
 

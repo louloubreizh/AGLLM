@@ -226,7 +226,6 @@
 }
 .reference-game #optionsDiv > div:first-of-type { flex-wrap: wrap !important; gap: .5rem 1rem !important; }
 .reference-game .reference-file-picker { display: grid; gap: .3rem; }
-.reference-game .reference-mode-link { display: inline-block; margin-top: .65rem; }
 
 @media (max-width: 1050px) {
   .reference-game #game > .game-widget { width: var(--widget-width, min(100%, 42rem)) !important; }

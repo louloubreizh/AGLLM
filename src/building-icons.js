@@ -47,8 +47,6 @@ export const buildingIcons = {
   ivoryTemple: ["#ecdbc5", "#9ca3d3", "m2 10 10-7 10 7h-3v9h3v3H2v-3h3v-9z", "M7 11h10v8H7z", "M9 17q5-1 6-6 2 6-5 7"],
 };
 
-export const buildingUpgrades = { pasture: "solarfarm", aqueduct: "hydroplant", library: "dataCenter", warehouse: "spaceport", amphitheatre: "broadcasttower" };
-
 const svgImage = (art) => `data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke-linecap="round" stroke-linejoin="round">${art}</g></svg>`
 )}`;

@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const seasons = ["spring", "summer", "autumn", "winter"];
-const buildingModels = {
-  field: "crop", pasture: "crop",
-  mine: "industry", quarry: "industry", smelter: "industry", lumberMill: "industry",
-  factory: "industry", oilWell: "industry", calciner: "industry",
-  library: "hall", academy: "hall", temple: "hall", ziggurat: "hall", observatory: "hall", mansion: "hall",
-};
 
 function runningGame(frame) {
   try {
@@ -31,7 +25,6 @@ function snapshotFor(frame) {
     population: village.getKittens(),
     loginOpen: Boolean(document.querySelector(".login-popup")),
     toolbar: {
-      reference: true,
       happiness: Math.floor(village.happiness * 100),
       pollution: pollutionBase > 0 ? (bld.cathPollution / pollutionBase) * 100 : null,
       energy: { production: resPool.energyProd, consumption: resPool.energyCons, winterProduction: resPool.energyWinterProd },
@@ -39,7 +32,7 @@ function snapshotFor(frame) {
     },
     buildings: bld.buildingsData.flatMap((building, slot) => building.val > 0 ? [{
       id: building.name,
-      model: buildingModels[building.name],
+      label: building.stages?.[building.stage]?.label || building.label,
       count: Math.floor(building.val),
       stage: building.stage ?? 0,
       slot,

@@ -1,5 +1,6 @@
 import { iconImage } from "./Icon.jsx";
-import { buildingUpgrades, campToolIcons } from "./building-icons.js";
+import { campToolIcons } from "./building-icons.js";
+import { buildingUpgrades } from "./world3d/models/buildings/upgrades.js";
 import { updateBuildingCard } from "./camp-buttons.js";
 import { resourceIcons } from "./resource-icons.js";
 import { tabArt } from "./tab-art.js";

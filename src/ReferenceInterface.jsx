@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { BuildingInformation } from "./BuildingInformation.jsx";
 import { decorateReferenceGame, referenceControlIcons, referenceResourceIcons } from "./reference-presentation.js";
 import { installReferenceControls } from "./reference-controls.js";
-import { installSceneInput } from "./scene-input.js";
+import { installSceneInput } from "./world3d/camera/scene-input.js";
 import { keepReferenceTooltipsVisible } from "./reference-tooltips.js";
 import { Widget } from "./Widget.jsx";
 import palette from "./palette.css?raw";
 import widgets from "./interface.css?raw";
 import layout from "./reference-interface.css?raw";
 import presentation from "./reference-presentation.css?raw";
+import sceneInput from "./world3d/camera/scene-input.css?raw";
 import accordions from "./reference-accordions.css?raw";
 import purchases from "./reference-purchases.css?raw";
 import camp from "./camp.css?raw";
@@ -34,7 +35,7 @@ function addSaveFilePicker(document) {
   const input = document.createElement("input");
   const feedback = document.createElement("p");
   label.className = "reference-file-picker";
-  label.append("Fichier de sauvegarde Kittens Game", input);
+  label.append("Fichier de sauvegarde AGLLM", input);
   input.type = "file";
   input.accept = ".txt,text/plain";
   feedback.setAttribute("role", "status");
@@ -54,20 +55,11 @@ function addSaveFilePicker(document) {
       feedback.textContent = "Fichier chargé. Confirmez l’import pour remplacer la partie.";
     } catch {
       textarea.value = "";
-      feedback.textContent = "Ce fichier n’est pas un export de Kittens Game lisible.";
+      feedback.textContent = "Ce fichier n’est pas une sauvegarde AGLLM lisible.";
     } finally {
       input.value = "";
     }
   });
-}
-
-function addNativeOptionsLink(document) {
-  const link = document.createElement("a");
-  link.href = "/?mode=agllm";
-  link.target = "_top";
-  link.className = "reference-mode-link";
-  link.textContent = "Ouvrir le mode autonome AGLLM";
-  document.getElementById("optionsDiv").append(link);
 }
 
 function groupNativeLinks(document) {
@@ -76,7 +68,7 @@ function groupNativeLinks(document) {
   const menu = document.createElement("details");
   const summary = document.createElement("summary");
   menu.className = "reference-engine-menu";
-  summary.textContent = "Menu Kittens Game";
+  summary.textContent = "Menu du moteur";
   document.getElementById("optionsDiv").append(menu);
   menu.append(summary, links);
   const toolbar = document.getElementById("headerLinks");
@@ -84,7 +76,7 @@ function groupNativeLinks(document) {
   document.getElementById("footerLinks").remove();
 }
 
-export function ReferenceInterface({ frame, panel, visible, cameraView, onInspect, onDocument, onNotice }) {
+export function ReferenceInterface({ frame, panel, cameraView, onInspect, onSelect, onHover, onExit, onDocument, onNotice }) {
   const [styled, setStyled] = useState(null);
   const [building, setBuilding] = useState(null);
 
@@ -103,7 +95,7 @@ export function ReferenceInterface({ frame, panel, visible, cameraView, onInspec
       container.classList.add("game-panels");
       const style = document.createElement("style");
       style.id = "agllm-reference-layout";
-      style.textContent = [palette, widgets, layout, presentation, accordions, purchases, camp, science, workshop, trade,
+      style.textContent = [palette, widgets, layout, presentation, sceneInput, accordions, purchases, camp, science, workshop, trade,
         advancedTabs, villageUI, villageJobs,
         villageManagement, villageCensus, referenceControlIcons, referenceResourceIcons].join("\n");
       document.head.append(style);
@@ -121,7 +113,6 @@ export function ReferenceInterface({ frame, panel, visible, cameraView, onInspec
         element.setAttribute("aria-label", label);
       }
       addSaveFilePicker(document);
-      addNativeOptionsLink(document);
       groupNativeLinks(document);
     }
     container.dataset.panel = panel;
@@ -138,7 +129,7 @@ export function ReferenceInterface({ frame, panel, visible, cameraView, onInspec
     const { document } = styled;
     const view = document.defaultView;
     const removeControls = installReferenceControls(document);
-    const removeSceneInput = installSceneInput(document, cameraView);
+    const removeSceneInput = installSceneInput(document, cameraView, onSelect, onHover, onExit);
     const update = (game) => decorateReferenceGame(document, game, onInspect, setBuilding);
     update(view.gamePage);
     const subscription = view.dojo?.subscribe("ui/update", update);
@@ -155,12 +146,12 @@ export function ReferenceInterface({ frame, panel, visible, cameraView, onInspec
       removeControls();
       removeSceneInput();
     };
-  }, [styled, cameraView, onInspect, onNotice]);
+  }, [styled, cameraView, onInspect, onSelect, onHover, onExit, onNotice]);
 
   return (
     <>
-      <iframe ref={frame} className="reference-frame" src="/motorAGLLM/" title="Kittens Game"
-        hidden={!visible} data-styled={styled ? "" : undefined} onLoad={styleFrame} />
+      <iframe ref={frame} className="reference-frame" src="/motorAGLLM/" title="Moteur AGLLM"
+        data-styled={styled ? "" : undefined} onLoad={styleFrame} />
       {styled && columns.map(([id, , label, icon], index) => (
         <Widget key={id} element={styled.elements[index]} label={label} icon={icon} />
       ))}
