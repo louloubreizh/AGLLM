@@ -4,7 +4,13 @@ import { root } from "./instance.mjs";
 import { motorContentSecurityPolicy, readMotorFiles } from "./motor-reference.mjs";
 
 const output = join(root, "dist", "motorAGLLM");
-for (const [path, content] of readMotorFiles()) {
+const files = readMotorFiles();
+// Le moteur peut demander cette feuille après une sauvegarde avec le thème par défaut.
+if (!files.has("res/theme_default.css")) {
+  files.set("res/theme_default.css", "/* Les styles du thème par défaut sont chargés par default.css. */\n");
+}
+
+for (const [path, content] of files) {
   const destination = join(output, path);
   await mkdir(dirname(destination), { recursive: true });
   // GitHub Pages sert des fichiers statiques sans la politique HTTP du serveur local.
