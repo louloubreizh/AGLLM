@@ -13,7 +13,7 @@ const entryFiles = new Set([
   "server.json", "icon.png", "changelog.txt", "license.txt",
 ]);
 const assetDirectories = new Set(["js", "lib", "res"]);
-const policy = [
+export const motorContentSecurityPolicy = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
@@ -66,6 +66,11 @@ function verifiedContents({ path, hash }) {
   throw new Error(`Le contenu de référence a changé · ${path}`);
 }
 
+export function readMotorFiles(entries = verifyMotor()) {
+  return new Map(entries.filter(({ path, type }) => type === "blob" && isPublicFile(path))
+    .map((entry) => [entry.path, verifiedContents(entry)]));
+}
+
 export function createMotorApp() {
   const app = express();
   app.disable("x-powered-by");
@@ -83,8 +88,7 @@ export function createMotorApp() {
     if (!files || filename === "index.html") {
       try {
         const entries = verifyMotor();
-        files ??= new Map(entries.filter(({ path, type }) => type === "blob" && isPublicFile(path))
-          .map((entry) => [entry.path, verifiedContents(entry)]));
+        files ??= readMotorFiles(entries);
       } catch (error) {
         files = null;
         return response.status(503).type("text").send(error.message);
@@ -93,7 +97,7 @@ export function createMotorApp() {
 
     const content = files.get(filename);
     if (!content) return response.sendStatus(404);
-    response.set({ "Cache-Control": "no-cache", "Content-Security-Policy": policy });
+    response.set({ "Cache-Control": "no-cache", "Content-Security-Policy": motorContentSecurityPolicy });
     return response.type(extname(filename)).send(content);
   });
   return app;

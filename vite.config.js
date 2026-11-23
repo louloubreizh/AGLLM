@@ -1,7 +1,8 @@
 import { defineConfig } from "vite";
 import { createMotorApp } from "./scripts/motor-reference.mjs";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === "pages" ? "/AGLLM/" : "/",
   appType: "mpa",
   plugins: [{
     name: "motorAGLLM",
@@ -10,4 +11,4 @@ export default defineConfig({
     },
   }],
   server: { host: "127.0.0.1", port: 8080, strictPort: true },
-});
+}));

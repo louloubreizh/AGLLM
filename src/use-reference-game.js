@@ -51,7 +51,9 @@ export function useReferenceGame() {
   useEffect(() => {
     const controller = new AbortController();
     const hold = Promise.withResolvers();
-    const connection = import.meta.env.DEV ? null : new EventSource("/api/session");
+    const connection = import.meta.env.DEV || import.meta.env.MODE === "pages"
+      ? null
+      : new EventSource("/api/session");
 
     function persist() {
       runningGame(frame)?.save();

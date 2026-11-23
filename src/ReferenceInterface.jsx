@@ -150,7 +150,7 @@ export function ReferenceInterface({ frame, panel, cameraView, onInspect, onSele
 
   return (
     <>
-      <iframe ref={frame} className="reference-frame" src="/motorAGLLM/" title="Moteur AGLLM"
+      <iframe ref={frame} className="reference-frame" src={`${import.meta.env.BASE_URL}motorAGLLM/`} title="Moteur AGLLM"
         data-styled={styled ? "" : undefined} onLoad={styleFrame} />
       {styled && columns.map(([id, , label, icon], index) => (
         <Widget key={id} element={styled.elements[index]} label={label} icon={icon} />

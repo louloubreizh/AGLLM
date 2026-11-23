@@ -1,8 +1,12 @@
 # AnimalGame LouisLeMaitre (AGLLM)
 
+**[Jouer à AGLLM en ligne](https://louloubreizh.github.io/AGLLM/)**
+
+Le jeu se lance directement dans le navigateur, sans installation ni compte. La partie est sauvegardée dans ce navigateur. La version en ligne est publiée sur GitHub Pages à partir de la branche `prod`.
+
 AGLLM est un jeu de gestion et de progression dans lequel vous développez une colonie de chats. Cueillez vos premières ressources, construisez un campement, répartissez le travail et faites évoluer le village au fil des saisons. Le moteur interne d’AGLLM simule l’économie, la population, le calendrier et les déblocages. La scène 3D suit l’évolution de la partie.
 
-## Installer et lancer sous Windows
+## Installer et lancer en local sous Windows
 
 Après avoir récupéré le dépôt, installez Git et Node.js 24. Exécutez ces commandes depuis le dossier du projet dans PowerShell.
 
@@ -60,7 +64,7 @@ Les rues de l’île s’ouvrent avec les constructions et les chats les emprunt
 
 ## Pause, sauvegardes et connexion
 
-- **Mettre en pause** suspend la simulation et **Reprendre la partie** la relance. **Sauvegarder** enregistre la partie immédiatement. Le moteur la sauvegarde également automatiquement, à la fermeture de la page et lors de l’arrêt du serveur.
+- **Mettre en pause** suspend la simulation et **Reprendre la partie** la relance. **Sauvegarder** enregistre la partie immédiatement. Le moteur sauvegarde aussi automatiquement et à la fermeture de la page. En local, l’arrêt du serveur déclenche également une sauvegarde.
 - Une sauvegarde locale est associée au profil du navigateur, à l’adresse et au port utilisés. Pour jouer sur un autre appareil ou depuis un autre profil, exportez la partie puis importez-la dans le navigateur de destination. Si un onglet affiche une partie déjà ouverte, fermez l’autre onglet pour lui céder la session.
 - Dans **Options → Exporter**, téléchargez le fichier texte ou copiez le texte d’export. Dans **Options → Importer**, sélectionnez un fichier texte ou collez le contenu, puis confirmez le remplacement de la partie courante. L’export contient la progression complète, notamment les ressources, les bâtiments, les recherches et le calendrier.
 - **Connexion** ouvre le formulaire du service de compte. L’authentification dépend de la disponibilité du service. La partie et les sauvegardes locales sont disponibles sans compte.
@@ -74,5 +78,7 @@ npm.cmd run test:browser
 ```
 
 Le moteur interne se trouve dans `motorAGLLM/source`. Sa révision est enregistrée dans `motorAGLLM/revision.txt` et le serveur vérifie sa copie locale avant de la servir. L’interface React et ses adaptateurs se trouvent dans `src/`. Le village Three.js se trouve dans `src/world3d/`, avec les modèles, la caméra, les quartiers, le réseau de rues et les animations des habitants.
+
+Pour compiler la version GitHub Pages, utilisez `npm.cmd run build:pages` après avoir initialisé le moteur et installé les dépendances. Cette commande prépare le site statique dans `dist/`. GitHub Actions le compile et le publie à chaque push sur `prod`.
 
 `npm.cmd test` compile le projet et vérifie le moteur, le serveur et la scène. `npm.cmd run test:browser` utilise Chrome pour vérifier le parcours de jeu, l’interface sur différentes tailles d’écran et les sauvegardes. Pour utiliser Edge, définissez `$env:AGLLM_TEST_BROWSER = 'msedge'`.
