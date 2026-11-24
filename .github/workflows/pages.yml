@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -15,12 +16,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     if: github.ref == 'refs/heads/prod'
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      artifact-name: ${{ steps.artifact.outputs.name }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -33,9 +33,35 @@ jobs:
       - uses: actions/configure-pages@v5
       - run: npm ci
       - run: npm run build:pages
+      - id: artifact
+        run: echo "name=github-pages-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-pages-artifact@v4
         with:
+          name: ${{ steps.artifact.outputs.name }}
           path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Vérifier la disponibilité de l’artefact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT: ${{ needs.build.outputs.artifact-name }}
+        run: |
+          for attempt in {1..12}; do
+            if gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=$ARTIFACT" --jq '.total_count' | grep -qx 1; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::Artefact GitHub Pages indisponible : $ARTIFACT"
+          exit 1
       - name: Déployer
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: ${{ needs.build.outputs.artifact-name }}
