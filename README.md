@@ -1,10 +1,10 @@
 # AnimalGame LouisLeMaitre (AGLLM)
 
-**[Jouer à AGLLM en ligne](https://louloubreizh.github.io/AGLLM/)**
+**[Jouer à AGLLM en ligne](https://louloubreizh.github.io/AGLLM/?v=5a4918e)**
 
 Le jeu se lance directement dans le navigateur, sans installation ni compte. La partie est sauvegardée dans ce navigateur. La version en ligne est publiée sur GitHub Pages à partir de la branche `prod`.
 
-AGLLM est un jeu de gestion et de progression dans lequel vous développez un village d’animaux. Le bouton **AGLLM**, à gauche de la barre principale, permet de choisir les chats, les chiens, les lapins, les vélociraptors ou les drakes des brumes. Le choix s’applique à la partie en cours et reste mémorisé dans le navigateur. Cueillez vos premières ressources, construisez un campement, répartissez le travail et faites évoluer le village au fil des saisons. Le moteur interne d’AGLLM simule l’économie, la population, le calendrier et les déblocages. La scène 3D suit l’évolution de la partie.
+AGLLM est un jeu de gestion et de progression dans lequel vous développez un village d’animaux. Le bouton **AGLLM**, à gauche de la barre principale, permet de choisir les chats, les chiens, les lapins, les vélociraptors ou les dragons bleus. Le choix s’applique après validation et reste mémorisé dans le navigateur. Cueillez vos premières ressources, construisez un campement, répartissez le travail et faites évoluer le village au fil des saisons. Le moteur interne d’AGLLM simule l’économie, la population, le calendrier et les déblocages. La scène 3D suit l’évolution de la partie.
 
 ## Installer et lancer en local sous Windows
 
@@ -82,6 +82,8 @@ npm.cmd run test:browser
 Le moteur interne se trouve dans `motorAGLLM/source`. Sa révision est enregistrée dans `motorAGLLM/revision.txt` et le serveur vérifie sa copie locale avant de la servir. L’interface React et ses adaptateurs se trouvent dans `src/`. Le village Three.js se trouve dans `src/world3d/`, avec les modèles, la caméra, les quartiers, le réseau de rues et les animations des habitants.
 
 Pour compiler la version GitHub Pages, utilisez `npm.cmd run build:pages` après avoir initialisé le moteur et installé les dépendances. Cette commande prépare le site statique dans `dist/`. GitHub Actions le compile et le publie à chaque push sur `prod`.
+
+Lors d’une nouvelle publication, remplacez le paramètre `v` du lien **Jouer à AGLLM en ligne** par l’identifiant de la version du jeu promue sur `prod`. GitHub Pages peut conserver la page d’entrée en cache pendant dix minutes. Le changement de paramètre recharge cette page tout en conservant la sauvegarde associée à la même origine.
 
 La branche de développement est `dev/beta`. Utilisez `npm.cmd run build:site` pour produire son site statique à la racine d’un hébergement séparé.
 
