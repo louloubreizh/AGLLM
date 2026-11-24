@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { GameInformation } from "./GameInformation.jsx";
+import { GameInformation, VillageIndicators } from "./GameInformation.jsx";
 import { Icon } from "./Icon.jsx";
+import { NavbarPopover } from "./NavbarPopover.jsx";
 import { ReferenceInterface } from "./ReferenceInterface.jsx";
 import { ResidentSpeciesPicker } from "./ResidentSpeciesPicker.jsx";
 import { loadResidentSpecies, saveResidentSpecies } from "./resident-species.js";
@@ -26,6 +27,11 @@ function App() {
   const [camera, setCamera] = useState(null);
   const [panel, setPanel] = useState("play");
   const [species, setSpecies] = useState(loadResidentSpecies);
+  const [active, onActive] = useState(null);
+  const [worldEnabled, setWorldEnabled] = useState(true);
+  const [renderState, setRenderState] = useState("loading");
+  const viewDialog = useRef(null);
+  const navbar = { active, onActive };
   const worldSnapshot = useMemo(() => snapshot && { ...snapshot, species }, [snapshot, species]);
 
   function changeSpecies(value) {
@@ -34,7 +40,6 @@ function App() {
   }
 
   const cameraView = useRef(null);
-  const pauseLabel = snapshot?.paused ? "Reprendre la partie" : "Mettre en pause";
 
   const inspect = useCallback((type, name) => {
     if (cameraView.current?.inspect(type)) setCamera(name);
@@ -61,49 +66,61 @@ function App() {
     setCamera(null);
   }, []);
 
+  function changeView() {
+    closeCamera();
+    setHover(null);
+    setRenderState("loading");
+    setWorldEnabled(!worldEnabled);
+    viewDialog.current.close();
+  }
+
+  const rendering = renderState !== "ready" && renderState !== "unavailable";
+  const renderDescription = worldEnabled
+    ? renderState === "unavailable" ? "Rendu 3D indisponible" : rendering ? "Rendu 3D en cours" : "Rendu 3D prêt"
+    : "Interface seule";
+
   useEffect(() => {
     if (!camera) {
       return;
     }
     function exitCamera(event) {
-      if (event.key === "Escape" && !document.querySelector(".species-popover:popover-open")) {
+      if (event.key === "Escape" && !active && !viewDialog.current?.open
+        && !document.querySelector(".species-popover:popover-open, .species-details[open]")) {
         closeCamera();
       }
     }
     window.addEventListener("keydown", exitCamera);
     return () => window.removeEventListener("keydown", exitCamera);
-  }, [camera, closeCamera]);
+  }, [active, camera, closeCamera]);
 
   return (
     <div className="shell">
       <nav className="topbar" aria-label="Navigation AGLLM">
         <ResidentSpeciesPicker species={species} onChange={changeSpecies} />
-        {ready && (
-          <div className="game-actions">
-            <button type="button" aria-label={pauseLabel} title={pauseLabel} onClick={() => game.act("pause")}>
-              <Icon name={snapshot?.paused ? "play" : "pause"} />
-            </button>
-            <button type="button" aria-label="Sauvegarder" title="Sauvegarder" onClick={game.save}>
-              <Icon name="save" /><span className="action-label">Sauvegarder</span>
-            </button>
-            <button type="button" aria-label="Options" title="Options" onClick={game.openOptions}>
-              <Icon name="settings" /><span className="action-label">Options</span>
-            </button>
-            <button type="button" aria-label="Connexion" title="Connexion" aria-haspopup="dialog"
-              aria-expanded={snapshot?.loginOpen ?? false} onClick={game.openConnection}>
-              <Icon name="account" /><span className="action-label">Connexion</span>
-            </button>
-          </div>
-        )}
-        <GameInformation snapshot={snapshot} stateLabel={snapshot?.paused ? "Partie en pause" : statuses[status]}
-          saveFeedback={state ? notice : ""} />
-
+        <div className="navbar-actions">
+          {ready && <>
+            <VillageIndicators metrics={snapshot.indicators} controls={navbar} />
+            <div className="info-menu">
+              <button className="info-button view-mode-button" type="button" aria-haspopup="dialog"
+                aria-label="Changer le mode de vue" aria-description={renderDescription} title={renderDescription}
+                data-render={worldEnabled ? renderState : "off"}
+                onClick={() => { onActive(null); viewDialog.current.showModal(); }}>
+                {worldEnabled ? "3D" : "UI"}
+              </button>
+            </div>
+            <NavbarPopover {...navbar} icon="save" title="Sauvegarde" onAction={game.save} saved={game.saved} />
+            <NavbarPopover {...navbar} icon="settings" title="Options" onAction={game.openOptions} />
+          </>}
+          <GameInformation controls={navbar} snapshot={snapshot}
+            stateLabel={snapshot?.paused ? "Partie en pause" : statuses[status]} saveFeedback={state ? notice : ""} />
+        </div>
       </nav>
       <main className="playfield" aria-label="Village et commandes de la partie">
-        {status !== "stopped" && (
-          <WorldView snapshot={worldSnapshot} subject={typeof camera === "string" ? camera : null} view={cameraView} hover={hover} onSelect={select} onHover={onHover} />
+        {worldEnabled && status !== "stopped" && (
+          <WorldView snapshot={worldSnapshot} subject={typeof camera === "string" ? camera : null} view={cameraView}
+            hover={hover} onSelect={select} onHover={onHover} state={renderState} onState={setRenderState} />
         )}
-        {state && <ReferenceInterface frame={game.frame} panel={panel} species={species} cameraView={cameraView} onInspect={inspect} onInspectResident={inspectResident}
+        {state && <ReferenceInterface frame={game.frame} panel={panel} species={species} worldEnabled={worldEnabled} cameraView={cameraView} onInspect={inspect} onInspectResident={inspectResident}
           onSelect={select} onHover={onHover} onExit={closeCamera} onDocument={game.onDocument} onNotice={game.setNotice} />}
         {(!state || status === "missing") && (
           <div className="game-message">
@@ -115,6 +132,14 @@ function App() {
           </div>
         )}
       </main>
+      <dialog ref={viewDialog} className="view-mode-dialog" aria-labelledby="view-mode-title">
+        <h2 id="view-mode-title">{worldEnabled ? "Passer en mode UI ?" : "Activer le monde 3D ?"}</h2>
+        <p>{worldEnabled ? "Les panneaux du jeu occuperont l’espace de la scène 3D." : "La scène 3D du village sera recalculée."}</p>
+        <footer>
+          <button type="button" autoFocus onClick={() => viewDialog.current.close()}>Annuler</button>
+          <button type="button" onClick={changeView}>Confirmer</button>
+        </footer>
+      </dialog>
       {ready && (
         <nav className="panel-switcher" aria-label="Panneaux de jeu">
           {panels.map(([name, label, icon]) => (

@@ -1,29 +1,32 @@
+import { quantityDirection } from "./quantity-buttons.js";
 import { iconImage } from "./Icon.jsx";
-import { control, element, setText, villageIcon, villageLocale } from "./village-ui.js";
+import { element, setText, villageIcon, villageLocale } from "./village-ui.js";
 
 const sections = new WeakMap();
 const automation = new WeakMap();
 const directions = [
-  ["unassignCraftLinks", "unassign", "−", "remove"],
-  ["assignCraftLinks", "assign", "+", "add"],
+  ["unassignCraftJob", "−", "remove"],
+  ["assignCraftJob", "+", "add"],
 ];
 const labels = {
   fr: {
     production: "Production prévue", consumption: "Consommation prévue", idle: "Aucun débit prévu",
-    add: "Affecter", remove: "Retirer", engineers: "Ingénieurs", batch: "Affectation par groupes",
+    add: "Affecter", remove: "Retirer", engineers: "Ingénieurs",
   },
   en: {
     production: "Expected output", consumption: "Expected consumption", idle: "No expected flow",
-    add: "Assign", remove: "Unassign", engineers: "Engineers", batch: "Batch assignments",
+    add: "Assign", remove: "Unassign", engineers: "Engineers",
   },
 };
 
 function flowSection(document, title, kind) {
-  const section = element(document, "section", `workshop-flow workshop-flow-${kind}`);
-  const heading = element(document, "h3", "", title);
+  const section = element(document, "details", `workshop-flow workshop-flow-${kind}`);
+  const heading = element(document, "summary", "", title);
+  const body = element(document, "div", "workshop-flow-body");
   const rows = element(document, "dl", "workshop-flow-rows");
-  section.append(heading, rows);
-  return { section, rows };
+  body.append(rows);
+  section.append(heading, body);
+  return { section, body, rows };
 }
 
 function updateFlow(document, game, flow, values, copy) {
@@ -37,7 +40,7 @@ function updateFlow(document, game, flow, values, copy) {
   if (!rows.length) {
     flow.rows.replaceChildren();
     flow.empty ??= element(document, "p", "workshop-flow-empty", copy.idle);
-    flow.section.append(flow.empty);
+    flow.body.append(flow.empty);
     flow.rows.hidden = true;
     return;
   }
@@ -61,8 +64,7 @@ function createSection(document, tab, copy) {
   const production = flowSection(document, copy.production, "production");
   const consumption = flowSection(document, copy.consumption, "consumption");
   const statistics = element(document, "div", "workshop-statistics");
-  tab.resTd.classList.replace("craftStuffPanel", "workshop-stock");
-  statistics.append(production.section, consumption.section, tab.resTd);
+  statistics.append(production.section, consumption.section);
   tab.tdTop.classList.add("workshop-engineer-summary");
   const crafts = element(document, "div", "workshop-craft-grid");
   for (const button of tab.craftBtns) {
@@ -81,35 +83,20 @@ function createAutomation(document, game, button, copy) {
   strip.setAttribute("role", "group");
   strip.setAttribute("aria-label", `${copy.engineers} · ${label}`);
   const count = element(document, "span", "workshop-engineer-count");
-  const batch = element(document, "div", "workshop-engineer-menu");
-  batch.popover = "auto";
-  const options = control(document, "workshop-engineer-options", "…", `${copy.batch} · ${label}`);
-  options.popoverTargetElement = batch;
-
-  function activate(list, id) {
-    const craft = button.model.craft;
-    if (game.isReadOnly() || !craft.unlocked) return;
-    button.model[list].find((item) => item.id === id)?.handler();
-    game.village.updateResourceProduction();
-    game.ui.update();
-  }
-
-  const controls = directions.map(([list, id, sign, action]) => {
-    const single = control(document, "workshop-engineer-step", sign, `${copy[action]} 1 · ${label}`);
-    single.addEventListener("click", () => activate(list, id));
-    const items = [5, 25, 100].map((amount) => {
-      const key = `${id}${amount}`;
-      const item = control(document, "workshop-engineer-batch", `${sign}${amount}`, `${copy[action]} ${amount} · ${label}`);
-      item.addEventListener("click", () => {
-        batch.hidePopover();
-        activate(list, key);
-      });
-      batch.append(item);
-      return { key, item };
-    });
-    return { list, single, items };
-  });
-  strip.append(controls[0].single, count, controls[1].single, options, batch);
+  const controls = directions.map(([method, sign, action]) => quantityDirection(document, {
+    label: (amount) => [copy[action], amount].filter(Boolean).join(" ") + ` · ${label}`,
+    sign,
+    amounts: [5, 25],
+    stepClass: "workshop-engineer-step",
+    activate(amount) {
+      if (game.isReadOnly() || !button.model.craft.unlocked) return;
+      button.controller[method](button.model, amount);
+      game.village.updateResourceProduction();
+      game.ui.update();
+    },
+  }));
+  strip.classList.add("quantity-controls");
+  strip.append(controls[0].group, count, controls[1].group);
   for (const type of ["click", "keydown", "keypress"]) strip.addEventListener(type, (event) => event.stopPropagation());
   strip.addEventListener("mouseover", (event) => {
     event.stopPropagation();
@@ -123,17 +110,8 @@ function createAutomation(document, game, button, copy) {
   return (free, canEdit) => {
     const assigned = button.model.craft.value;
     setText(count, String(assigned));
-    let hasBatch = false;
-    controls.forEach(({ list, single, items }, index) => {
-      const enabled = canEdit && (index === 0 ? assigned > 0 : free > 0);
-      single.disabled = !enabled;
-      for (const { key, item } of items) {
-        item.hidden = !button.model[list].some((link) => link.id === key);
-        item.disabled = !enabled;
-        hasBatch ||= !item.hidden;
-      }
-    });
-    options.hidden = !hasBatch;
+    controls[0].enable(canEdit && assigned > 0);
+    controls[1].enable(canEdit && free > 0);
   };
 }
 

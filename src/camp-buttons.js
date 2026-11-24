@@ -29,24 +29,25 @@ function nativeWrapper(content, link) {
   return Array.from(content.children).find((child) => child.contains(link));
 }
 
-function moveStageLinks(content, toolbar, before, after, button) {
+function moveStageLinks(content, stageControls, button) {
   const { stages, stage = 0 } = button.model.metadata;
   for (const { link } of button.stageLinks ?? []) {
     const upgrade = link.textContent.trim() === "^";
     const direction = upgrade ? "up" : "down";
     const wrapper = nativeWrapper(content, link);
     if (!wrapper) continue;
-    if (toolbar.querySelector(`[data-camp-stage="${direction}"]`)) {
+    if (stageControls.querySelector(`[data-camp-stage="${direction}"]`)) {
       wrapper.hidden = true;
       continue;
     }
     const target = stages[stage + (upgrade ? 1 : -1)]?.label ?? buildingLabel(button);
     link.dataset.campStage = direction;
+    wrapper.dataset.campSlot = direction;
     link.toggleAttribute("data-camp-icon", true);
     link.textContent = upgrade ? "↑" : "↓";
     link.title = upgrade ? `Améliorer en ${target}` : `Revenir à ${target}`;
     link.setAttribute("aria-label", link.title);
-    (upgrade ? before : after).append(wrapper);
+    stageControls.append(wrapper);
   }
 }
 
@@ -69,14 +70,12 @@ function addQuantityMenus(document, content, controls, button) {
     menu.popover = "auto";
     menu.setAttribute("role", "group");
     menu.setAttribute("aria-label", label);
-    trigger.title = `${label} · Double-clic : ${sign}1`;
+    trigger.title = `${label} · Cliquez à nouveau pour ${sign}1`;
     trigger.popoverTargetElement = menu;
     trigger.addEventListener("click", (event) => {
-      if (event.detail > 1) event.preventDefault();
-    });
-    trigger.addEventListener("dblclick", (event) => {
-      event.stopPropagation();
-      if (menu.matches(":popover-open")) menu.hidePopover();
+      if (!menu.matches(":popover-open")) return;
+      event.preventDefault();
+      menu.hidePopover();
       root.click();
     });
     const five = document.createElement("button");
@@ -113,7 +112,10 @@ function moveNativeActions(content, toolbar, before, after, button) {
     action.link.dataset.campNative = kind;
     action.link.toggleAttribute("data-camp-icon", true);
     const wrapper = nativeWrapper(content, action.link);
-    if (wrapper) target.append(wrapper);
+    if (wrapper) {
+      wrapper.dataset.campSlot = kind;
+      target.append(wrapper);
+    }
   }
 }
 
@@ -134,7 +136,12 @@ function createCardLayout(document, content, title) {
   const activity = document.createElement("div");
   activity.className = "camp-building-activity";
   activity.append(count);
-  heading.append(title, activity);
+  const stageControls = document.createElement("div");
+  stageControls.className = "camp-building-stages";
+  const status = document.createElement("div");
+  status.className = "camp-building-status";
+  status.append(activity, stageControls);
+  heading.append(title, status);
   const toolbar = document.createElement("div");
   toolbar.className = "camp-building-actions";
   toolbar.setAttribute("role", "group");
@@ -144,15 +151,15 @@ function createCardLayout(document, content, title) {
   const after = document.createElement("div");
   before.className = "camp-actions-before";
   after.className = "camp-actions-after";
-  toolbar.append(before, primary, after);
+  toolbar.append(before, after, primary);
   content.prepend(preview, heading, toolbar);
-  return { picture, count, activity, toolbar, primary, before, after };
+  return { picture, count, activity, stageControls, toolbar, primary, before, after };
 }
 
 function createBuildingCard(document, game, button, callbacks) {
   const { buttonContent: content, buttonTitle: title, domNode: node } = button;
   const layout = createCardLayout(document, content, title);
-  const { activity, toolbar, primary, before, after } = layout;
+  const { activity, stageControls, toolbar, primary, before, after } = layout;
   const eye = createAction(document, "eye", () => callbacks.inspect(button.opts.building, buildingLabel(button)));
   const info = createAction(document, "info", (trigger) => callbacks.information({
     name: buildingLabel(button),
@@ -161,12 +168,12 @@ function createBuildingCard(document, game, button, callbacks) {
     trigger,
   }));
   info.setAttribute("aria-haspopup", "dialog");
-  primary.append(eye, info);
+  primary.append(info, eye);
   addQuantityMenus(document, content, activity, button);
   moveNativeActions(content, toolbar, before, after, button);
-  moveStageLinks(content, toolbar, before, after, button);
+  moveStageLinks(content, stageControls, button);
 
-  for (const controls of [activity, toolbar]) {
+  for (const controls of [activity, stageControls, toolbar]) {
     controls.addEventListener("click", (event) => event.stopPropagation());
     controls.addEventListener("mouseover", (event) => {
       event.stopPropagation();
@@ -207,15 +214,27 @@ export function updateBuildingCard(document, game, button, callbacks) {
   }
 
   const { val: total, on: active = total } = button.model.metadata;
-  const countText = `${active}/${total}`;
+  const canDeactivate = Boolean(button.remove?.off1?.link);
+  const canActivate = Boolean(button.add?.add1?.link);
+  const adjustable = canDeactivate || canActivate;
+  const countText = adjustable ? `${active}/${total}` : String(total);
   if (count.textContent !== countText) count.textContent = countText;
-  const countTitle = `${active} actifs sur ${total}`;
+  const countTitle = adjustable ? `${active} actifs sur ${total}` : `${total} exemplaires construits`;
   if (count.title !== countTitle) count.title = countTitle;
   const readOnly = game.isReadOnly();
+  card.stageControls.hidden = readOnly;
   const down = activity.querySelector('[data-camp-tool="minus"]');
   const up = activity.querySelector('[data-camp-tool="plus"]');
-  down.disabled = readOnly || !button.remove || active < 1;
-  up.disabled = readOnly || !button.add || active >= total;
+  activity.toggleAttribute("data-adjustable", adjustable);
+  down.hidden = readOnly || !canDeactivate || active < 1;
+  up.hidden = readOnly || !canActivate || active >= total;
+  if (down.hidden || up.hidden) {
+    for (const trigger of [down, up]) {
+      if (trigger.hidden && trigger.popoverTargetElement?.matches(":popover-open")) {
+        trigger.popoverTargetElement.hidePopover();
+      }
+    }
+  }
   node.toggleAttribute("data-camp-unavailable", !button.model.enabled);
   const observationDisabled = total < 1;
   if (eye.disabled !== observationDisabled) eye.disabled = observationDisabled;

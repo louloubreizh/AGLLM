@@ -3,7 +3,7 @@ export const residentSpecies = Object.freeze({
   dog: { fr: ["Chien", "Chiens"], en: ["Dog", "Dogs"], icon: "residentDog", gait: "Trot", speed: 1.16 },
   rabbit: { fr: ["Lapin", "Lapins"], en: ["Rabbit", "Rabbits"], icon: "residentRabbit", gait: "Bonds", speed: 1.06 },
   raptor: { fr: ["Vélociraptor", "Vélociraptors"], en: ["Velociraptor", "Velociraptors"], icon: "residentRaptor", gait: "Course bipède", speed: 1.12 },
-  drake: { fr: ["Drake des brumes", "Drakes des brumes"], en: ["Mist drake", "Mist drakes"], icon: "residentDrake", gait: "Vol battu", speed: 1.08 },
+  drake: { fr: ["Dragon bleu", "Dragons bleus"], en: ["Blue dragon", "Blue dragons"], icon: "residentDrake", gait: "Vol battu", speed: 1.08 },
 });
 
 const storageKey = "agllm.resident-species";

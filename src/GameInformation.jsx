@@ -1,40 +1,82 @@
-import React, { useEffect, useId, useRef, useState } from "react";
-import { Icon } from "./Icon.jsx";
+import React, { useEffect, useState } from "react";
+import { NavbarPopover } from "./NavbarPopover.jsx";
 
-const metric = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
+const number = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
+const compact = new Intl.NumberFormat("fr-FR", { notation: "compact", maximumFractionDigits: 1 });
+const signed = new Intl.NumberFormat("fr-FR", { signDisplay: "exceptZero", maximumFractionDigits: 2 });
 
-function InformationRow({ icon, label, description, warning, children }) {
-  const descriptionId = useId();
+function format(value, unit, formatter = number) {
+  return Number.isFinite(value) ? `${formatter.format(value)} ${unit}` : "—";
+}
+
+function Statistics({ rows }) {
+  return <dl className="navbar-statistics">{rows.map(([name, value]) => (
+    <div key={name}><dt>{name}</dt><dd>{value}</dd></div>
+  ))}</dl>;
+}
+
+function Metric({ title, icon, value, unit, warning, description, forecast, rows, controls }) {
   return (
-    <div className={`information-row ${warning ? "metric-warning" : ""}`} tabIndex={0} aria-describedby={descriptionId}>
-      <span className="information-icon"><Icon name={icon} /></span>
-      <div>
-        <strong>{label}</strong>
-        <p>{children}</p>
-        <p className="information-description" id={descriptionId}>{description}</p>
-      </div>
+    <NavbarPopover {...controls} title={title} icon={icon} warning={warning} value={format(value, unit, compact)}>
+      {() => <>
+        <p className="metric-current">{format(value, unit)}</p>
+        <p className="popover-description">{description}</p>
+        <p className="metric-forecast"><strong>Prévision</strong> {forecast}</p>
+        <Statistics rows={rows} />
+      </>}
+    </NavbarPopover>
+  );
+}
+
+export function VillageIndicators({ metrics, controls }) {
+  const { happiness, energy, pollution } = metrics;
+  const balance = energy.production - energy.consumption;
+  const winter = energy.winterProduction - energy.consumption;
+  return (
+    <div className="village-indicators" role="group" aria-label="Indicateurs du village">
+      <Metric controls={controls} title="Bonheur" icon="heart" value={happiness.value} unit="%"
+        description="Le bonheur influe sur la production des habitants."
+        forecast={happiness.festivalDays > 0
+          ? `${format(happiness.afterFestival, "%")} à la fin du festival dans ${format(happiness.festivalDays, "j")}, si les autres facteurs restent stables.`
+          : `${format(happiness.value, "%")} si les conditions du village restent stables.`}
+        rows={[
+          ["Bâtiments", format(happiness.buildings, "pts", signed)],
+          ["Environnement", format(happiness.environment, "pts", signed)],
+          ["Population", format(happiness.population, "pts", signed)],
+          ["Karma", format(happiness.karma, "pts", signed)],
+          ["Festival", format(happiness.festival, "pts", signed)],
+        ]} />
+      <Metric controls={controls} title="Électricité" icon="energy" value={balance} unit="W" warning={balance < 0}
+        description="Le solde est la différence entre la production électrique et la consommation du village."
+        forecast={`Solde hivernal de ${format(winter, "W", signed)} à consommation constante.`}
+        rows={[
+          ["Production", format(energy.production, "W")],
+          ["Consommation", format(energy.consumption, "W")],
+          ["Production en hiver", format(energy.winterProduction, "W")],
+        ]} />
+      {!pollution.hidden && <Metric controls={controls} title="Pollution" icon="cloud" value={pollution.value} unit="ppm"
+        description="Les émissions s’accumulent dans l’environnement. La pollution peut affecter le village et ses habitants."
+        forecast={Number.isFinite(pollution.tomorrow)
+          ? `${format(pollution.tomorrow, "ppm")} dans un jour de jeu si les émissions restent constantes.`
+          : "Projection indisponible pour la concentration actuelle."}
+        rows={[
+          ["Niveau du moteur", number.format(pollution.level)],
+          ["Évolution actuelle", format(pollution.dailyChange, "ppm/j", signed)],
+          ["À l’équilibre", pollution.equilibrium === Infinity ? "Sans seuil" : format(pollution.equilibrium, "ppm")],
+        ]} />}
     </div>
   );
 }
 
-export function GameInformation({ snapshot, stateLabel, saveFeedback }) {
-  const [open, setOpen] = useState(false);
+function Information({ snapshot, stateLabel, saveFeedback }) {
   const [fps, setFps] = useState(null);
-  const pinned = useRef(false);
-  const menu = useRef(null);
-  const trigger = useRef(null);
-  const popoverId = useId();
-  const toolbar = snapshot?.toolbar;
-  const energy = toolbar?.energy;
-
   useEffect(() => {
-    if (!open) return;
     let frames = 0;
     let start;
     let animation;
     function measure(time) {
-      if (start === undefined) start = time;
-      else frames += 1;
+      start ??= time;
+      frames += 1;
       if (time - start >= 800) {
         setFps(Math.round((frames * 1000) / (time - start)));
         start = time;
@@ -44,96 +86,19 @@ export function GameInformation({ snapshot, stateLabel, saveFeedback }) {
     }
     animation = requestAnimationFrame(measure);
     return () => cancelAnimationFrame(animation);
-  }, [open]);
+  }, []);
 
-  useEffect(() => {
-    if (!open) return;
-    function close() {
-      pinned.current = false;
-      setOpen(false);
-    }
-    function dismissOutside(event) {
-      if (!menu.current.contains(event.target)) close();
-    }
-    function escape(event) {
-      if (event.key !== "Escape") return;
-      close();
-      if (menu.current.contains(document.activeElement)) trigger.current.focus();
-    }
-    document.addEventListener("pointerdown", dismissOutside);
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("pointerdown", dismissOutside);
-      document.removeEventListener("keydown", escape);
-    };
-  }, [open]);
+  return <Statistics rows={[
+    ["État", stateLabel],
+    ...(snapshot?.calendarText ? [["Calendrier", snapshot.calendarText]] : []),
+    ["FPS", fps ?? "—"],
+    ...(snapshot ? [["Chagrin", format(snapshot.sorrow, "%")]] : []),
+    ...(saveFeedback ? [["Sauvegarde", saveFeedback]] : []),
+  ]} />;
+}
 
-  return (
-    <div
-      ref={menu}
-      className="info-menu"
-      onPointerEnter={(event) => { if (event.pointerType === "mouse") setOpen(true); }}
-      onPointerLeave={() => { if (!pinned.current) setOpen(false); }}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          pinned.current = false;
-          setOpen(false);
-        }
-      }}
-    >
-      <button
-        ref={trigger}
-        className="info-button"
-        type="button"
-        aria-label="Infos"
-        aria-expanded={open}
-        aria-controls={popoverId}
-        onClick={() => {
-          pinned.current = !pinned.current;
-          setOpen(pinned.current);
-        }}
-      >
-        <Icon name="info" /><span>Infos</span>
-      </button>
-      <section id={popoverId} className="info-popover" aria-label="Informations de la partie" hidden={!open}>
-        {snapshot?.calendarText && (
-          <InformationRow icon="calendar" label="Calendrier" description="Calendrier affiché dans le journal de la partie.">
-            {snapshot.calendarText}
-          </InformationRow>
-        )}
-        <InformationRow icon={snapshot?.paused ? "pause" : "play"} label="État" description="Indique si la partie est active, en pause ou arrêtée.">
-          {stateLabel}
-        </InformationRow>
-        <InformationRow icon="chart" label="FPS" description="Fréquence de rafraîchissement de l’interface.">
-          {fps ?? "—"}
-        </InformationRow>
-        {toolbar?.happiness != null && (
-          <InformationRow icon="heart" label="Bonheur" description="Le bonheur influence la production des habitants.">
-            {metric.format(toolbar.happiness)} %
-          </InformationRow>
-        )}
-        {energy && (
-          <InformationRow
-            icon="energy"
-            label="Électricité"
-            warning={energy.production < energy.consumption}
-            description={`Production ${metric.format(energy.production)} · Demande ${metric.format(energy.consumption)} · En hiver ${metric.format(energy.winterProduction)}`}
-          >
-            {metric.format(energy.production - energy.consumption)} W
-          </InformationRow>
-        )}
-        {toolbar && (
-          <InformationRow icon="cloud" label="Pollution" description="Niveau de pollution du village.">
-            {toolbar.pollution == null ? "—" : `${metric.format(toolbar.pollution)} ppm`}
-          </InformationRow>
-        )}
-        {toolbar?.sorrow != null && (
-          <InformationRow icon="sorrow" label="Chagrin" description="Stock de chagrin calculé par le moteur du jeu.">
-            {metric.format(toolbar.sorrow)} %
-          </InformationRow>
-        )}
-        {saveFeedback && <InformationRow icon="check" label="Sauvegarde" description="Notification de sauvegarde du jeu.">{saveFeedback}</InformationRow>}
-      </section>
-    </div>
-  );
+export function GameInformation({ controls, ...information }) {
+  return <NavbarPopover {...controls} icon="info" title="Infos">
+    {() => <Information {...information} />}
+  </NavbarPopover>;
 }

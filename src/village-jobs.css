@@ -53,13 +53,12 @@
 
 .reference-game .village-job-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.25rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
   gap: .6rem;
 }
 
 .reference-game #midColumn .village-job-card.btn.modern {
-  --job-accent: var(--accent);
-  --job-control-size: 2rem;
+  --job-control-size: 1.72rem;
   width: 100%;
   margin: 0;
   border: 0 !important;
@@ -77,10 +76,12 @@
 }
 
 .reference-game #midColumn .village-job-card.btn.modern > .btnContent {
-  display: block;
-  height: 100%;
-  min-height: 0;
-  padding: 0 !important;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto clamp(2.8rem, 15cqi, 5.3rem);
+  align-items: center;
+  gap: .3rem;
+  min-height: 3.45rem;
+  padding: 0 0 0 .58rem !important;
 }
 
 .reference-game .village-job-card .btnContent > :not(.village-job-cover, .village-job-actions) {
@@ -88,76 +89,34 @@
 }
 
 .reference-game .village-job-cover {
-  --job-cover-height: 6.45rem;
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  align-items: end;
-  box-sizing: border-box;
-  min-height: var(--job-cover-height);
-  overflow: hidden;
-  padding: .65rem .7rem;
-  border-radius: .64rem .64rem 0 0;
-  background: transparent;
+  display: contents;
 }
 
 .reference-game .village-job-card:not(.disabled) .village-job-cover { cursor: pointer; }
 
 .reference-game .village-job-picture {
-  position: absolute;
-  z-index: -1;
-  inset: 0 0 0 auto;
-  width: min(54%, calc(var(--job-cover-height) * .9));
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  mask-image: linear-gradient(to right, transparent, #000 32%);
+  grid-area: 1 / 3;
+  width: 100%;
+  height: 3.45rem;
+  object-fit: contain;
+  object-position: right center;
+  border-radius: 0 .7rem .7rem 0;
 }
 
-.reference-game [data-job="ambassador"] .village-job-picture { width: min(54%, 8.6rem); }
-
-.reference-game .village-job-cover::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  background: linear-gradient(90deg, #13241bcf 24%, transparent 76%), linear-gradient(0deg, #13241bbf, transparent 56%);
-}
-
-.reference-game .village-job-heading { min-width: 0; }
-
-.reference-game .village-job-category {
-  display: flex;
-  align-items: center;
-  gap: .28rem;
-  margin-bottom: .23rem;
-  color: var(--job-accent);
-  font-size: .72rem;
-  font-weight: 650;
-  line-height: 1.15;
-}
-
-.reference-game .village-job-category img {
-  flex: none;
-  width: .95rem;
-  height: .95rem;
-}
+.reference-game .village-job-heading { grid-area: 1 / 1; min-width: 0; }
 
 .reference-game .village-job-name {
   margin: 0;
   color: #f2f5ec;
-  font-family: var(--font);
-  font-size: 1.05rem;
+  font-family: Cinzel, Georgia, serif;
+  font-size: .87rem;
+  overflow-wrap: anywhere;
   line-height: 1.12;
   text-shadow: 0 1px .35rem #102019;
 }
 
 .reference-game .village-job-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .35rem;
-  padding: .42rem .52rem;
+  grid-area: 1 / 2;
   cursor: default;
 }
 
@@ -179,12 +138,12 @@
   text-align: center;
 }
 
-.reference-game .village-job-actions button {
+.reference-game :is(.village-job-actions, .quantity-controls) button {
   display: inline-grid;
   place-items: center;
   box-sizing: border-box;
-  min-width: var(--job-control-size);
-  min-height: var(--job-control-size);
+  min-width: var(--job-control-size, 1.75rem);
+  min-height: var(--job-control-size, 1.75rem);
   margin: 0;
   padding: .15rem .4rem;
   border: 0;
@@ -197,60 +156,42 @@
 
 .reference-game .village-job-actions .village-job-step { font-size: 1.05rem; }
 
-.reference-game .village-job-actions .village-job-assign {
+.reference-game :is(.village-job-actions .village-job-assign, .quantity-controls > .quantity-direction:last-child .quantity-step) {
   background: #b8d99b;
   color: #182c20;
 }
 
-.reference-game .village-job-actions .village-job-options {
-  border: 0;
-  background: transparent;
-  font-size: 1.15rem;
-}
-
-.reference-game .village-job-actions button:hover { background: #365745; }
+.reference-game :is(.village-job-actions, .quantity-controls) button:hover { background: #365745; }
 .reference-game .village-job-actions .village-job-assign:hover { background: #d2ecb8; }
-.reference-game .village-job-actions button:disabled {
+.reference-game :is(.village-job-actions, .quantity-controls) button:disabled {
   background: #23362c;
   color: #91a598;
   cursor: default;
 }
 
-.reference-game .village-job-details {
+.reference-game .quantity-controls {
+  display: inline-flex;
+  align-items: center;
+  justify-content: end;
+  gap: .22rem;
+  white-space: nowrap;
+}
+.reference-game .quantity-controls[hidden] { display: none; }
+.reference-game .quantity-batch:popover-open {
+  display: flex;
+  gap: .25rem;
   box-sizing: border-box;
   position: fixed;
-  inset: auto .7rem .7rem auto;
-  width: min(19rem, calc(100vw - 1.4rem));
-  max-height: calc(100dvh - 1.4rem);
-  overflow: auto;
+  inset: auto;
+  position-area: block-start span-inline-end;
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
   margin: 0;
-  padding: .8rem;
-  border: 0;
+  padding: .28rem;
+  border: 1px solid var(--line);
   border-radius: .62rem;
   background: #1c3228;
   color: var(--ink);
   box-shadow: 0 .55rem 1.5rem #09170fad;
-}
-
-.reference-game .village-job-details-title {
-  margin: 0;
-  color: var(--job-accent);
-  font-size: .95rem;
-}
-
-.reference-game .village-job-description {
-  margin: .4rem 0 .7rem;
-  color: var(--ink);
-  font-size: .82rem;
-  line-height: 1.45;
-  white-space: pre-line;
-}
-
-.reference-game .village-job-batch {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem;
-  margin-top: .35rem;
 }
 
 .reference-game .village-job-presets {
@@ -260,19 +201,6 @@
 }
 
 .reference-game .village-job-presets > .loadout { width: 100% !important; }
-
-@supports (position-area: block-start span-inline-start) {
-  .reference-game .village-job-details {
-    inset: auto;
-    position-area: block-start span-inline-start;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    margin: .35rem;
-  }
-}
-
-@container reference-play (max-width: 24rem) {
-  .reference-game .village-job-cover { --job-cover-height: 5.6rem; }
-}
 
 @media (pointer: coarse) {
   .reference-game #midColumn .village-job-card.btn.modern { --job-control-size: 2.65rem; }

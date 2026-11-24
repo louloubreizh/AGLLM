@@ -1,10 +1,5 @@
 .reference-game #midColumn .Science {
-  --science-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
-  --science-gap: .55rem;
-}
-.reference-game #midColumn .Science > .reference-section-art {
-  border: 0;
-  background: transparent;
+  --science-gap: .4rem;
 }
 .reference-game #midColumn .Science > div:has(> #toggleResearched) {
   float: none !important;
@@ -27,15 +22,15 @@
 }
 .reference-game #midColumn .Science > table.table tr:has(> .btn) {
   display: grid;
-  grid-template-columns: var(--science-columns);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--science-gap);
-  padding: .15rem .2rem .6rem;
+  padding: 0 0 var(--science-gap);
 }
 .reference-game #midColumn .Science > table.table tr:not(:has(> .btn)) { display: none; }
 .reference-game #midColumn .Science .panelContainer[style*="display: block"] { display: grid !important; }
 .reference-game #midColumn .Science .panelContainer > .container {
   display: grid;
-  grid-template-columns: var(--science-columns);
+  grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
   gap: var(--science-gap);
 }
@@ -57,7 +52,4 @@
 }
 .reference-game #midColumn .Science .panelContainer:has(#prestigeHideResearched) > .title::before {
   background-image: var(--control-icon-star);
-}
-@container reference-play (max-width: 30rem) {
-  .reference-game #midColumn .Science > .reference-section-art { display: none; }
 }

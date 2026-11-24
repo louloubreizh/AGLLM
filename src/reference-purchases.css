@@ -30,6 +30,10 @@
   padding: .56rem .7rem !important;
   background: transparent;
 }
+.reference-game #midColumn :is(.Science, .Workshop, :is(.Religion, .Space) .panelContainer > .container) .btn.modern .btnContent {
+  min-height: 2.5rem;
+  padding: .28rem .5rem !important;
+}
 .reference-game #midColumn :is(.Science, .Workshop, .Trade, .Religion, .Space, .Time) .btn.modern .btnTitle,
 .reference-game #midColumn :is(.Science, .Workshop, .Trade, .Religion, .Space, .Time) .btn.modern .btnTitle :is(.label, .label-content) {
   min-width: 0;

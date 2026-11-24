@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BuildingInformation } from "./BuildingInformation.jsx";
-import { decorateReferenceGame, referenceControlIcons, referenceResourceIcons } from "./reference-presentation.js";
+import { decorateReferenceGame, referenceControlIcons, referenceResourceIcons, referenceTitleFont } from "./reference-presentation.js";
 import { installReferenceControls } from "./reference-controls.js";
+import { installReferenceOptions } from "./reference-options.js";
 import { presentReferenceResidents } from "./reference-residents.js";
 import { installSceneInput } from "./world3d/camera/scene-input.js";
 import { keepReferenceTooltipsVisible } from "./reference-tooltips.js";
@@ -9,6 +10,7 @@ import { Widget } from "./Widget.jsx";
 import palette from "./palette.css?raw";
 import widgets from "./interface.css?raw";
 import layout from "./reference-interface.css?raw";
+import options from "./reference-options.css?raw";
 import presentation from "./reference-presentation.css?raw";
 import sceneInput from "./world3d/camera/scene-input.css?raw";
 import accordions from "./reference-accordions.css?raw";
@@ -29,55 +31,7 @@ const columns = [
   ["rightColumn", "journal", "Journal", "journal"],
 ];
 
-function addSaveFilePicker(document) {
-  const form = document.getElementById("importDiv");
-  const textarea = document.getElementById("importData");
-  const label = document.createElement("label");
-  const input = document.createElement("input");
-  const feedback = document.createElement("p");
-  label.className = "reference-file-picker";
-  label.append("Fichier de sauvegarde AGLLM", input);
-  input.type = "file";
-  input.accept = ".txt,text/plain";
-  feedback.setAttribute("role", "status");
-  form.insertBefore(label, textarea);
-  form.insertBefore(feedback, textarea);
-  input.addEventListener("change", async () => {
-    const file = input.files[0];
-    if (!file) return;
-    feedback.textContent = "";
-    try {
-      const content = (await file.text()).replace(/\s/g, "");
-      const data = JSON.parse(document.defaultView.gamePage.decompressLZData(content));
-      if (!Array.isArray(data?.resources) || !Array.isArray(data?.buildings) || !data.calendar) {
-        throw new Error("Format de sauvegarde non reconnu.");
-      }
-      textarea.value = content;
-      feedback.textContent = "Fichier chargé. Confirmez l’import pour remplacer la partie.";
-    } catch {
-      textarea.value = "";
-      feedback.textContent = "Ce fichier n’est pas une sauvegarde AGLLM lisible.";
-    } finally {
-      input.value = "";
-    }
-  });
-}
-
-function groupNativeLinks(document) {
-  const links = document.querySelector("#topBar > .links-block");
-  if (!links) return;
-  const menu = document.createElement("details");
-  const summary = document.createElement("summary");
-  menu.className = "reference-engine-menu";
-  summary.textContent = "Menu du moteur";
-  document.getElementById("optionsDiv").append(menu);
-  menu.append(summary, links);
-  const toolbar = document.getElementById("headerLinks");
-  document.getElementById("gamePageContainer").append(toolbar);
-  document.getElementById("footerLinks").remove();
-}
-
-export function ReferenceInterface({ frame, panel, species, cameraView, onInspect, onInspectResident, onSelect, onHover, onExit, onDocument, onNotice }) {
+export function ReferenceInterface({ frame, panel, species, worldEnabled, cameraView, onInspect, onInspectResident, onSelect, onHover, onExit, onDocument, onNotice }) {
   const [styled, setStyled] = useState(null);
   const [building, setBuilding] = useState(null);
   const residentPresentation = useRef(null);
@@ -99,7 +53,7 @@ export function ReferenceInterface({ frame, panel, species, cameraView, onInspec
       style.id = "agllm-reference-layout";
       style.textContent = [palette, widgets, layout, presentation, sceneInput, accordions, purchases, camp, science, workshop, trade,
         advancedTabs, villageUI, villageJobs,
-        villageManagement, villageCensus, referenceControlIcons, referenceResourceIcons].join("\n");
+        villageManagement, villageCensus, options, referenceControlIcons, referenceResourceIcons, referenceTitleFont].join("\n");
       document.head.append(style);
       for (const [index, [, key, label]] of columns.entries()) {
         const slot = document.createElement("header");
@@ -114,10 +68,10 @@ export function ReferenceInterface({ frame, panel, species, cameraView, onInspec
         element.setAttribute("role", "region");
         element.setAttribute("aria-label", label);
       }
-      addSaveFilePicker(document);
-      groupNativeLinks(document);
+      installReferenceOptions(document);
     }
     container.dataset.panel = panel;
+    document.documentElement.toggleAttribute("data-ui-only", !worldEnabled);
     setStyled({ document, container, elements });
     onDocument(true);
   }
@@ -125,6 +79,10 @@ export function ReferenceInterface({ frame, panel, species, cameraView, onInspec
   useEffect(() => {
     if (styled) styled.container.dataset.panel = panel;
   }, [styled, panel]);
+
+  useEffect(() => {
+    styled?.document.documentElement.toggleAttribute("data-ui-only", !worldEnabled);
+  }, [styled, worldEnabled]);
 
   useEffect(() => {
     if (!styled) return;

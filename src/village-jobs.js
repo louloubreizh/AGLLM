@@ -1,33 +1,21 @@
-import { control, element, setText, textFromMarkup, villageIcon, villageLocale } from "./village-ui.js";
+import { quantityDirection } from "./quantity-buttons.js";
+import { control, element, setText, villageLocale } from "./village-ui.js";
 
 const pictures = import.meta.glob("../assets/jobs/*.jpg", { eager: true, import: "default", query: "?url" });
-const jobArtwork = {
-  woodcutter: ["wood", "#c9b483"],
-  farmer: ["catnip", "#b8d689"],
-  scholar: ["science", "#a5d6da"],
-  hunter: ["manpower", "#c4d59a"],
-  miner: ["minerals", "#c1d2e7"],
-  priest: ["faith", "#e8b9cf"],
-  geologist: ["coal", "#c6b7e6"],
-  engineer: ["gear", "#a7d8cc"],
-  ambassador: ["trade", "#e6c1a3"],
-};
 
 const labels = {
   fr: {
-    assigned: "Affectés", add: "Affecter", remove: "Retirer", all: "Tout", details: "Détails et affectations",
-    reset: "Tout désaffecter", crafting: "Artisanat", trade: "Commerce",
+    assigned: "Affectés", add: "Affecter", remove: "Retirer", reset: "Tout désaffecter",
   },
   en: {
-    assigned: "Assigned", add: "Assign", remove: "Unassign", all: "All", details: "Details and assignments",
-    reset: "Clear assignments", crafting: "Crafting", trade: "Trade",
+    assigned: "Assigned", add: "Assign", remove: "Unassign", reset: "Clear assignments",
   },
 };
 
 const sections = new WeakMap();
 const directions = [
-  { links: "unassignLinks", first: "unassign", sign: "−", label: "remove" },
-  { links: "assignLinks", first: "assign", sign: "+", label: "add" },
+  { method: "unassignJobs", maximum: "unassignAllJobs", first: "unassign", sign: "−", label: "remove" },
+  { method: "assignJobs", maximum: "assignAllJobs", first: "assign", sign: "+", label: "add" },
 ];
 
 function createCard(document, game, button, copy, refresh) {
@@ -39,22 +27,14 @@ function createCard(document, game, button, copy, refresh) {
   const cover = element(document, "div", "village-job-cover");
   const words = element(document, "div", "village-job-heading");
   const title = element(document, "h3", "village-job-name", job.title);
-  const artwork = jobArtwork[job.name];
+  const artwork = pictures[`../assets/jobs/${job.name}.jpg`];
   if (artwork) {
-    const [resource, accent] = artwork;
-    domNode.style.setProperty("--job-accent", accent);
     const picture = element(document, "img", "village-job-picture");
-    picture.src = pictures[`../assets/jobs/${job.name}.jpg`];
+    picture.src = artwork;
     picture.alt = "";
     picture.draggable = false;
     picture.decoding = "async";
     cover.append(picture);
-
-    const category = element(document, "div", "village-job-category");
-    const symbol = villageIcon(document, resource);
-    const label = { gear: copy.crafting, trade: copy.trade }[resource] ?? game.resPool.get(resource).title;
-    category.append(symbol, label);
-    words.append(category);
   }
   words.append(title);
   cover.append(words);
@@ -66,73 +46,42 @@ function createCard(document, game, button, copy, refresh) {
   const count = element(document, "output", "village-job-count");
   count.setAttribute("aria-label", copy.assigned);
   count.title = copy.assigned;
-  const options = control(document, "village-job-options", "…", `${copy.details} · ${job.title}`);
-  const popover = element(document, "div", "village-job-details");
-  popover.popover = "auto";
-  popover.setAttribute("role", "group");
-  popover.setAttribute("aria-label", `${copy.details} · ${job.title}`);
-  options.popoverTargetElement = popover;
-  const description = element(document, "p", "village-job-description");
-  popover.append(element(document, "h4", "village-job-details-title", job.title), description);
 
-  function change(direction, id, event) {
+  function change(direction, amount, event) {
     if (game.isReadOnly() || !job.unlocked) return;
-    if (id === "assign" && (event.ctrlKey || event.metaKey || event.shiftKey)) {
+    if (direction.first === "assign" && amount === 1 && (event.ctrlKey || event.metaKey || event.shiftKey)) {
       button.onClick(event);
     } else {
-      button.model[direction.links].find((link) => link.id === id)?.handler();
+      const method = amount === "max" ? direction.maximum : direction.method;
+      button.controller[method](button.model, amount);
       button.update();
     }
     refresh();
   }
 
-  const controls = directions.map((direction) => {
-    const label = copy[direction.label];
-    const single = control(document, `village-job-step village-job-${direction.first}`, direction.sign, `${label} 1 · ${job.title}`);
-    single.addEventListener("click", (event) => change(direction, direction.first, event));
-    const batch = element(document, "div", "village-job-batch");
-    batch.setAttribute("role", "group");
-    batch.setAttribute("aria-label", label);
-    const items = [5, 25, 100, copy.all].map((amount) => {
-      const id = amount === copy.all
-        ? (direction.first === "assign" ? "assignall" : "unassignAll")
-        : `${direction.first}${amount}`;
-      const item = control(document, "village-job-batch-action", `${direction.sign}${amount}`, `${label} ${amount.toString().toLowerCase()} · ${job.title}`);
-      item.addEventListener("click", (event) => change(direction, id, event));
-      batch.append(item);
-      return { id, item };
-    });
-    popover.append(batch);
-    return { direction, single, items };
-  });
+  const controls = directions.map((direction) => quantityDirection(document, {
+    label: (amount) => [copy[direction.label], amount].filter(Boolean).join(" ") + ` · ${job.title}`,
+    sign: direction.sign,
+    amounts: [5, 25, 100, "max"],
+    activate: (amount, event) => change(direction, amount, event),
+    stepClass: `village-job-step village-job-${direction.first}`,
+  }));
 
-  stepper.append(controls[0].single, count, controls[1].single);
-  actions.append(stepper, options, popover);
+  stepper.append(controls[0].group, count, controls[1].group);
+  actions.append(stepper);
   for (const type of ["click", "keydown", "keypress"]) actions.addEventListener(type, (event) => event.stopPropagation());
   actions.addEventListener("mouseover", (event) => {
     event.stopPropagation();
     if (game.tooltipOwnerDomNode === domNode) document.defaultView.UIUtils.hideTooltip(game);
   });
   buttonContent.append(cover, actions);
-  let previousDescription;
-
   return (canEdit, free, format) => {
     setText(count, format.format(job.value));
     domNode.toggleAttribute("data-staffed", job.value > 0);
-    if (previousDescription !== job.description) {
-      description.textContent = textFromMarkup(document, job.description);
-      previousDescription = job.description;
-    }
     const canAssign = canEdit && free > 0 && game.village.getJobLimit(job.name) > job.value;
     const canUnassign = canEdit && job.value > 0;
-    for (const [index, { direction, single, items }] of controls.entries()) {
-      const enabled = index === 0 ? canUnassign : canAssign;
-      single.disabled = !enabled;
-      for (const { id, item } of items) {
-        item.hidden = !button.model[direction.links].some((link) => link.id === id);
-        item.disabled = !enabled;
-      }
-    }
+    controls[0].enable(canUnassign);
+    controls[1].enable(canAssign);
   };
 }
 

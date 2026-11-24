@@ -1,10 +1,5 @@
 .reference-game #midColumn .Workshop {
-  --workshop-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
-  --workshop-gap: .55rem;
-}
-.reference-game #midColumn .Workshop > .reference-section-art {
-  border: 0;
-  background: transparent;
+  --workshop-gap: .4rem;
 }
 .reference-game #midColumn .Workshop > div:has(#toggleResearched),
 .reference-game #midColumn .Workshop > div[style*="float: left"] {
@@ -28,22 +23,28 @@
 .reference-game #midColumn .Workshop .panelContainer:not(.workshop-craft-panel) > .container,
 .reference-game #midColumn .Workshop .workshop-craft-grid {
   display: grid;
-  grid-template-columns: var(--workshop-columns);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--workshop-gap);
 }
-.reference-game #midColumn .Workshop .workshop-craft-grid { padding: .18rem; }
 .reference-game #midColumn .Workshop .workshop-craft-panel > .container { padding-inline: .45rem !important; }
 .reference-game #midColumn .Workshop .btn.modern.workshop-craft .btnContent {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-auto-rows: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: .35rem;
 }
 .reference-game #midColumn .Workshop .workshop-craft .btnTitle {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
   align-items: center;
   gap: .28rem;
+}
+.reference-game #midColumn .Workshop .workshop-craft .btnTitle :is(.label, .label-content) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
 }
 .reference-game #midColumn .Workshop .workshop-craft .btnTitle::before {
   content: "";
@@ -62,34 +63,40 @@
   color: var(--accent);
   font-weight: 650;
 }
-.reference-game #midColumn .Workshop :is(.workshop-engineer-summary, .workshop-stock):empty { display: none; }
-.reference-game #midColumn .Workshop .workshop-statistics:has(.workshop-stock table:not(:has(tr))):not([data-mechanized]),
-.reference-game #midColumn .Workshop .workshop-statistics:not([data-mechanized]) .workshop-flow,
-.reference-game #midColumn .Workshop .workshop-stock:has(table:not(:has(tr))) { display: none; }
+.reference-game #midColumn .Workshop .workshop-engineer-summary:empty,
+.reference-game #midColumn .Workshop .workshop-statistics:not([data-mechanized]) { display: none; }
 .reference-game #midColumn .Workshop .workshop-statistics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
-  gap: .55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--workshop-gap);
   margin-bottom: .6rem;
 }
-.reference-game #midColumn .Workshop :is(.workshop-flow, .workshop-stock) {
-  display: block;
+.reference-game #midColumn .Workshop .workshop-flow {
   min-width: 0;
-  padding: .55rem .65rem !important;
-  border: 0;
+}
+.reference-game #midColumn .Workshop .workshop-flow > summary {
+  padding: .35rem .5rem;
+  border: 1px solid var(--divider);
   border-radius: .5rem;
   background: var(--control-disabled);
   color: var(--ink);
+  cursor: pointer;
+  font: 650 .78rem/1.3 var(--font);
+  overflow-wrap: anywhere;
 }
-.reference-game #midColumn .Workshop :is(.workshop-flow h3, .workshop-stock > span) {
-  display: block;
-  margin: 0 0 .35rem;
-  color: var(--muted);
-  font: 650 .78rem/1.2 var(--font);
+.reference-game #midColumn .Workshop .workshop-flow:is([open], :hover) > summary {
+  background: var(--surface-raised);
+  color: var(--accent);
+}
+.reference-game #midColumn .Workshop .workshop-flow-body {
+  margin: .3rem 0 0 .25rem;
+  padding: .15rem 0 .25rem .35rem;
+  border-inline-start: 2px solid var(--line);
 }
 .reference-game #midColumn .Workshop .workshop-flow-rows,
 .reference-game #midColumn .Workshop .workshop-flow-empty { margin: 0; }
-.reference-game #midColumn .Workshop :is(.workshop-flow-row, .workshop-stock td, .workshop-flow-empty) {
+.reference-game #midColumn .Workshop :is(.workshop-flow-row, .workshop-flow-empty) {
   font-size: .78rem;
 }
 .reference-game #midColumn .Workshop .workshop-flow-row {
@@ -113,24 +120,8 @@
 }
 .reference-game #midColumn .Workshop .workshop-flow-consumption dd { color: var(--warning); }
 .reference-game #midColumn .Workshop .workshop-flow-empty { color: var(--muted); }
-.reference-game #midColumn .Workshop .workshop-stock table {
-  width: 100%;
-  padding: 0 !important;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--ink);
-}
-.reference-game #midColumn .Workshop .workshop-stock td:last-child {
-  color: var(--accent);
-  text-align: end;
-  font-variant-numeric: tabular-nums;
-}
 .reference-game #midColumn .Workshop .workshop-engineers {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: .24rem;
+  grid-column: 2;
   cursor: default;
 }
 .reference-game #midColumn .Workshop .workshop-engineer-count {
@@ -139,51 +130,4 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   text-align: center;
-}
-.reference-game #midColumn .Workshop .workshop-engineers [hidden] { display: none !important; }
-.reference-game #midColumn .Workshop .workshop-engineers button {
-  box-sizing: border-box;
-  min-width: 1.85rem;
-  min-height: 1.85rem;
-  padding: .12rem .28rem;
-  border: 0;
-  border-radius: .38rem;
-  background: var(--control);
-  color: var(--accent);
-  font: 700 .92rem/1 var(--font);
-}
-.reference-game #midColumn .Workshop .workshop-engineers button:hover:not(:disabled) {
-  background: var(--control-hover);
-}
-.reference-game #midColumn .Workshop .workshop-engineers button:disabled {
-  opacity: .45;
-  cursor: default;
-}
-.reference-game #midColumn .Workshop .workshop-engineer-menu {
-  inset: auto .6rem .6rem auto;
-  margin: 0;
-  padding: .4rem;
-  border: 0;
-  border-radius: .5rem;
-  background: var(--surface);
-  box-shadow: var(--panel-shadow);
-}
-.reference-game #midColumn .Workshop .workshop-engineer-menu:popover-open {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  gap: .25rem;
-}
-@supports (position-area: block-end) {
-  .reference-game #midColumn .Workshop .workshop-engineer-menu {
-    inset: auto;
-    position-area: block-end;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    margin-block: .25rem;
-  }
-}
-@media (pointer: coarse) {
-  .reference-game #midColumn .Workshop .workshop-engineers button { min-width: 2.25rem; min-height: 2.25rem; }
-}
-@container reference-play (max-width: 30rem) {
-  .reference-game #midColumn .Workshop > .reference-section-art { display: none; }
 }

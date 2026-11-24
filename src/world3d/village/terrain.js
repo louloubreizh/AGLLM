@@ -145,7 +145,7 @@ export function createTerrain(resources) {
   }
 
   return {
-    group: terrain, update, setSeason: woodland.setSeason,
+    group: terrain, update, canopy: woodland.canopy,
     dispose() {
       for (const mesh of forest.children) mesh.dispose();
       woodland.dispose();

@@ -1,23 +1,3 @@
-.reference-game .reference-engine-menu { margin-top: .65rem; }
-.reference-game .reference-engine-menu summary {
-  padding: .3rem .55rem;
-  border: 1px solid var(--divider);
-  border-radius: .4rem;
-  background: var(--control);
-  cursor: pointer;
-}
-.reference-game .reference-engine-menu > .links-block {
-  position: static !important;
-  display: flex !important;
-  flex-wrap: wrap;
-  margin-top: .35rem;
-  padding: .5rem !important;
-  gap: .35rem;
-  border: 1px solid var(--line);
-  border-radius: .5rem;
-  background: var(--surface);
-  box-shadow: var(--panel-shadow);
-}
 .reference-game #midColumn { container-name: reference-play; }
 .reference-game #midColumn .tabsContainer {
   display: grid;
@@ -31,6 +11,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: .3rem;
 }
 .reference-game #midColumn .tabsContainer :where(a.tab, .reference-tab-toggle) {
@@ -48,8 +29,8 @@
 }
 .reference-game #midColumn .tabsContainer :is(a.tab, .reference-tab-toggle)::before {
   content: "";
-  width: 1rem;
-  height: 1rem;
+  width: 1.38rem;
+  height: 1.38rem;
   flex: none;
   background: var(--tab-mark) center / contain no-repeat;
 }
@@ -69,15 +50,41 @@
   border-color: var(--line);
 }
 .reference-game #midColumn .tabInner { border: 0; padding: 0; }
-.reference-game .reference-section-art {
-  display: block;
-  width: 100%;
-  height: 4.2rem;
-  object-fit: contain;
+.reference-game .reference-section-banner {
+  position: relative;
+  display: grid;
+  align-items: end;
+  min-height: clamp(4rem, 16cqi, 7.4rem);
+  overflow: hidden;
   margin-bottom: .55rem;
   border: 1px solid var(--divider);
   border-radius: .6rem;
   background: linear-gradient(112deg, var(--surface), var(--control), var(--surface));
+}
+.reference-game .reference-section-banner > .reference-section-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+}
+.reference-game .reference-section-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #0b1712ed 0%, #0b17129c 39%, transparent 78%);
+  pointer-events: none;
+}
+.reference-game .reference-section-banner > h2 {
+  position: relative;
+  z-index: 1;
+  padding: .55rem .85rem;
+  margin: 0;
+  color: #f1f6eb;
+  font: 700 clamp(1.05rem, 3.8cqi, 1.65rem)/1.2 Cinzel, Georgia, serif;
+  letter-spacing: .045em;
+  text-shadow: 0 2px 6px #050e0a;
 }
 .reference-game #midColumn :is(.panelContainer, .census-block) {
   box-sizing: border-box;
@@ -136,15 +143,127 @@
 }
 .reference-game #midColumn .btn.modern .btnContent a:is(:hover, :focus-visible) { background: var(--control-hover); }
 .reference-game #leftColumn { font-size: 14px; }
-.reference-game #leftColumn .res-table { min-width: max-content; max-width: none; border-spacing: 0 .15rem; }
+.reference-game #leftColumn :is(.reference-resource-body, .reference-resource-header ~ .pin-link) {
+  margin-inline-start: clamp(.2rem, 2cqi, .8rem);
+  padding-inline-start: clamp(.25rem, 1.6cqi, .65rem);
+  border-inline-start: 2px solid var(--line);
+}
+.reference-game #leftColumn .res-table { display: block; width: 100%; min-width: 0; max-width: none; }
+.reference-game #leftColumn .res-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1.15fr) max-content max-content minmax(0, .85fr) auto;
+  align-items: center;
+  column-gap: .22rem;
+  min-width: 0;
+  padding: .35rem .15rem;
+  border-bottom: 1px solid var(--divider);
+}
+.reference-game #leftColumn .res-row:last-child { border-bottom: 0; }
 .reference-game #leftColumn .res-cell {
-  padding-inline: .28em;
-  overflow: visible;
+  padding: 0;
+  overflow: hidden;
   font-size: inherit;
   font-variant-numeric: tabular-nums;
 }
 .reference-game #leftColumn .res-cell { width: auto; max-width: none; white-space: nowrap !important; }
-.reference-game #leftColumn .res-row .res-cell { padding-block: .2rem; border-bottom: 1px solid var(--divider); }
+.reference-game #leftColumn .res-row:is(:hover, :focus-within) { background-color: var(--surface-raised); }
+.reference-game #leftColumn .res-row > :has(> input) { grid-area: 1 / 1; }
+.reference-game #leftColumn .res-row .resource-name {
+  grid-area: 1 / 2;
+  min-width: 0;
+  padding-inline-end: .3rem;
+  border-inline-end: 1px solid var(--divider);
+  text-overflow: ellipsis;
+  font-weight: 650;
+}
+.reference-game #leftColumn .res-row :is(.resAmount, .resource-value) {
+  grid-area: 1 / 3;
+  font-weight: 650;
+  text-align: end;
+}
+.reference-game #leftColumn .res-row :is(.maxRes, .resPerTick) { text-align: end; }
+.reference-game #leftColumn .res-row .maxRes { grid-area: 1 / 4; color: var(--muted); }
+.reference-game #leftColumn .res-row .maxRes:empty,
+.reference-game #leftColumn .res-row:not(.craft) > .res-cell:last-child:empty { display: none; }
+.reference-game #leftColumn .res-row .resPerTick,
+.reference-game #leftColumn .res-row.craft::after {
+  grid-area: 1 / 5;
+  padding-inline-start: .3rem;
+  border-inline-start: 1px solid var(--divider);
+  color: var(--accent);
+  text-align: end;
+}
+.reference-game #leftColumn .res-row > :is(.positive-weather, .negative-weather) { grid-area: 1 / 6; }
+.reference-game #leftColumn .res-row.craft {
+  grid-template-columns: auto minmax(0, 1.15fr) repeat(2, minmax(0, .45fr)) minmax(0, .85fr);
+}
+.reference-game #leftColumn .res-row.craft .resource-value { grid-column: 3 / 5; }
+.reference-game #leftColumn .res-row.craft .resource-value[data-capacity]::after {
+  content: " " attr(data-capacity);
+  color: var(--muted);
+}
+.reference-game #leftColumn .res-row.craft[data-production]::after {
+  content: attr(data-production);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.reference-game #leftColumn .craft-link { grid-row: 2; justify-self: end; }
+.reference-game #leftColumn .craft-link:not(:empty) { margin-top: .22rem; }
+.reference-game #leftColumn .craft-link:empty { display: none; }
+.reference-game #leftColumn .craft-link.craft-1pc { grid-column: 2; }
+.reference-game #leftColumn .craft-link.craft-5pc { grid-column: 3; }
+.reference-game #leftColumn .craft-link.craft-10pc { grid-column: 4; }
+.reference-game #leftColumn .craft-link.all { grid-column: 5; }
+.reference-game #leftColumn .craft-link:hover { background-color: var(--control-hover); }
+@container (max-width: 19rem) {
+  .reference-game #leftColumn .res-row :is(.positive-weather, .negative-weather) { display: none; }
+  .reference-game #leftColumn .res-row [data-compact] { font-size: 0; }
+  .reference-game #leftColumn .res-row [data-compact]::after,
+  .reference-game #leftColumn .res-row.craft .resource-value[data-capacity]::after {
+    content: attr(data-compact);
+    font-size: .78rem;
+    color: inherit;
+  }
+  .reference-game #leftColumn .res-row.craft[data-production]::after { content: attr(data-compact-production); }
+  .reference-game #leftColumn .res-row .craft-link:not(.all) { font-size: .75rem; }
+}
+.reference-game #leftColumn .res-row .resPerTick:empty::after { content: "–"; font-size: .78rem; color: var(--muted); }
+@container (max-width: 15rem) {
+  .reference-game #leftColumn .res-row { gap: .16rem; }
+  .reference-game #leftColumn .res-row:not(.craft) {
+    grid-template-columns: auto 1.45rem max-content max-content minmax(0, 1fr) auto;
+  }
+  .reference-game #leftColumn .res-row .resource-name { min-width: 1.2rem; font-size: 0; }
+  .reference-game #leftColumn .res-row .resource-name::before { width: 1rem; height: 1rem; margin: 0; vertical-align: middle; }
+  .reference-game #leftColumn .res-row .craft-link { padding-inline: .12rem; }
+}
+.reference-game .reference-resource-description {
+  position: fixed;
+  inset: auto;
+  box-sizing: border-box;
+  width: min(19rem, calc(100% - 1rem));
+  margin: 0;
+  padding: .62rem .75rem;
+  border: 1px solid var(--line);
+  border-radius: .55rem;
+  background: var(--surface);
+  color: var(--muted);
+  box-shadow: var(--panel-shadow);
+  max-height: calc(100% - 1rem);
+  overflow: hidden;
+  font: .84rem/1.4 var(--font);
+  pointer-events: none;
+}
+.reference-game .reference-resource-description > strong { display: block; margin-bottom: .22rem; color: var(--accent); }
+.reference-game .reference-resource-description > p { margin: .4rem 0 0; color: var(--ink); }
+.reference-game .resource-production:not(:empty) {
+  margin-top: .45rem;
+  padding-top: .45rem;
+  border-top: 1px solid var(--divider);
+}
+.reference-game .resource-production > strong { display: block; color: var(--accent); }
 .reference-game #leftColumn .resource-name::before {
   content: "";
   display: inline-block;
@@ -158,18 +277,26 @@
   background-image: var(--resident-icon, var(--resource-mark));
 }
 .reference-game #leftColumn .widget-content { padding: .55rem; }
-.reference-game #leftColumn .reference-resource-header,
-.reference-game #leftColumn .reference-resource-sizes {
+.reference-game #leftColumn .reference-resource-section {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  margin-block: 0 .45rem;
+}
+.reference-game #leftColumn .reference-resource-section > .reference-resource-body { order: 1; }
+.reference-game #leftColumn .reference-resource-header {
   display: flex;
   align-items: stretch;
-  flex-wrap: wrap;
   gap: .3rem;
-  margin-block: .4rem;
   font-size: .85rem;
 }
 .reference-game #leftColumn .reference-resource-header > :first-child { flex: 1 1 auto; }
-.reference-game #leftColumn .reference-resource-header .res-toolbar.right { float: none; }
-.reference-game #leftColumn :is(.reference-resource-header a, .reference-resource-sizes a, .pin-link > a) {
+.reference-game #leftColumn .reference-resource-header .res-toolbar.right { float: none; margin: 0; }
+.reference-game #leftColumn .reference-resource-header:not([data-expanded]) .res-toolbar.right,
+.reference-game #leftColumn .reference-resource-header .res-toolbar.right > :not(a),
+.reference-game #leftColumn .reference-resource-body > div:has(> a.link):not(.res-table) { display: none; }
+.reference-game #leftColumn .reference-resource-body .res-table { margin: 0; padding: 0; }
+.reference-game #leftColumn :is(.reference-resource-header a, .pin-link > a) {
   display: flex;
   align-items: center;
   gap: .35rem;
@@ -181,13 +308,13 @@
   text-decoration: none;
   cursor: pointer;
 }
-.reference-game #leftColumn :is(.reference-resource-header a, .reference-resource-sizes a, .pin-link > a):is(:hover, :focus-visible),
+.reference-game #leftColumn :is(.reference-resource-header a, .pin-link > a):is(:hover, :focus-visible),
 .reference-game #leftColumn .reference-resource-header a[aria-pressed="true"] {
   color: var(--accent);
   background: var(--control-hover);
 }
-.reference-game #leftColumn :is(.reference-resource-header .collapse, .reference-resource-sizes a) { font-size: 0; }
-.reference-game #leftColumn :is(.reference-resource-header .collapse, .reference-resource-sizes a)::after {
+.reference-game #leftColumn .reference-resource-header .collapse { font-size: 0; opacity: 1; }
+.reference-game #leftColumn .reference-resource-header .collapse::after {
   content: attr(data-label);
   font-size: .85rem;
   font-weight: 650;
@@ -201,6 +328,8 @@
 }
 .reference-game #leftColumn .reference-resource-header .collapse::before {
   content: "";
+  order: 1;
+  margin-inline-start: auto;
   flex: 0 0 .4rem;
   height: .4rem;
   border: solid currentColor;
@@ -210,7 +339,11 @@
 .reference-game #leftColumn .reference-resource-header .collapse[aria-expanded="true"]::before {
   transform: rotate(45deg);
 }
-.reference-game #leftColumn .reference-resource-sizes { justify-content: end; }
+.reference-game #leftColumn .reference-resource-header .collapse { background: var(--control-disabled); }
+.reference-game #leftColumn .reference-resource-header .collapse[aria-expanded="true"] {
+  color: var(--accent);
+  background: var(--surface-raised);
+}
 .reference-game #leftColumn .pin-link { padding: 0; margin-block: .25rem; }
 .reference-game #leftColumn .pin-link > a { display: block; font-size: .82rem; }
 .reference-game #leftColumn .trade-icons > .res-icon { display: none; }
@@ -234,7 +367,39 @@
 .reference-game #leftColumn #fastHuntContainer { --action-icon: var(--icon-hunt); }
 .reference-game #leftColumn #fastSacrificeContainer { --action-icon: var(--icon-unicorns); }
 .reference-game #leftColumn #fastPraiseContainer { --action-icon: var(--icon-sun); }
-.reference-game #leftColumn .res-toggle-hidden { accent-color: var(--accent); }
+.reference-game #leftColumn .res-toggle-hidden {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0;
+  padding: .35rem .5rem;
+  border: 1px solid var(--divider);
+  border-radius: .45rem;
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-size: .82em;
+}
+.reference-game #leftColumn .res-toggle-hidden input {
+  appearance: none;
+  display: grid !important;
+  place-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: .3rem;
+  background: var(--control);
+  cursor: pointer;
+}
+.reference-game #leftColumn .res-toggle-hidden input:checked { background: var(--accent); }
+.reference-game #leftColumn .res-toggle-hidden input:checked::after {
+  content: "";
+  width: .53rem;
+  height: .29rem;
+  border: solid var(--surface);
+  border-width: 0 0 2px 2px;
+  transform: translateY(-1px) rotate(-45deg);
+}
 .reference-game #leftColumn .positive-weather { color: #a8d998; }
 .reference-game #leftColumn .negative-weather { color: var(--warning); }
 .reference-game #rightColumn .right-tab-header { padding-block: .25rem .45rem; }
@@ -248,7 +413,7 @@
 .reference-game #rightColumn .right-tab-header a.active { background: var(--control); }
 .reference-game #gameLog .msg { padding: .28rem .2rem; border-bottom: 1px solid var(--divider); }
 .reference-game #gameLog .msg.type_date { border-color: var(--line); color: var(--accent); }
-.reference-game :is(.village-census select, .dialog input[type="file"]) {
+.reference-game .village-census select {
   border: 1px solid var(--line);
   border-radius: .4rem;
   color: var(--ink);
@@ -256,42 +421,18 @@
   font: inherit;
 }
 .reference-game .dialog [role="status"]:empty { display: none; }
-.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: .32rem .4rem;
-  align-items: start;
-}
-.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) > input[type="checkbox"] {
-  grid-column: 1;
-  accent-color: var(--accent);
-}
-.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) > label { grid-column: 2; }
-.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) > span { grid-column: 3; color: var(--muted); }
-.reference-game :is(#booleanOptionsNormal, #booleanOptionsExtra) > br { display: none; }
-.reference-game .dialog input::file-selector-button {
-  padding: .38rem .55rem;
-  color: var(--ink);
-  background: var(--surface);
-  border: 0;
-  border-right: 1px solid var(--line);
-  margin-right: .4rem;
-  cursor: pointer;
-}
-.reference-game :is(#optionsDiv, #importDiv, #exportDiv) { box-shadow: 0 .8rem 2.1rem #030907bb; }
 
 @container reference-play (max-width: 30rem) {
-  .reference-game #midColumn .tabsContainer:not([data-single-tab]) .reference-tab-toggle { display: inline-flex; }
+  .reference-game #midColumn .tabsContainer:not([data-single-tab]) .reference-tab-toggle { display: inline-flex; justify-self: center; }
   .reference-game .reference-tab-links {
     max-height: min(45vh, 12rem);
     overflow-y: auto;
   }
   .reference-game .tabsContainer:not([data-single-tab]) .reference-tab-toggle[aria-expanded="false"] + .reference-tab-links { display: none; }
-  .reference-game .reference-section-art { height: 2.9rem; }
 }
 
 @media (max-height: 480px) {
-  .reference-game .reference-section-art { display: none; }
+  .reference-game .reference-section-banner { min-height: 2.9rem; }
 }
 .reference-game #gamePageContainer { pointer-events: none; }
 .reference-game :is(.game-widget, .dialog, .login-popup) { pointer-events: auto; }

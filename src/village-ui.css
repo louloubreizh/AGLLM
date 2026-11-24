@@ -2,14 +2,6 @@
   --village-surface: var(--surface);
   --village-card: var(--surface-raised);
 }
-.reference-game #midColumn .Village > .reference-section-art {
-  border: 0;
-  background: transparent;
-}
-@container reference-play (max-width: 30rem) {
-  .reference-game #midColumn .Village > .reference-section-art { display: none; }
-}
-
 .reference-game #midColumn .village-section > .title::before {
   content: "";
   flex: 0 0 1.15rem;

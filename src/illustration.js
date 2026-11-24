@@ -12,13 +12,13 @@ const palettes = {
 };
 
 const materials = {
-  foliage: "brand field pasture leaf play check",
+  foliage: "brand field pasture leaf play check saveComplete",
   timber: "hut logHouse barn workshop tradepost journal",
   rock: "quarry",
   steel: "factory magneto settings tools save grip close resize",
   gold: "star energy",
   water: "scienceTab hydroplant observatory center info eye zoomIn zoomOut",
-  fire: "smelter",
+  fire: "smelter savePending",
   ivory: "library amphitheatre village camp cloud",
   rose: "heart",
 };
@@ -74,6 +74,9 @@ const scenes = {
 export function illustration(name, drawing) {
   if (!drawing) return "";
   const [ink, shade, light, highlight] = palettes[materialByName[name] ?? "fabric"];
+  if (name === "savePending" || name === "saveComplete") {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><linearGradient id="case" x2="1" y2="1"><stop stop-color="${light}"/><stop offset="1" stop-color="${shade}"/></linearGradient></defs><path d="M4 2h13l5 5v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" fill="url(#case)" stroke="${ink}" stroke-width="1.05"/><path d="M6 2.5h11v7H6z" fill="#314951"/><path d="M13 3h2.5v5H13z" fill="#d4e6e4"/><rect x="5" y="12" width="14" height="8" rx="1.4" fill="${highlight}"/><path d="${name === "saveComplete" ? "m9 16 2 2 4-4" : "M12 14v2.3m0 1.6v.1"}" fill="none" stroke="${ink}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  }
   const tones = {
     body: "url(#paint)", shade, light, highlight,
     shadow: "#101b17", detail: "none",

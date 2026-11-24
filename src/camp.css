@@ -8,6 +8,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: .35rem;
 }
 .reference-game #midColumn .camp-filters > a {
@@ -38,7 +39,7 @@
 }
 .reference-game #midColumn .Bonfire .bldGroupContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 12.75rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
   flex: 0 0 100%;
   gap: .55rem;
   height: auto;
@@ -104,17 +105,25 @@
 .reference-game #midColumn .Bonfire [data-camp-action="refine"] .btnTitle { --element-icon: var(--icon-wood); }
 
 .reference-game #midColumn .Bonfire .btn.modern .camp-building-card {
-  --camp-action-size: 1.85rem;
+  --camp-action-size: 1.45rem;
   --camp-tool-icon-size: 1.1rem;
   --camp-step-size: 1.35rem;
+  --camp-secondary-size: 1.45rem;
+  --camp-actions-width: calc(2 * var(--camp-secondary-size) + var(--camp-action-size) + .4rem);
   box-sizing: border-box;
   display: grid;
-  grid-template:
-    "preview heading" 4.15rem
-    "actions actions" auto / 2.65rem minmax(0, 1fr);
-  align-items: stretch;
-  column-gap: .55rem;
-  padding: .55rem .55rem .45rem !important;
+  grid-template: "preview heading actions" auto / 2.8rem minmax(0, 1fr) var(--camp-actions-width);
+  align-items: center;
+  min-height: 3.55rem;
+  column-gap: .4rem;
+  padding: 0 2px !important;
+  border: 0 !important;
+}
+.reference-game #midColumn .Bonfire .btn.bldEnabled .camp-building-card {
+  box-shadow: inset 2px 0 var(--accent);
+}
+.reference-game #midColumn .Bonfire .btn.bldlackResConvert .camp-building-card {
+  box-shadow: inset 2px 0 var(--warning);
 }
 .reference-game .camp-building-preview {
   grid-area: preview;
@@ -125,14 +134,16 @@
 .reference-game .camp-building-preview img { display: block; width: 2.55rem; height: 2.55rem; }
 .reference-game .camp-building-heading {
   grid-area: heading;
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: .22rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .14rem .28rem;
   min-width: 0;
 }
 .reference-game #midColumn .Bonfire .camp-building-heading .btnTitle {
-  display: block;
+  display: grid;
+  place-items: center;
   min-width: 0;
   color: #fff !important;
   text-shadow: none;
@@ -172,33 +183,57 @@
 }
 .reference-game .camp-building-activity {
   display: grid;
-  grid-template-columns: var(--camp-step-size) minmax(0, max-content) var(--camp-step-size);
   align-items: center;
-  gap: .24rem;
+  gap: .14rem;
   max-width: 100%;
 }
-.reference-game .camp-building-activity > [data-camp-tool] { grid-row: 1; }
-.reference-game .camp-building-activity > [data-camp-tool="minus"] { grid-column: 1; }
-.reference-game .camp-building-activity > [data-camp-tool="plus"] { grid-column: 3; }
+.reference-game .camp-building-activity[data-adjustable] {
+  grid-template-columns: var(--camp-step-size) minmax(0, 3.45rem) var(--camp-step-size);
+}
+.reference-game .camp-building-activity:not([data-adjustable]) .camp-building-count { grid-column: 1; }
+.reference-game .camp-building-activity > [data-camp-tool="minus"] { grid-area: 1 / 1; }
+.reference-game .camp-building-activity > [data-camp-tool="plus"] { grid-area: 1 / 3; }
+.reference-game .camp-building-count { text-align: center; }
+.reference-game :is(.camp-building-status, .camp-building-stages) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .14rem;
+}
+.reference-game .camp-building-status { max-width: 100%; flex-wrap: wrap; }
+.reference-game .camp-building-stages:not(:has([data-camp-stage]:not([hidden], [style*="display: none"], [style*="display:none"]))) { display: none; }
+.reference-game .camp-building-activity:not([data-adjustable]) .camp-building-count {
+  border-color: transparent;
+  background: transparent;
+}
 .reference-game .btn.bldlackResConvert .camp-building-count { color: var(--warning); }
 .reference-game .camp-building-actions {
   grid-area: actions;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
+  grid-template-rows: repeat(2, var(--camp-action-size));
+  grid-template-columns: repeat(2, var(--camp-secondary-size)) var(--camp-action-size);
+  grid-auto-flow: column;
   align-items: center;
   gap: .2rem;
   min-width: 0;
-  padding-top: .4rem;
-  border-top: 1px solid var(--divider);
   cursor: default;
 }
-.reference-game :is(.camp-building-primary, .camp-actions-before, .camp-actions-after) {
-  display: flex;
-  gap: .2rem;
-  min-width: 0;
+.reference-game .camp-building-primary {
+  grid-area: 1 / 3 / span 2;
+  display: grid;
+  gap: inherit;
 }
-.reference-game .camp-actions-before { justify-content: end; }
-.reference-game .camp-actions-after { justify-content: start; }
+.reference-game :is(.camp-actions-before, .camp-actions-after) { display: contents; }
+.reference-game :is(.camp-actions-before, .camp-actions-after) > * {
+  justify-self: center;
+}
+.reference-game .camp-building-actions [data-camp-slot="sell"] { grid-area: 2 / 1; }
+.reference-game .camp-building-actions [data-camp-slot="power"] { grid-area: 1 / 2; }
+.reference-game .camp-building-actions [data-camp-slot="automation"] { grid-area: 2 / 2; }
+.reference-game :is(.camp-actions-before, .camp-actions-after) >
+  :not([data-camp-icon]):not(:has([data-camp-icon]:not([hidden], [style*="display: none"], [style*="display:none"]))) {
+  display: none;
+}
 .reference-game #midColumn .camp-building-card :is([data-camp-icon], .camp-quantity-menu :is(button, a)):not([hidden], [style*="display: none"], [style*="display:none"]) {
   display: inline-flex !important;
   align-items: center;
@@ -222,6 +257,10 @@
   width: var(--camp-action-size);
   height: var(--camp-action-size);
   font-size: 0 !important;
+}
+.reference-game #midColumn .camp-building-card [data-camp-slot]:is([data-camp-icon]),
+.reference-game #midColumn .camp-building-card [data-camp-slot] [data-camp-icon] {
+  width: var(--camp-secondary-size);
 }
 .reference-game #midColumn .camp-building-card .camp-building-activity > [data-camp-icon] {
   width: var(--camp-step-size);
@@ -256,8 +295,8 @@
 .reference-game .camp-building-actions [data-camp-native="power"] { --camp-icon: var(--camp-tool-power); }
 .reference-game .camp-building-actions [data-camp-native="automation"] { --camp-icon: var(--camp-tool-automation); }
 .reference-game .camp-building-actions [data-camp-native="sell"] { --camp-icon: var(--camp-tool-sell); }
-.reference-game .camp-building-actions [data-camp-stage="down"] { --camp-icon: var(--camp-tool-downgrade); }
-.reference-game .camp-building-actions [data-camp-stage="up"] { --camp-icon: var(--camp-tool-upgrade); }
+.reference-game .camp-building-stages [data-camp-stage="down"] { --camp-icon: var(--camp-tool-downgrade); }
+.reference-game .camp-building-stages [data-camp-stage="up"] { --camp-icon: var(--camp-tool-upgrade); }
 
 .reference-game .camp-quantity-menu {
   position: fixed;
@@ -276,6 +315,14 @@
   grid-auto-rows: var(--camp-action-size);
   gap: .2rem;
 }
+.reference-game #midColumn .camp-building-card .camp-quantity-menu > :is(button, a) {
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  margin: 0 !important;
+  justify-self: stretch;
+  text-align: center;
+}
 @supports (position-area: block-end) {
   .reference-game .camp-quantity-menu {
     inset: auto;
@@ -288,10 +335,16 @@
   .reference-game #midColumn .Bonfire .btn.modern .camp-building-card { --camp-action-size: 2.1rem; }
 }
 @container reference-play (max-width: 30rem) {
-  .reference-game #midColumn .camp-filters,
-  .reference-game #midColumn .tabInner.Bonfire > .reference-section-art { display: none; }
-  .reference-game #midColumn .camp-filter-picker { display: block; }
+  .reference-game #midColumn .camp-filters { display: none; }
+  .reference-game #midColumn .camp-filter-picker { display: block; width: min(100%, 15rem); margin-inline: auto; }
 }
 @container reference-play (max-width: 16rem) {
   .reference-game .camp-core-actions { grid-template-columns: minmax(0, 1fr); }
+  .reference-game #midColumn .Bonfire .btn.modern .camp-building-card {
+    --camp-action-size: 1.65rem;
+    --camp-secondary-size: 1.2rem;
+    grid-template-columns: 2.15rem minmax(0, 1fr) var(--camp-actions-width);
+    column-gap: .25rem;
+  }
+  .reference-game .camp-building-preview img { width: 2.1rem; height: 2.1rem; }
 }

@@ -1,0 +1,223 @@
+.reference-game .reference-options-modal {
+  box-sizing: border-box;
+  width: min(37rem, calc(100% - 1.25rem));
+  max-width: none;
+  max-height: calc(100% - 1.25rem);
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--line);
+  border-radius: .9rem;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1.15rem 3rem #030907b3;
+  font: 400 .875rem/1.45 var(--font);
+}
+.reference-game .options-main-modal { width: min(51rem, calc(100% - 1.25rem)); }
+.reference-game .options-confirmation { width: min(29rem, calc(100% - 1.25rem)); }
+.reference-game .reference-options-modal::backdrop { background: #07110dc4; }
+.reference-game .reference-options-modal .reference-options-content {
+  position: static !important;
+  inset: auto !important;
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 clamp(.75rem, 3vw, 1.35rem) 1.1rem !important;
+  overflow: visible;
+  transform: none !important;
+  color: var(--ink) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  font: inherit;
+}
+.reference-game .reference-options-content > :not(.options-header, [hidden]) { margin-top: .8rem !important; }
+.reference-game .reference-options-content [hidden] { display: none !important; }
+.reference-game .options-header {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.6rem;
+  padding-block: .55rem;
+  border-bottom: 1px solid var(--divider);
+  background: var(--surface);
+}
+.reference-game .options-header h2 {
+  margin: 0 !important;
+  color: var(--accent) !important;
+  font: 720 clamp(1.15rem, 3vw, 1.45rem)/1.2 var(--font);
+}
+.reference-game .reference-options-content h3,
+.reference-game .reference-options-content .options-field-heading {
+  margin: 0;
+  color: var(--ink) !important;
+  font: 650 1rem/1.35 var(--font);
+}
+.reference-game .options-card,
+.reference-game .options-disclosure {
+  padding: .75rem;
+  border: 1px solid var(--divider);
+  border-radius: .65rem;
+  background: var(--surface-raised);
+}
+.reference-game .options-card > :not(h3),
+.reference-game .options-disclosure[open] > :not(summary) { margin-top: .65rem; }
+.reference-game .options-disclosure > summary {
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 650;
+}
+.reference-game .options-preferences, .reference-game .options-switches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: .45rem;
+}
+.reference-game .options-field {
+  display: grid;
+  align-content: start;
+  gap: .35rem;
+  min-width: 0;
+  color: var(--muted);
+}
+.reference-game .options-field > :is(select, input) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.4rem;
+  margin: 0 !important;
+  padding: .35rem .5rem;
+  border: 1px solid var(--line);
+  border-radius: .42rem;
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  font: inherit;
+}
+.reference-game .options-field > input[type="number"] { width: min(8rem, 100%); }
+.reference-game .options-switch-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .2rem .5rem;
+  min-height: 2.65rem;
+  padding: .4rem .55rem;
+  border-radius: .45rem;
+  background: var(--surface);
+}
+.reference-game .options-switch-row > label { overflow-wrap: anywhere; cursor: pointer; }
+.reference-game #optionsDiv .options-switch-row > input[type="checkbox"] {
+  display: block !important;
+  appearance: none;
+  position: relative;
+  box-sizing: border-box;
+  flex: none;
+  width: 2.15rem;
+  height: 1.25rem;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--control-disabled);
+  cursor: pointer;
+}
+.reference-game .options-switch-row > input[type="checkbox"]::after {
+  position: absolute;
+  top: .17rem;
+  left: .18rem;
+  width: .78rem;
+  height: .78rem;
+  border-radius: 50%;
+  background: var(--muted);
+  content: "";
+}
+.reference-game .options-switch-row > input:checked { border-color: var(--accent); background: var(--control-hover); }
+.reference-game .options-switch-row > input:checked::after { left: 1.01rem; background: var(--accent); }
+.reference-game .options-help { grid-column: 1 / -1; }
+.reference-game .options-help summary {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--accent);
+  cursor: pointer;
+  list-style: none;
+}
+.reference-game .options-help summary::-webkit-details-marker { display: none; }
+.reference-game .options-help-text { margin: .4rem 0 0; color: var(--muted); }
+.reference-game .options-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.reference-game .options-actions > :is(a, button, input[type="button"]),
+.reference-game .options-actions #devModeButton > a,
+.reference-game .reference-options-content .options-close {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4rem;
+  max-width: 100%;
+  margin: 0 !important;
+  padding: .4rem .68rem;
+  border: 1px solid var(--line);
+  border-radius: .45rem;
+  background: var(--control) !important;
+  color: var(--ink) !important;
+  font: 600 .86rem/1.2 var(--font);
+  white-space: normal;
+  text-decoration: none;
+  cursor: pointer;
+}
+.reference-game .options-actions :is(a, button, input[type="button"]):hover,
+.reference-game .reference-options-content .options-close:hover { background: var(--control-hover) !important; }
+.reference-game .reference-options-content .options-close {
+  flex: none;
+  width: 2.4rem;
+  padding: 0;
+  font-size: 1.45rem;
+}
+.reference-game .options-actions > :is(button, input).options-primary {
+  background: var(--accent) !important;
+  color: #13291b !important;
+}
+.reference-game .options-actions > :is(button, input).options-primary:hover { background: var(--focus) !important; }
+.reference-game .options-actions #devModeButton { font-size: 0; }
+.reference-game .options-actions :disabled { opacity: .55; cursor: default; }
+.reference-game .reference-options-content textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100% !important;
+  height: clamp(5rem, 25dvh, 12rem) !important;
+  padding: .65rem;
+  border: 1px solid var(--line);
+  border-radius: .45rem;
+  background: #102019 !important;
+  color: var(--ink) !important;
+  font: .8rem/1.45 ui-monospace, monospace;
+  resize: vertical;
+}
+.reference-game .options-file::file-selector-button {
+  margin-inline-end: .5rem;
+  padding: .35rem .45rem;
+  border: 1px solid var(--line);
+  border-radius: .35rem;
+  background: var(--control);
+  color: var(--ink);
+  cursor: pointer;
+}
+.reference-game .options-warning {
+  padding: .65rem .75rem;
+  border-inline-start: .2rem solid var(--warning);
+  border-radius: .3rem;
+  background: var(--surface-raised);
+  color: var(--warning);
+}
+.reference-game .options-feedback { color: var(--accent); }
+.reference-game .options-feedback:empty { margin: 0 !important; }
+.reference-game .options-confirm-message { white-space: pre-line; }

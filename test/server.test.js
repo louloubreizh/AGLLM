@@ -69,8 +69,14 @@ test("les scripts Windows lancent une seule instance et l’arrêtent proprement
 test("un autre serveur sur le port est conservé lors du lancement et de l’arrêt", async (t) => {
   const service = await httpFixture((_request, response) => response.end("Autre service"));
   t.after(service.close);
+  const readInstance = () => readFile(instanceFile(service.port), "utf8").catch((error) => {
+    if (error.code !== "ENOENT") throw error;
+    return null;
+  });
+  const previousInstance = await readInstance();
 
   await assert.rejects(runLifecycle("start", service.port, true), { code: 1 });
+  assert.equal(await readInstance(), previousInstance);
   await runLifecycle("stop", service.port, true);
   assert.equal(await (await fetch(service.url)).text(), "Autre service");
 });

@@ -1,17 +1,11 @@
 import { Color, DynamicDrawUsage, InstancedMesh } from "three";
 import { residentSpecies } from "../../resident-species.js";
-import { createCat } from "../models/fauna/cat.js";
-import { createDog } from "../models/fauna/dog.js";
-import { createRabbit } from "../models/fauna/rabbit.js";
-import { createRaptor } from "../models/fauna/raptor.js";
-import { createDrake } from "../models/fauna/drake.js";
+import { speciesModels } from "../models/fauna/species-models.js";
 import { trailHeight } from "../models/infrastructure/trail.js";
 import { createModelGroup } from "../models/model-group.js";
 import { projectOntoRoad, roadSample } from "./road-network.js";
 import { createJourneys } from "./journeys.js";
 import { drivingDecision, laneOffset, normalLane, offsetToRight } from "./lanes.js";
-
-const models = { cat: createCat, dog: createDog, rabbit: createRabbit, raptor: createRaptor, drake: createDrake };
 
 export function createVillageResidents(resources) {
   const group = createModelGroup("Residents");
@@ -98,7 +92,7 @@ export function createVillageResidents(resources) {
       const replaceModel = walker.species !== species || Boolean(walker.coat) !== Boolean(coat);
       if (replaceModel) {
         const stableModel = walker.animal?.model;
-        const animal = models[species](resources, id, coat);
+        const animal = speciesModels[species](resources, id, coat);
         if (stableModel) {
           stableModel.clear();
           stableModel.add(...animal.model.children);

@@ -32,24 +32,27 @@ Les sections de **Jeu** apparaissent à mesure que leurs conditions sont remplie
 
 | Section | Fonctionnalités |
 | --- | --- |
-| **Campement** | Collecter, construire, consulter les coûts et effets, gérer les quantités actives, l’automatisation, la vente et les changements de niveau, selon le bâtiment. Les cartes indiquent les exemplaires actifs et construits. Les commandes **Fiche** et **Observer** ouvrent les détails ou cadrent le bâtiment dans la scène. |
-| **Village** | Affecter ou retirer des travailleurs, gérer la colonie et organiser des activités telles que la chasse ou les festivals. Le recensement permet de rechercher, filtrer et trier les habitants, de consulter leurs détails, de définir des favoris, de promouvoir un habitant et de choisir un chef. |
+| **Campement** | Collecter, construire, consulter les coûts et effets, gérer les quantités actives, l’automatisation, la vente et les changements de niveau, selon le bâtiment. Les cartes affichent le total construit ou le nombre **actifs / construits** lorsque la quantité active est réglable. Un clic sur **+** ou **−** ouvre les commandes par lot. Cliquez à nouveau sur le même bouton pour ajuster d’un exemplaire. Les commandes **Fiche** et **Observer** ouvrent les détails ou cadrent le bâtiment dans la scène. |
+| **Village** | Affecter ou retirer des travailleurs dans **Emplois**. Les boutons **−** et **+** ajustent le compteur d’une personne. Leur menu propose les lots de **5, 25, 100** ou le **maximum**. Le recensement permet de rechercher, filtrer et trier les habitants, de consulter leurs détails, de définir des favoris, de promouvoir un habitant et de choisir un chef. |
 | **Science** | Rechercher de nouvelles technologies et prendre des décisions politiques à mesure que la colonie progresse. |
-| **Atelier** | Fabriquer des matériaux et acquérir des améliorations qui modifient les rendements et les possibilités de production. |
+| **Atelier** | Fabriquer des matériaux et acquérir des améliorations. Une fois la mécanisation débloquée, les cartes **Artisanat** affichent sur une ligne le nombre d’ingénieurs assignés. Les boutons **−** et **+** ajustent ce nombre d’une unité, avec des lots de **5** ou **25** dans leur menu. |
 | **Commerce** | Rencontrer de nouveaux peuples, consulter leurs offres d’achat et de vente, envoyer des caravanes et épingler des échanges dans **Ressources**. |
 | **Religion** | Développer la foi, construire et améliorer les ziggourats, débloquer des améliorations spirituelles et effectuer des sacrifices. |
-| **Espace** | Lancer des missions, explorer des destinations et construire ou gérer des installations spatiales. |
+| **Espace** | Lancer des missions et construire des installations spatiales. Pour les bâtiments dont le nombre actif est réglable, utilisez **−** et **+** autour du compteur **actifs / construits**, ou choisissez un lot de **5** ou **25**. |
 | **Temps** | Exploiter les flux temporels, accélérer la partie avec Tempus Fugit et débloquer des améliorations temporelles. |
 | **Succès, Défis, Stats et File d’attente** | Suivre les objectifs et les records, recommencer avec les règles d’un défi, consulter les statistiques et gérer les actions en attente lorsque ces fonctions sont disponibles. |
 
-Le panneau **Ressources** affiche les stocks, les capacités et les variations de production. Il donne aussi accès aux raccourcis de fabrication et aux échanges épinglés. Le **Journal** rassemble le calendrier et les événements. Dans la barre supérieure, **Infos** affiche l’état de la partie, le calendrier, les FPS, le bonheur, la pollution, le bilan électrique et le chagrin.
+Le panneau **Ressources** affiche les stocks, les capacités et les variations de production. Il donne aussi accès aux raccourcis de fabrication et aux échanges épinglés. Le **Journal** rassemble le calendrier et les événements. La barre principale affiche le bonheur, le bilan électrique et la pollution. Survolez ou activez un indicateur pour consulter son détail, ses statistiques et sa prévision. **Infos** affiche l’état de la partie, le calendrier, les FPS et le chagrin.
 
 ## Interface et accessibilité
 
 - Sur grand écran, **Ressources** est à gauche, **Jeu** en bas au centre et **Journal** à droite. Sur écran étroit, les boutons sous la scène permettent de passer d’un panneau à l’autre. Les sections de **Jeu** passent en menu déroulant lorsque le panneau devient trop étroit.
 - Faites glisser l’en-tête d’un panneau pour le déplacer, ou sa poignée de redimensionnement pour modifier sa taille. Au clavier, placez le focus sur **Déplacer** ou **Redimensionner** et utilisez les flèches. Les en-têtes restent visibles pendant le défilement du contenu. Les boutons **Réduire** et **Agrandir** replient ou rouvrent les panneaux. Redimensionner la fenêtre rétablit la disposition par défaut.
 - Utilisez `Tab` et `Maj+Tab` pour parcourir les commandes. Activez les boutons avec `Entrée` ou `Espace`. Les commandes d’interface affichent un indicateur de focus et les boutons représentés par des icônes portent des libellés accessibles. `Échap` ferme les fiches et les fenêtres contextuelles qui le prennent en charge.
-- Le panneau **Ressources** permet de choisir les lignes affichées et d’ajuster la taille du texte et des icônes avec **Taille +** et **Taille −**. Le menu **Options** propose notamment le choix de la langue, du thème et de la notation des nombres.
+- Survolez **−** ou **+** pour ouvrir leur menu de quantités dans **Emplois**, **Artisanat** et **Espace**. Au clavier, ouvrez ce menu avec `Flèche bas` depuis le bouton. Sur un écran tactile, utilisez un appui prolongé.
+- Dans **Ressources** et **Fabriquer**, chaque ligne sépare l’icône et le nom, le stock et la production. En largeur réduite, le nom laisse place à l’icône et les nombres sont abrégés. Survolez une ligne ou placez le focus sur son nom pour consulter son détail. Le bouton de taille à gauche de la poignée de redimensionnement ouvre **Taille +** et **Taille −** pour le panneau courant.
+- Le bouton **AGLLM** ouvre le choix des habitants. La fiche d’une espèce présente ses caractéristiques, son modèle 3D et ses animations. Validez dans la fiche pour remplacer l’espèce du village.
+- Le bouton **3D / UI**, à gauche de **Sauvegarde**, demande confirmation avant de changer de vue. Le mode **UI** libère la place de la scène pour l’interface. En mode **3D**, le bouton est rouge pendant le calcul et vert une fois la scène affichée. **Sauvegarde** et **Options** s’activent au clic ou au clavier.
 - Un navigateur compatible WebGL 2 affiche le village en 3D. Les commandes et les données de la partie restent accessibles si la scène est indisponible.
 
 ### Caméra du village
@@ -62,12 +65,11 @@ Le panneau **Ressources** affiche les stocks, les capacités et les variations d
 
 Les rues de l’île s’ouvrent avec les constructions et les habitants les empruntent entre les quartiers. Chaque espèce se déplace et réagit à sa manière en arrivant à destination. Le relief, les saisons et la météo influencent l’apparence du décor. La caméra tient compte du réglage système de réduction des animations lors du cadrage.
 
-## Pause, sauvegardes et connexion
+## Pause et sauvegardes
 
-- **Mettre en pause** suspend la simulation et **Reprendre la partie** la relance. **Sauvegarder** enregistre la partie immédiatement. Le moteur sauvegarde aussi automatiquement et à la fermeture de la page. En local, l’arrêt du serveur déclenche également une sauvegarde.
+- La pause se commande depuis le **Journal**. Dans la barre principale, cliquez sur la disquette **Sauvegarde** pour sauvegarder immédiatement. Le moteur sauvegarde aussi automatiquement et à la fermeture de la page. En local, l’arrêt du serveur déclenche également une sauvegarde.
 - Une sauvegarde locale est associée au profil du navigateur, à l’adresse et au port utilisés. Pour jouer sur un autre appareil ou depuis un autre profil, exportez la partie puis importez-la dans le navigateur de destination. Si un onglet affiche une partie déjà ouverte, fermez l’autre onglet pour lui céder la session.
-- Dans **Options → Exporter**, téléchargez le fichier texte ou copiez le texte d’export. Dans **Options → Importer**, sélectionnez un fichier texte ou collez le contenu, puis confirmez le remplacement de la partie courante. L’export contient la progression complète, notamment les ressources, les bâtiments, les recherches et le calendrier.
-- **Connexion** ouvre le formulaire du service de compte. L’authentification dépend de la disponibilité du service. La partie et les sauvegardes locales sont disponibles sans compte.
+- Ouvrez **Options**. Dans **Sauvegardes**, choisissez **Exporter** pour télécharger ou copier la sauvegarde. Choisissez **Importer** pour sélectionner un fichier ou coller son contenu, puis confirmez le remplacement de la partie courante. L’export contient la progression complète, notamment les ressources, les bâtiments, les recherches et le calendrier.
 
 ## Développer et tester
 
@@ -80,5 +82,7 @@ npm.cmd run test:browser
 Le moteur interne se trouve dans `motorAGLLM/source`. Sa révision est enregistrée dans `motorAGLLM/revision.txt` et le serveur vérifie sa copie locale avant de la servir. L’interface React et ses adaptateurs se trouvent dans `src/`. Le village Three.js se trouve dans `src/world3d/`, avec les modèles, la caméra, les quartiers, le réseau de rues et les animations des habitants.
 
 Pour compiler la version GitHub Pages, utilisez `npm.cmd run build:pages` après avoir initialisé le moteur et installé les dépendances. Cette commande prépare le site statique dans `dist/`. GitHub Actions le compile et le publie à chaque push sur `prod`.
+
+La branche de développement est `dev/beta`. Utilisez `npm.cmd run build:site` pour produire son site statique à la racine d’un hébergement séparé.
 
 `npm.cmd test` compile le projet et vérifie le moteur, le serveur et la scène. `npm.cmd run test:browser` utilise Chrome pour vérifier le parcours de jeu, l’interface sur différentes tailles d’écran et les sauvegardes. Pour utiliser Edge, définissez `$env:AGLLM_TEST_BROWSER = 'msedge'`.

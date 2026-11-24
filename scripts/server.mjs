@@ -56,7 +56,8 @@ app.use(express.static(join(root, "dist"), {
 }));
 app.use((_request, response) => response.sendStatus(404));
 
-const server = app.listen(port, host, () => {
+const server = app.listen(port, host);
+server.once("listening", () => {
   try {
     mkdirSync(runDirectory, { recursive: true });
     writeFileSync(instanceFile(port), JSON.stringify({ token }), { mode: 0o600 });

@@ -1,7 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { residentId } from "./resident-identity.js";
+import { villageIndicators } from "./village-indicators.js";
 
 const seasons = ["spring", "summer", "autumn", "winter"];
+const saveKey = "com.nuclearunicorn.kittengame.savedata";
+
+function progressKey(game) {
+  const { calendar, bld, village, resPool, science, workshop } = game;
+  return JSON.stringify([
+    calendar.year, calendar.season, Math.floor(calendar.day),
+    resPool.resources.map(({ value }) => value),
+    bld.buildingsData.map(({ val, on, stage }) => [val, on, stage]),
+    village.sim.kittens.map(({ job, rank, favorite }) => [job, rank, favorite]),
+    science.techs.map(({ researched }) => researched),
+    workshop.upgrades.map(({ researched }) => researched),
+    game.colorScheme, game.opts,
+  ]);
+}
 
 function runningGame(frame) {
   try {
@@ -17,7 +32,6 @@ function snapshotFor(frame) {
   if (!game) return null;
   const { calendar, bld, village, resPool } = game;
   const document = frame.current.contentDocument;
-  const pollutionBase = bld.getPollutionLevelBase();
   const obscured = game.religion.getPact?.("fractured")?.val && game.getFeatureFlag("MAUSOLEUM_PACTS");
   const nameTemplate = obscured ? document.createElement("template") : null;
   return {
@@ -32,13 +46,8 @@ function snapshotFor(frame) {
       return { id: residentId(kitten), name: nameTemplate?.content.textContent ?? `${kitten.name} ${kitten.surname}`,
         coat: (color && kitten.colors?.[color + 1]?.color) || undefined };
     }),
-    loginOpen: Boolean(document.querySelector(".login-popup")),
-    toolbar: {
-      happiness: Math.floor(village.happiness * 100),
-      pollution: pollutionBase > 0 ? (bld.cathPollution / pollutionBase) * 100 : null,
-      energy: { production: resPool.energyProd, consumption: resPool.energyCons, winterProduction: resPool.energyWinterProd },
-      sorrow: resPool.get("sorrow").value,
-    },
+    indicators: villageIndicators(game),
+    sorrow: resPool.get("sorrow").value,
     buildings: bld.buildingsData.flatMap((building, slot) => building.val > 0 ? [{
       id: building.name,
       label: building.stages?.[building.stage]?.label || building.label,
@@ -55,6 +64,8 @@ export function useReferenceGame() {
   const [engineStatus, setEngineStatus] = useState("loading");
   const [snapshot, setSnapshot] = useState(null);
   const [notice, setNotice] = useState("");
+  const [saved, setSaved] = useState(false);
+  const lastSave = useRef({ storage: null, progress: null, visibleUntil: 0 });
   const state = access === "granted";
 
   useEffect(() => {
@@ -119,6 +130,13 @@ export function useReferenceGame() {
     const timer = window.setInterval(() => {
       const current = snapshotFor(frame);
       if (current) {
+        const game = runningGame(frame);
+        const stored = frame.current.contentWindow.LCstorage?.[saveKey] ?? null;
+        const progress = progressKey(game);
+        if (stored !== lastSave.current.storage) {
+          lastSave.current = { storage: stored, progress: stored ? progress : null, visibleUntil: 0 };
+        }
+        setSaved(performance.now() < lastSave.current.visibleUntil || progress === lastSave.current.progress);
         setSnapshot(current);
         setEngineStatus("playing");
       }
@@ -127,6 +145,8 @@ export function useReferenceGame() {
   }, [state]);
 
   const onDocument = useCallback((ready) => {
+    lastSave.current = { storage: null, progress: null, visibleUntil: 0 };
+    setSaved(false);
     setSnapshot(null);
     setNotice("");
     setEngineStatus(ready ? "loading" : "missing");
@@ -134,19 +154,27 @@ export function useReferenceGame() {
 
   return {
     frame, state, snapshot: state ? snapshot : null, status: state ? engineStatus : access, notice, setNotice, onDocument,
-    act(command) {
+    saved,
+    save() {
       const game = runningGame(frame);
-      if (command !== "pause" || !game) return;
-      game.togglePause();
-      setSnapshot(snapshotFor(frame));
+      if (!game || game.isReadOnly() || game.currentSaveIsBroken) return;
+      game.saveUI();
+      const stored = frame.current.contentWindow.LCstorage?.[saveKey];
+      const progress = progressKey(game);
+      if (stored && (stored !== lastSave.current.storage || progress === lastSave.current.progress)) {
+        lastSave.current = { storage: stored, progress, visibleUntil: performance.now() + 1200 };
+        setSaved(true);
+      }
     },
-    save: () => runningGame(frame)?.saveUI(),
     openOptions() {
       const game = runningGame(frame);
-      if (game) frame.current.contentDocument.getElementById("options-link").click();
-    },
-    openConnection() {
-      frame.current?.contentDocument?.querySelector(".kgnet-login-link-container")?.click();
+      const engineDocument = frame.current?.contentDocument;
+      const options = engineDocument?.getElementById("optionsDiv");
+      if (game && options?.style.display === "none") {
+        const opener = document.activeElement;
+        options.parentElement.addEventListener("close", () => opener?.focus(), { once: true });
+        engineDocument.getElementById("options-link").click();
+      }
     },
   };
 }

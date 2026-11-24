@@ -169,7 +169,7 @@ test("les libellés distinguent les habitants de l’herbe à chat et respectent
   assert.equal(residentText("Un chaton est arrivé. Les chatons mangent de l'herbe à chat.", "dog"),
     "Un chien est arrivé. Les chiens mangent de l'herbe à chat.");
   assert.equal(residentText("Chatons disponibles", "cat"), "Chats disponibles");
-  assert.equal(residentText("A kitten has joined the kittens", "drake"), "A mist drake has joined the mist drakes");
+  assert.equal(residentText("A kitten has joined the kittens", "drake"), "A blue dragon has joined the blue dragons");
 });
 
 test("les quartiers extérieurs restent à distance des rives malgré la croissance du village", (t) => {

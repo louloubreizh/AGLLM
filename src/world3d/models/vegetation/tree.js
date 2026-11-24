@@ -114,11 +114,7 @@ export function createWoodland(trunkMaterial) {
 
   return {
     template,
-    setSeason(season) {
-      canopy.broadleaf.color.setHex({ autumn: 0xe5b379, winter: 0xa1b7b2, summer: 0xe9e9cb }[season] ?? 0xffffff);
-      canopy.drooping.color.copy(canopy.broadleaf.color);
-      canopy.needle.color.setHex(season === "winter" ? 0xc0d4d5 : 0xffffff);
-    },
+    canopy,
     dispose() {
       for (const model of templates.values()) for (const part of model.children) part.geometry.dispose();
       for (const material of Object.values(canopy)) material.dispose();

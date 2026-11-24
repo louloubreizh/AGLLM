@@ -1,4 +1,5 @@
 import { iconImage } from "./Icon.jsx";
+import { installResourceDescriptions, updateResourceAmounts } from "./resource-descriptions.js";
 
 export function installReferenceControls(document) {
   const menu = document.getElementById("gameContainerId");
@@ -6,16 +7,28 @@ export function installReferenceControls(document) {
   const batchSelector = ":is(.Religion, .Space, .Time) .btnContent .linkContent:has(> a):not([popover])";
   const censusActions = ".links-container :is(.favoriteHref, .leaderHref, .promoteHref)";
   const sidebar = document.getElementById("leftColumn");
-  const resourceButtons = ".reference-resource-header a.link, .reference-resource-sizes a.link";
+  const removeResourceDescriptions = installResourceDescriptions(sidebar);
+  const resourceButtons = ".reference-resource-header a.link";
   let nextId = 0;
 
   function markResourceControls() {
+    const game = document.defaultView?.gamePage;
+    if (!game) return;
+    updateResourceAmounts(sidebar, game);
     for (const toggle of sidebar.querySelectorAll("a.collapse")) {
       const header = toggle.parentElement.parentElement;
       const label = toggle.title === "Toggle resources" ? "Ressources"
         : toggle.title === "Toggle craft" ? "Fabriquer" : toggle.title;
       const expanded = Boolean(toggle.querySelector(".down"));
       if (!header.classList.contains("reference-resource-header")) header.classList.add("reference-resource-header");
+      const body = header.nextElementSibling;
+      if (body && !body.classList.contains("reference-resource-body")) body.classList.add("reference-resource-body");
+      if (!header.parentElement.classList.contains("reference-resource-section")) {
+        header.parentElement.classList.add("reference-resource-section");
+      }
+      header.toggleAttribute("data-expanded", expanded);
+      const hidden = header.parentElement.querySelector(".res-toggle-hidden input");
+      hidden?.setAttribute("aria-label", "Afficher les ressources cachées");
       toggle.dataset.label = label;
       toggle.setAttribute("aria-label", label);
       toggle.setAttribute("aria-expanded", String(expanded));
@@ -31,7 +44,7 @@ export function installReferenceControls(document) {
     }
     const tradeLinks = sidebar.querySelectorAll(".pin-link .trade-icons");
     if (tradeLinks.length) {
-      const races = document.defaultView.gamePage.diplomacy.races.filter((race) => race.pinned);
+      const races = game.diplomacy.races.filter((race) => race.pinned);
       tradeLinks.forEach((icons, index) => {
         const race = races[index];
         if (!race) return;
@@ -43,16 +56,6 @@ export function installReferenceControls(document) {
       });
     }
 
-    const sizes = sidebar.querySelector(".res-table:not(.craftTable)")?.previousElementSibling;
-    if (!sizes) return;
-    if (!sizes.classList.contains("reference-resource-sizes")) sizes.classList.add("reference-resource-sizes");
-    [...sizes.querySelectorAll("a.link")].forEach((button, index) => {
-      const label = index === 0 ? "Taille +" : "Taille −";
-      button.dataset.label = label;
-      button.setAttribute("aria-label", label);
-      button.setAttribute("role", "button");
-      button.tabIndex = 0;
-    });
   }
 
   function activateResourceButton(event) {
@@ -147,10 +150,11 @@ export function installReferenceControls(document) {
   const resourceObserver = new MutationObserver(markResourceControls);
   markResourceControls();
   resourceObserver.observe(sidebar, {
-    subtree: true, childList: true, attributes: true, attributeFilter: ["class"],
+    subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["class"],
   });
   sidebar.addEventListener("keydown", activateResourceButton, true);
   return () => {
+    removeResourceDescriptions();
     observer.disconnect();
     resourceObserver.disconnect();
     sidebar.removeEventListener("keydown", activateResourceButton, true);

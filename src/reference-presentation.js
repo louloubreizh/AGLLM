@@ -3,21 +3,29 @@ import { campToolIcons } from "./building-icons.js";
 import { buildingUpgrades } from "./world3d/models/buildings/upgrades.js";
 import { updateBuildingCard } from "./camp-buttons.js";
 import { resourceIcons } from "./resource-icons.js";
-import { tabArt } from "./tab-art.js";
+import { tabArt, tabIcons } from "./tab-art.js";
+import titleFont from "../assets/fonts/cinzel-bold.woff2?url";
 import { updateVillageCensus } from "./village-census.js";
 import { updateVillageJobs } from "./village-jobs.js";
 import { updateVillageManagement } from "./village-management.js";
 import { updateWorkshop } from "./workshop-ui.js";
 import { updateTrade } from "./trade-ui.js";
+import { updateSpaceBuildings } from "./space-ui.js";
 
 const tabs = {
-  Bonfire: ["camp", "camp"], Village: ["village", "village"], Science: ["research", "scienceTab"],
-  Workshop: ["workshop", "tools"], Trade: ["market", "trade"], Religion: ["camp", "star"],
-  Space: ["trails", "world"], Time: ["research", "calendar"], Achievements: ["camp", "star"],
-  Challenges: ["trails", "star"], Stats: ["research", "info"], Queue: ["workshop", "journal"],
+  Bonfire: "camp", Village: "village", Science: "research", Workshop: "workshop",
+  Trade: "market", Religion: "religion", Space: "space", Time: "time",
+  Achievements: "achievements", Challenges: "challenges", Stats: "stats", Queue: "queue",
 };
 const imageURL = (url) => `url("${url}")`;
 const tabScroll = new WeakMap();
+
+export const referenceTitleFont = `@font-face {
+  font-family: Cinzel;
+  src: ${imageURL(titleFont)} format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}`;
 
 export const referenceResourceIcons = [
   `.reference-game .resource-name { --resource-mark: ${imageURL(iconImage("resources"))}; }`,
@@ -103,11 +111,13 @@ function updateNavigation(document, game) {
   nav.toggleAttribute("data-single-tab", visible.length === 1);
   const toggle = nav.querySelector(".reference-tab-toggle");
   const activeLabel = visible.find((tab) => tab.tabId === active)?.domNode.textContent.trim() ?? "Sections du jeu";
+  const art = tabs[active] ?? "camp";
   if (toggle.textContent !== activeLabel) {
     toggle.textContent = activeLabel;
     toggle.setAttribute("aria-label", `Sections du jeu · ${activeLabel}`);
-    toggle.style.setProperty("--tab-mark", imageURL(iconImage(tabs[active]?.[1] ?? "camp")));
   }
+  const activeIcon = imageURL(tabIcons[art]);
+  if (toggle.style.getPropertyValue("--tab-mark") !== activeIcon) toggle.style.setProperty("--tab-mark", activeIcon);
   for (const tab of visible) {
     const link = tab.domNode;
     if (tab.tabId === active && link.getAttribute("aria-current") !== "page") {
@@ -116,16 +126,21 @@ function updateNavigation(document, game) {
       link.removeAttribute("aria-current");
     }
     if (!link.style.getPropertyValue("--tab-mark")) {
-      link.style.setProperty("--tab-mark", imageURL(iconImage(tabs[tab.tabId]?.[1] ?? "camp")));
+      link.style.setProperty("--tab-mark", imageURL(tabIcons[tabs[tab.tabId] ?? "camp"]));
     }
   }
-  const illustration = tabArt[tabs[active]?.[0] ?? "camp"];
-  const banner = contents.querySelector(".reference-section-art");
+  const illustration = tabArt[art];
+  let banner = contents.querySelector(".reference-section-banner");
   if (!banner) {
-    contents.prepend(addImage(document, illustration, "reference-section-art"));
-  } else if (banner.getAttribute("src") !== illustration) {
-    banner.src = illustration;
+    banner = document.createElement("header");
+    banner.className = "reference-section-banner";
+    banner.append(addImage(document, illustration, "reference-section-art"), document.createElement("h2"));
+    contents.prepend(banner);
   }
+  const picture = banner.querySelector("img");
+  if (picture.getAttribute("src") !== illustration) picture.src = illustration;
+  const title = banner.querySelector("h2");
+  if (title.textContent !== activeLabel) title.textContent = activeLabel;
 }
 
 export function decorateReferenceGame(document, game, inspect, showBuilding, residentView) {
@@ -191,4 +206,5 @@ export function decorateReferenceGame(document, game, inspect, showBuilding, res
   }
   if (game.ui.activeTabId === "Workshop") updateWorkshop(document, game);
   if (game.ui.activeTabId === "Trade") updateTrade(document, game);
+  if (game.ui.activeTabId === "Space") updateSpaceBuildings(document, game);
 }

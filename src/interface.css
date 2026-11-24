@@ -58,6 +58,24 @@
 .widget-grip { justify-content: flex-start; cursor: grab; font-weight: 700; touch-action: none; }
 .widget-resize { cursor: nwse-resize; touch-action: none; }
 .widget-content { min-height: 0; min-width: 0; overflow: auto; padding: .65rem; }
+.widget-content { zoom: var(--widget-content-zoom, 1); }
+.widget-size { font-weight: 750 !important; }
+.widget-size span span { font-size: .72em; }
+.widget-size-menu:popover-open {
+  display: flex;
+  gap: .3rem;
+  inset: auto;
+  position-area: block-end span-inline-start;
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  margin: .25rem;
+  padding: .35rem;
+  border: 1px solid var(--line);
+  border-radius: .55rem;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--panel-shadow);
+}
+.game-widget .widget-size-menu button { background: var(--control); }
 
 .game-widget button {
   min-width: 0;

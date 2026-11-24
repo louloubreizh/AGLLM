@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Icon } from "../Icon.jsx";
 import { handleCameraKey, installSceneSelection } from "./camera/scene-input.js";
 import "./world-view.css";
 import "./camera/scene-input.css";
 
-export function WorldView({ snapshot, subject, view, onSelect, onHover, hover }) {
+export function WorldView({ snapshot, subject, view, onSelect, onHover, hover, state, onState }) {
   const canvas = useRef(null);
   const latest = useRef(null);
-  const [state, setState] = useState("loading");
 
   useEffect(() => installSceneSelection(canvas.current, onSelect, onHover), [onSelect, onHover]);
 
@@ -19,20 +18,19 @@ export function WorldView({ snapshot, subject, view, onSelect, onHover, hover })
   useEffect(() => {
     const element = canvas.current;
     let active = true;
-    const lost = () => setState("lost");
-    const restored = () => setState("ready");
+    const lost = () => onState("lost");
+    const restored = () => onState("loading");
     element.addEventListener("webglcontextlost", lost);
     element.addEventListener("webglcontextrestored", restored);
 
     import("./scene.js").then(({ createVillageScene }) => {
       if (active) {
-        view.current = createVillageScene(element);
+        view.current = createVillageScene(element, (renderState) => { if (active) onState(renderState); });
         view.current.update(latest.current);
-        setState("ready");
       }
     }).catch(() => {
       if (active) {
-        setState("unavailable");
+        onState("unavailable");
       }
     });
 
@@ -43,9 +41,9 @@ export function WorldView({ snapshot, subject, view, onSelect, onHover, hover })
       element.removeEventListener("webglcontextlost", lost);
       element.removeEventListener("webglcontextrestored", restored);
     };
-  }, [view]);
+  }, [view, onState]);
 
-  const ready = state === "ready";
+  const ready = state === "ready" || state === "calculating";
 
   function keyboard(event) {
     if (ready) handleCameraKey(event, view.current);

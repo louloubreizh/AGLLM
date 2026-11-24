@@ -9,25 +9,40 @@ test("le bouton AGLLM change l’espèce du village et mémorise le choix", { ti
   const url = `http://127.0.0.1:${port}/`;
   await runLifecycle("start", port);
   t.after(() => runLifecycle("stop", port));
-  const browser = await chromium.launch({ channel: process.env.AGLLM_TEST_BROWSER || "chrome" });
+  const browser = await chromium.launch({ channel: process.env.AGLLM_TEST_BROWSER || "chrome",
+    args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+  });
   t.after(() => browser.close());
   const page = await browser.newPage({ locale: "fr-FR" });
   await page.route("**/*", (route) => route.request().url().startsWith(url) ? route.continue() : route.abort());
+  await page.route("**/assets/scene-*.js", (route) => route.abort());
   await page.goto(url);
   const frame = page.frameLocator('iframe[title="Moteur AGLLM"]');
   const gather = frame.getByText("Cueillir de l'herbe à chat", { exact: true });
   await gather.waitFor();
-  await page.getByRole("button", { name: "Mettre en pause", exact: true }).click();
+  await frame.locator("#pauseBtn").evaluate((button) => button.click());
   const journal = frame.locator("#rightColumn");
   const intro = (animal) => journal.getByText(`Vous êtes un ${animal} dans une forêt d'herbe à chat.`, { exact: true });
   await intro("chat").waitFor();
 
   const trigger = page.getByRole("button", { name: "AGLLM", exact: true });
-  await trigger.click();
   const picker = page.getByRole("region", { name: "Habitants du village" });
+  await trigger.click();
   assert.equal(await picker.getByRole("radio").count(), 5);
-  for (const animal of ["Chien", "Lapin", "Vélociraptor", "Drake des brumes", "Chat", "Lapin"]) {
-    await picker.getByRole("radio", { name: new RegExp(`^${animal}`) }).check();
+  await picker.locator('img[src^="data:image/png"]').first().waitFor();
+  await picker.getByRole("button", { name: "Dragon bleu" }).click();
+  const detail = page.getByRole("dialog");
+  await detail.getByRole("heading", { name: "Dragon bleu" }).waitFor();
+  await detail.getByLabel("Animation").selectOption("move");
+  await page.keyboard.press("Escape");
+  await intro("chat").waitFor();
+  for (const animal of ["Chien", "Lapin", "Vélociraptor", "Dragon bleu", "Chat", "Lapin"]) {
+    if (!(await picker.isVisible())) await trigger.click();
+    const option = picker.getByRole("radio", { name: `Habitant actif · ${animal}` });
+    assert.equal(await option.isDisabled(), true);
+    assert.equal(await option.isChecked(), false);
+    await picker.getByRole("button", { name: animal, exact: true }).click();
+    await detail.getByRole("button", { name: "Valider le changement d’habitant" }).click();
     await intro(animal.toLowerCase()).waitFor();
   }
   await page.keyboard.press("Escape");
@@ -37,10 +52,10 @@ test("le bouton AGLLM change l’espèce du village et mémorise le choix", { ti
   await page.reload();
   await gather.waitFor();
   await trigger.click();
-  assert.equal(await picker.getByRole("radio", { name: /^Lapin/ }).isChecked(), true);
+  assert.equal(await picker.getByRole("radio", { name: "Habitant actif · Lapin" }).isChecked(), true);
 });
 
-test("joue dans l’interface moderne et échange des sauvegardes natives complètes", { timeout: 60000 }, async (t) => {
+test("joue dans l’interface moderne et échange des sauvegardes natives complètes", { timeout: 120000 }, async (t) => {
   const port = await unusedPort();
   const url = `http://127.0.0.1:${port}/`;
   await runLifecycle("start", port);
@@ -63,11 +78,15 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(url);
   const frameLocator = page.frameLocator('iframe[title="Moteur AGLLM"]');
-  const pause = page.getByRole("button", { name: "Mettre en pause", exact: true });
   const options = page.getByRole("button", { name: "Options", exact: true });
+  const optionsDialog = frameLocator.getByRole("dialog", { name: "Options", exact: true });
+  async function openOptions() {
+    await options.press("Enter");
+    await optionsDialog.waitFor();
+  }
   const gather = frameLocator.getByText("Cueillir de l'herbe à chat", { exact: true });
   await gather.waitFor();
-  await pause.click();
+  await frameLocator.locator("#pauseBtn").evaluate((button) => button.click());
   const secondTab = await context.newPage();
   await secondTab.goto(new URL("?mode=agllm", url).href);
   await secondTab.getByRole("status").getByText("Partie ouverte dans un autre onglet").waitFor();
@@ -78,16 +97,34 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   assert.equal(await frameLocator.locator("#topBar").isVisible(), false);
   assert.equal(await frameLocator.locator("#footerLinks").isVisible(), false);
   const navbar = page.getByRole("navigation", { name: "Navigation AGLLM" });
-  const actions = (await navbar.getByRole("button").all()).map((button) => button.getAttribute("aria-label"));
-  const names = await Promise.all(actions);
-  assert.deepEqual(names.slice(names.indexOf("Options"), names.indexOf("Infos") + 1), ["Options", "Connexion", "Infos"]);
-  await navbar.getByRole("button", { name: "Connexion" }).click();
-  await frameLocator.locator(".login-popup").waitFor();
-  await navbar.getByRole("button", { name: "Connexion" }).click();
-  await frameLocator.locator(".login-popup").waitFor({ state: "hidden" });
+  assert.equal(await navbar.getByRole("button", { name: /pause|reprendre|connexion/i }).count(), 0);
+  for (const name of ["Sauvegarde", "Options", "Infos"]) {
+    const trigger = navbar.getByRole("button", { name, exact: true });
+    assert.equal(await trigger.textContent(), "");
+    await trigger.hover();
+    const region = navbar.getByRole("region", { name, exact: true });
+    if (name === "Infos") await region.getByRole("heading", { name }).waitFor();
+    else assert.equal(await region.isVisible(), false);
+  }
+  for (const [name, unit, statistic] of [
+    ["Bonheur", "%", "Population"], ["Électricité", "W", "Production"], ["Pollution", "ppm", "Évolution actuelle"],
+  ]) {
+    const trigger = navbar.getByRole("button", { name: new RegExp(`^${name} · `) });
+    assert.ok((await trigger.textContent()).endsWith(unit));
+    await trigger.press("Enter");
+    const details = navbar.getByRole("region", { name, exact: true });
+    await details.getByText("Prévision", { exact: true }).waitFor();
+    await details.getByText(statistic, { exact: true }).waitFor();
+    await page.keyboard.press("Escape");
+  }
+  const saveButton = navbar.getByRole("button", { name: "Sauvegarde", exact: true });
+  await saveButton.click();
+  await navbar.locator('[data-saved="true"]').waitFor();
+  await motor.evaluate(() => { gamePage.resPool.get("catnip").value += 1; });
+  await navbar.locator('[data-saved="false"]').waitFor();
   await navbar.getByRole("button", { name: "Infos" }).press("Enter");
-  const information = page.getByRole("region", { name: "Informations de la partie" });
-  for (const label of ["FPS", "Pollution", "Bonheur", "Électricité", "Chagrin"]) {
+  const information = page.getByRole("region", { name: "Infos", exact: true });
+  for (const label of ["FPS", "État", "Chagrin"]) {
     await information.getByText(label, { exact: true }).waitFor();
   }
   await page.keyboard.press("Escape");
@@ -154,6 +191,16 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   const tabs = frameLocator.getByRole("navigation", { name: "Sections du jeu" });
   assert.equal(await tabs.locator(".reference-tab-toggle").isVisible(), false);
   assert.equal(await tabs.locator("a.Bonfire").isVisible(), true);
+  assert.equal(await tabs.locator(".reference-tab-links").evaluate((links) => getComputedStyle(links).justifyContent), "center");
+  const campBanner = frameLocator.locator(".reference-section-banner");
+  await campBanner.getByRole("heading", { name: "Campement" }).waitFor();
+  assert.ok(await campBanner.getByRole("heading").evaluate(async (heading) => {
+    const faces = await heading.ownerDocument.fonts.load("700 16px Cinzel", heading.textContent);
+    return getComputedStyle(heading).fontFamily.startsWith("Cinzel") && faces.some((face) => face.status === "loaded");
+  }));
+  assert.match(await tabs.locator("a.Bonfire").evaluate((link) => getComputedStyle(link, "::before").backgroundImage), /data:image\/svg\+xml|\.svg/);
+  await campBanner.locator("img").evaluate((picture) => picture.decode());
+  assert.equal(await frameLocator.locator(".camp-filters").evaluate((filters) => getComputedStyle(filters).justifyContent), "center");
   assert.deepEqual(await frameLocator.locator("[data-camp-action] .btnTitle").evaluateAll((titles) =>
     titles.map((title) => getComputedStyle(title).color)), ["rgb(255, 255, 255)", "rgb(255, 255, 255)"]);
   const sidebar = frameLocator.getByRole("region", { name: "Ressources", exact: true });
@@ -183,6 +230,19 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   }));
   assert.deepEqual(headers, [true, true, true]);
   await page.locator(".render-status").waitFor({ state: "hidden" });
+  const mode = navbar.getByRole("button", { name: "Changer le mode de vue" });
+  await page.locator('.view-mode-button[data-render="ready"]').waitFor();
+  await mode.click();
+  await page.getByRole("dialog", { name: "Passer en mode UI ?" }).getByRole("button", { name: "Annuler" }).click();
+  assert.equal(await mode.textContent(), "3D");
+  await mode.click();
+  await page.getByRole("dialog", { name: "Passer en mode UI ?" }).getByRole("button", { name: "Confirmer" }).click();
+  assert.equal(await mode.textContent(), "UI");
+  assert.equal(await page.locator(".world canvas").count(), 0);
+  assert.equal(await gather.isVisible(), true);
+  await mode.click();
+  await page.getByRole("dialog", { name: "Activer le monde 3D ?" }).getByRole("button", { name: "Confirmer" }).click();
+  await page.locator('.view-mode-button[data-render="ready"]').waitFor();
   await page.mouse.move(720, 210);
   for (const button of ["middle", "right"]) {
     await page.mouse.down({ button });
@@ -216,16 +276,19 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
       gamePage.calendar.year = 0;
       gamePage.science.get("agriculture").researched = false;
     });
-    await options.click();
-    await frameLocator.locator("#importButton").click();
-    await frameLocator.getByLabel("Fichier de sauvegarde AGLLM").setInputFiles({
+    await openOptions();
+    await optionsDialog.locator("#importButton").click();
+    const importDialog = frameLocator.getByRole("dialog", { name: "Importer une sauvegarde" });
+    await importDialog.getByLabel("Fichier de sauvegarde AGLLM").setInputFiles({
       name: "AGLLM.txt", mimeType: "text/plain", buffer: Buffer.from(source),
     });
-    await frameLocator.getByText("Fichier chargé.", { exact: false }).waitFor();
-    const confirmation = page.waitForEvent("dialog");
-    const importing = frameLocator.locator("#doImportButton").click();
-    await (await confirmation).accept();
-    await importing;
+    await importDialog.getByText("Fichier chargé.", { exact: false }).waitFor();
+    await importDialog.locator("#doImportButton").click();
+    const confirmation = frameLocator.getByRole("dialog", { name: "Remplacer la partie" });
+    await confirmation.getByRole("button", { name: "Annuler" }).click();
+    assert.equal(await importDialog.locator("#importData").inputValue(), source);
+    await importDialog.locator("#doImportButton").click();
+    await confirmation.getByRole("button", { name: "Confirmer" }).click();
     await motor.waitForFunction(() => gamePage.calendar.year === 8);
     return motor.evaluate(() => ({
       huts: gamePage.bld.get("hut").val,
@@ -239,25 +302,91 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   const original = { huts: 4, fields: 2, year: 8, agriculture: true, stocks: [17, 11, 41, 9] };
   assert.deepEqual(await restoreViaOptions(exported), original);
   await frameLocator.locator("#leftColumn .resource_iron .resource-name").getByText("fer", { exact: true }).waitFor();
+  const ironRow = sidebar.locator(".res-table:not(.craftTable) .resource_iron");
+  const resourceDescription = frameLocator.locator(".reference-resource-description:popover-open");
+  await ironRow.locator(".resAmount").hover();
+  await resourceDescription.getByText(/Métal utilisé pour les plaques/).waitFor();
+  await resourceDescription.getByText(/Stock 11\s*\//).waitFor();
+  assert.ok(await ironRow.evaluate((row) => {
+    const name = row.querySelector(".resource-name").getBoundingClientRect();
+    const amount = row.querySelector(".resAmount").getBoundingClientRect();
+    const capacity = row.querySelector(".maxRes").getBoundingClientRect();
+    return name.right <= amount.left && amount.right <= capacity.left
+      && Math.abs(name.top + name.height / 2 - capacity.top - capacity.height / 2) < 2;
+  }));
+  await page.keyboard.press("Escape");
+  await resourceDescription.waitFor({ state: "hidden" });
+  await ironRow.locator(".resource-name").focus();
+  await resourceDescription.getByText(/Métal utilisé pour les plaques/).waitFor();
+  await motor.evaluate(() => {
+    gamePage.resPool.get("catnip").unlocked = true;
+    gamePage.ui.update();
+  });
+  const catnipRow = sidebar.locator(".res-table:not(.craftTable) .resource_catnip");
+  await catnipRow.locator(".resAmount").hover();
+  await resourceDescription.getByText(/Production nette/).waitFor();
+  assert.ok(await ironRow.evaluate((row) => {
+    const panel = row.closest("#leftColumn");
+    const name = row.querySelector(".resource-name");
+    const amount = row.querySelector(".resAmount");
+    const previous = panel.style.getPropertyValue("--widget-width");
+    panel.style.setProperty("--widget-width", "175px");
+    try {
+      return getComputedStyle(name).fontSize === "0px" && getComputedStyle(name, "::before").width !== "0px"
+        && amount.dataset.compact === "11" && row.scrollWidth <= row.clientWidth;
+    } finally {
+      if (previous) panel.style.setProperty("--widget-width", previous);
+      else panel.style.removeProperty("--widget-width");
+    }
+  }));
   const resourceAccordion = sidebar.getByRole("button", { name: "Ressources", exact: true });
+  const selection = sidebar.getByRole("button", { name: "Sélection · Ressources" });
   await resourceAccordion.press("Space");
   assert.equal(await resourceAccordion.getAttribute("aria-expanded"), "false");
+  assert.equal(await selection.isVisible(), false);
   await resourceAccordion.press("Enter");
-  const selection = sidebar.getByRole("button", { name: "Sélection · Ressources" });
   await selection.press("Enter");
-  const resourceName = sidebar.locator(".resource_iron .resource-name").first();
-  const textSize = () => resourceName.evaluate((name) => {
-    const style = getComputedStyle(name);
-    return [parseFloat(style.fontSize), parseFloat(getComputedStyle(name, "::before").width), style.whiteSpace];
-  });
-  const [initialSize] = await textSize();
-  await sidebar.getByRole("button", { name: "Taille +" }).press("Enter");
-  assert.deepEqual(await textSize(), [initialSize + 1, initialSize + 1, "nowrap"]);
-  await sidebar.getByRole("button", { name: "Taille −" }).press("Enter");
+  await sidebar.getByRole("checkbox", { name: "Afficher les ressources cachées" }).waitFor();
   await selection.press("Enter");
+  for (const name of ["Ressources", "Jeu", "Journal"]) {
+    const widget = frameLocator.getByRole("region", { name, exact: true });
+    const size = () => widget.locator(".widget-content").evaluate((content) => getComputedStyle(content).zoom);
+    await widget.getByRole("button", { name: `Taille du contenu · ${name}` }).click();
+    await widget.getByRole("button", { name: "Taille +" }).click();
+    assert.equal(await size(), "1.1");
+    await widget.getByRole("button", { name: "Taille −" }).click();
+    assert.equal(await size(), "1");
+    await page.keyboard.press("Escape");
+  }
 
-  await options.click();
+  await openOptions();
+  const workersHelp = optionsDialog.locator("#useWorkersI").locator("..").locator("summary");
+  await workersHelp.click();
+  await optionsDialog.locator("#useWorkersI").locator("..").locator(".options-help-text").waitFor();
+  const perSecond = optionsDialog.locator("#usePerSecondValuesI");
+  const originalPerSecond = await perSecond.isChecked();
+  await perSecond.setChecked(!originalPerSecond);
+  assert.equal(await motor.evaluate(() => gamePage.opts.usePerSecondValues), !originalPerSecond);
+  await perSecond.setChecked(originalPerSecond);
+  await optionsDialog.getByText("Réglages avancés", { exact: true }).click();
+  const batchSize = optionsDialog.locator("#batchSize");
+  await batchSize.fill("15");
+  assert.equal(await motor.evaluate(() => gamePage.opts.batchSize), 15);
+  await optionsDialog.getByText("Menu du moteur", { exact: true }).click();
+  await optionsDialog.locator("#wipe-link").click();
+  const wipeDialog = frameLocator.locator(".options-confirmation[open]");
+  const wipeWarning = await wipeDialog.locator(".options-confirm-message").textContent();
+  await wipeDialog.getByRole("button", { name: "Confirmer" }).click();
+  assert.notEqual(await wipeDialog.locator(".options-confirm-message").textContent(), wipeWarning);
+  await wipeDialog.getByRole("button", { name: "Annuler" }).click();
+  assert.equal(await motor.evaluate(() => gamePage.calendar.year), 8);
+  await optionsDialog.locator('[id="getTheApp-link"][onclick]').click();
+  const appDialog = frameLocator.getByRole("dialog", { name: "Application" });
+  await appDialog.locator("#appAndroid").waitFor();
+  await appDialog.getByRole("button", { name: "Fermer" }).click();
   await frameLocator.locator("#exportButton").click();
+  const exportDialog = frameLocator.getByRole("dialog", { name: "Exporter la sauvegarde" });
+  await exportDialog.getByRole("button", { name: "Copier le texte" }).waitFor();
   const file = page.waitForEvent("download");
   await frameLocator.locator("#exportToSimpleFile").click();
   const reexported = await readFile(await (await file).path(), "utf8");
@@ -266,7 +395,7 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   assert.equal(save.buildings.find(({ name }) => name === "hut").val, 4);
   assert.equal(save.science.techs.find(({ name }) => name === "agriculture").researched, true);
   await frameLocator.locator("#exportDiv #closeButton").click();
-  await frameLocator.locator("#optionsDiv .close").click();
+  await optionsDialog.getByRole("button", { name: "Fermer" }).click();
   assert.deepEqual(await restoreViaOptions(reexported), original);
 
   await motor.evaluate(() => {
@@ -279,6 +408,9 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   });
   const accelerator = frameLocator.locator('[data-building-icon="accelerator"]');
   await accelerator.getByText("0/8", { exact: true }).waitFor();
+  const huts = frameLocator.locator('[data-building-icon="hut"]');
+  assert.equal(await huts.locator(".camp-building-count").textContent(), "4");
+  assert.equal(await huts.locator(".camp-building-activity button:visible").count(), 0);
   const campCards = await motor.evaluate(async () => {
     const { children, groupContainer } = gamePage.bldTab;
     const orderedBuildings = children.filter((button) => button.opts.building).map((button) => button.domNode);
@@ -293,21 +425,29 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
     return {
       order: cards.length === orderedBuildings.length && cards.every((card, i) => card === orderedBuildings[i]),
       uniform: visible.length > 1 && sizes.size === 1,
+      compact: visible.every((card) => {
+        const style = getComputedStyle(card.querySelector(".camp-building-card"));
+        return style.paddingTop === "0px" && style.paddingBottom === "0px"
+          && style.paddingInlineStart === "2px" && style.paddingInlineEnd === "2px";
+      }),
       icons: new Set(pictures.map((picture) => picture.src)).size === pictures.length,
       glow: children.filter((button) => button.opts.building).every((button) =>
         button.domNode.hasAttribute("data-camp-unavailable") === !button.model.enabled),
       actions: visible.every((card) => {
         const toolbar = card.querySelector(".camp-building-actions");
-        const center = toolbar.querySelector(".camp-building-primary").getBoundingClientRect();
+        const heading = card.querySelector(".camp-building-heading").getBoundingClientRect();
         const bar = toolbar.getBoundingClientRect();
-        return toolbar.querySelectorAll(".camp-building-primary > button").length === 2
-          && Math.abs(center.left + center.width / 2 - bar.left - bar.width / 2) < 1
+        const preview = card.querySelector(".camp-building-preview").getBoundingClientRect();
+        const box = card.getBoundingClientRect();
+        return box.width > box.height * 2
+          && preview.right <= heading.left && heading.right <= bar.left && bar.right <= box.right
+          && toolbar.querySelectorAll(".camp-building-primary > button").length === 2
           && [...card.querySelectorAll("[data-camp-native]")].every((control) => toolbar.contains(control))
-          && [...card.querySelectorAll("[data-camp-stage]")].every((control) => toolbar.contains(control));
+          && [...card.querySelectorAll("[data-camp-stage]")].every((control) => control.closest(".camp-building-heading"));
       }),
     };
   });
-  assert.deepEqual(campCards, { order: true, uniform: true, icons: true, glow: true, actions: true });
+  assert.deepEqual(campCards, { order: true, uniform: true, compact: true, icons: true, glow: true, actions: true });
   const previousTheme = await motor.evaluate(() => {
     const theme = gamePage.colorScheme;
     if (!gamePage.unlockedSchemes.includes("factory")) gamePage.unlockedSchemes.push("factory");
@@ -326,14 +466,31 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   await motor.evaluate((theme) => gamePage.toggleScheme(theme), previousTheme);
   const activate = accelerator.getByRole("button", { name: "Activer des bâtiments", exact: true });
   const deactivate = accelerator.getByRole("button", { name: "Désactiver des bâtiments", exact: true });
+  const counterPosition = () => accelerator.locator(".camp-building-count").evaluate((counter) => {
+    const bounds = counter.getBoundingClientRect();
+    const card = counter.closest(".camp-building-card").getBoundingClientRect();
+    return bounds.left + bounds.width / 2 - card.left;
+  });
+  const initialCounterPosition = await counterPosition();
+  assert.equal(await deactivate.isVisible(), false);
   await activate.click();
   await accelerator.getByRole("button", { name: "+5", exact: true }).click();
   await accelerator.getByText("5/8", { exact: true }).waitFor();
-  await deactivate.dblclick();
+  assert.ok(Math.abs(await counterPosition() - initialCounterPosition) < 1);
+  await deactivate.click();
+  const removeMenu = accelerator.locator(".camp-quantity-menu:popover-open");
+  assert.ok(await removeMenu.evaluate((menu) => {
+    const controls = [...menu.querySelectorAll(":scope > button, :scope > a")].map((control) => control.getBoundingClientRect());
+    return controls.length === 3 && controls.every((box, index) => box.width === controls[0].width
+      && box.height === controls[0].height && box.left === controls[0].left
+      && (index === 0 || box.top > controls[index - 1].bottom));
+  }));
+  await deactivate.click();
   await accelerator.getByText("4/8", { exact: true }).waitFor();
   await deactivate.click();
   await accelerator.getByRole("link", { name: "−max", exact: true }).click();
   assert.equal(await motor.evaluate(() => gamePage.bld.get("accelerator").on), 0);
+  await deactivate.waitFor({ state: "hidden" });
   await frameLocator.locator('[data-building-icon="pasture"] [data-camp-stage="up"]').click();
   await frameLocator.locator('[data-building-icon="solarfarm"] .camp-building-preview img').waitFor();
   await frameLocator.locator('[data-building-icon="solarfarm"] [data-camp-stage="down"]').click();
@@ -429,6 +586,16 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
     const card = getComputedStyle(node.closest(".btn"));
     return [getComputedStyle(node).color, card.boxShadow, card.borderTopWidth, card.backgroundImage];
   });
+  const compactFullWidth = (locator) => locator.evaluate((node) => {
+    const card = node.closest(".btn");
+    const parent = card.parentElement;
+    const parentStyle = getComputedStyle(parent);
+    const available = parent.clientWidth - parseFloat(parentStyle.paddingLeft) - parseFloat(parentStyle.paddingRight);
+    const padding = getComputedStyle(card.querySelector(".btnContent"));
+    return available > 0 && Math.abs(card.getBoundingClientRect().width - available) < 2
+      && parseFloat(padding.paddingTop) < 6 && parseFloat(padding.paddingLeft) <= 8;
+  });
+  assert.ok(await compactFullWidth(calendar));
   assert.deepEqual((await researchStyle(calendar)).filter((_, i) => i !== 1), ["rgb(255, 255, 255)", "0px", "none"]);
   assert.match((await researchStyle(calendar))[1], /rgba\(255, 255, 255,/);
   assert.deepEqual((await researchStyle(archery)).filter((_, i) => i !== 1), ["rgb(255, 155, 155)", "0px", "none"]);
@@ -466,6 +633,8 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   });
   await openMobileTab("Workshop");
   const workshop = frameLocator.locator(".tabInner.Workshop");
+  const upgradeName = await motor.evaluate(() => gamePage.workshop.get("bolas").label);
+  assert.ok(await compactFullWidth(workshop.getByText(upgradeName, { exact: true })));
   const crafting = workshop.getByRole("button", { name: "Artisanat", exact: true });
   await crafting.waitFor();
   if (await crafting.getAttribute("aria-expanded") === "false") await crafting.click();
@@ -473,6 +642,7 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   assert.equal(await crafting.getAttribute("aria-expanded"), "false");
   await crafting.click();
   const beam = workshop.locator(".workshop-craft").filter({ hasText: "Poutre de bois" });
+  assert.ok(await compactFullWidth(beam));
   const assign = beam.getByRole("button", { name: "Affecter 1 · Poutre de bois" });
   const unassign = beam.getByRole("button", { name: "Retirer 1 · Poutre de bois" });
   const initialWood = await motor.evaluate(() => gamePage.resPool.get("wood").value);
@@ -481,8 +651,16 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   await assign.click();
   assert.equal(await motor.evaluate(() => gamePage.workshop.getCraft("beam").value), 1);
   assert.equal(await motor.evaluate(() => gamePage.resPool.get("wood").value), initialWood);
-  await workshop.locator(".workshop-flow-production").getByText("poutres", { exact: true }).waitFor();
-  await workshop.locator(".workshop-flow-consumption").getByText("bois", { exact: true }).waitFor();
+  const expectedProduction = workshop.locator(".workshop-flow-production");
+  const expectedConsumption = workshop.locator(".workshop-flow-consumption");
+  assert.equal(await workshop.locator(".workshop-flow[open], .craftStuffPanel").count(), 0);
+  const [productionBox, consumptionBox] = await Promise.all([expectedProduction.boundingBox(), expectedConsumption.boundingBox()]);
+  assert.ok(Math.abs(productionBox.width - consumptionBox.width) < 1 && productionBox.y === consumptionBox.y);
+  await expectedProduction.locator("summary").press("Enter");
+  await expectedProduction.getByText("poutres", { exact: true }).waitFor();
+  assert.equal(await expectedConsumption.getAttribute("open"), null);
+  await expectedConsumption.locator("summary").click();
+  await expectedConsumption.getByText("bois", { exact: true }).waitFor();
   await unassign.click();
   assert.equal(await motor.evaluate(() => gamePage.workshop.getCraft("beam").value), 0);
   assert.equal(await workshop.locator(".workshop-flow-rows dt").count(), 0);
@@ -549,11 +727,12 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   await page.mouse.move(0, 0);
   assert.ok(await jobs.evaluate((toggle) => {
     const title = toggle.nextElementSibling;
-    return [toggle.parentElement, toggle, title].every((node) => {
-      const style = getComputedStyle(node);
-      return style.borderTopWidth === "0px" && style.boxShadow === "none"
-        && style.backgroundColor === "rgba(0, 0, 0, 0)";
-    }) && Math.abs(toggle.getBoundingClientRect().width - title.getBoundingClientRect().width) < 1
+    const content = title.nextElementSibling;
+    const bodyStyle = getComputedStyle(content);
+    return parseFloat(getComputedStyle(title).borderTopWidth) > 0
+      && parseFloat(bodyStyle.borderInlineStartWidth) > 0
+      && content.getBoundingClientRect().left > title.getBoundingClientRect().left
+      && Math.abs(toggle.getBoundingClientRect().width - title.getBoundingClientRect().width) < 1
       && getComputedStyle(title, "::after").backgroundImage.includes("data:image/svg+xml");
   }));
   await jobs.press("Space");
@@ -561,6 +740,13 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   await jobs.click();
   await woodcutter.getByRole("button", { name: "Affecter 1 · Bûcheron" }).click();
   assert.equal(await motor.evaluate(() => gamePage.village.getJob("woodcutter").value), 1);
+  const removeWorker = woodcutter.getByRole("button", { name: "Retirer 1 · Bûcheron" });
+  await removeWorker.hover();
+  const removals = woodcutter.getByRole("group", { name: "Retirer · Bûcheron" });
+  assert.deepEqual(await removals.getByRole("button").allTextContents(), ["−5", "−25", "−100", "−max"]);
+  await removals.getByRole("button", { name: "Retirer 5 · Bûcheron" }).click();
+  assert.equal(await motor.evaluate(() => gamePage.village.getJob("woodcutter").value), 0);
+  await woodcutter.getByRole("button", { name: "Affecter 1 · Bûcheron" }).click();
   const people = frameLocator.locator(".village-census");
   await people.locator("tbody tr").first().waitFor();
   const search = people.getByRole("searchbox");
@@ -605,15 +791,19 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   }
   const religionTab = await checkAdvancedAccordion("Religion", "Ziggourats");
   const sacrificeCard = religionTab.locator(".btn.modern").filter({ hasText: "Sacrifier les licornes" });
+  assert.ok(await compactFullWidth(sacrificeCard));
   assert.equal((await researchStyle(sacrificeCard.locator(".btnTitle")))[0], "rgb(255, 255, 255)");
   const sacrificeLinks = sacrificeCard.locator(".btnContent a:visible");
   assert.ok(await sacrificeLinks.count() > 0);
   assert.equal(await sacrificeLinks.first().evaluate((link) => getComputedStyle(link).borderTopWidth), "0px");
   const spaceTab = await checkAdvancedAccordion("Space", "Lune de sang");
   const moonBase = spaceTab.locator(".btn.modern").filter({ hasText: "Avant-poste lunaire" });
-  const bulkRemove = moonBase.getByRole("button", { name: /Quantités.* · -$/ });
-  await bulkRemove.click();
-  await moonBase.locator(".reference-child-popover:popover-open").getByRole("link", { name: "-25", exact: true }).click();
+  assert.ok(await compactFullWidth(moonBase));
+  const bulkRemove = moonBase.getByRole("button", { name: /^Désactiver 1 ·/ });
+  await bulkRemove.hover();
+  const spaceBatch = moonBase.locator(".quantity-batch:popover-open");
+  assert.deepEqual(await spaceBatch.getByRole("button").allTextContents(), ["−5", "−25"]);
+  await spaceBatch.getByRole("button", { name: /^Désactiver 25 ·/ }).click();
   assert.equal(await motor.evaluate(() => gamePage.space.getBuilding("moonOutpost").on), 0);
   const timeTab = await checkAdvancedAccordion("Time", "Temps");
   const acceleration = timeTab.locator(".btn.modern").filter({ hasText: "Tempus Fugit" });
@@ -632,6 +822,17 @@ test("joue dans l’interface moderne et échange des sauvegardes natives compl�
   assert.ok(await motor.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await page.getByRole("button", { name: "Journal", exact: true }).click();
   await frameLocator.getByRole("region", { name: "Journal", exact: true }).waitFor();
+
+  await openOptions();
+  const mobileOptions = await optionsDialog.boundingBox();
+  assert.ok(mobileOptions.x >= 0 && mobileOptions.x + mobileOptions.width <= 320);
+  await optionsDialog.locator("#importButton").click();
+  const mobileImport = frameLocator.getByRole("dialog", { name: "Importer une sauvegarde" });
+  await mobileImport.waitFor();
+  await page.keyboard.press("Escape");
+  await mobileImport.waitFor({ state: "hidden" });
+  await page.keyboard.press("Escape");
+  await optionsDialog.waitFor({ state: "hidden" });
 
   await motor.evaluate(() => { gamePage.resPool.get("iron").value = 15; });
   await runLifecycle("stop", port);

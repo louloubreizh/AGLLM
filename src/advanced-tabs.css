@@ -6,10 +6,6 @@
 .reference-game #midColumn .Space { --advanced-icon: var(--icon-world); }
 .reference-game #midColumn .Time { --advanced-icon: var(--icon-calendar); }
 
-.reference-game #midColumn :is(.Religion, .Space, .Time) > .reference-section-art {
-  border: 0;
-  background: transparent;
-}
 .reference-game #midColumn :is(.Religion, .Space, .Time) .panelContainer > .title::before {
   content: "";
   flex: 0 0 1.15rem;
@@ -32,6 +28,10 @@
 .reference-game #midColumn :is(.Religion, .Space, .Time) :is(.container, .container div):has(> .btn.modern):not(.btn *) > :not(.btn) {
   grid-column: 1 / -1;
 }
+.reference-game #midColumn :is(.Religion, .Space) .panelContainer > .container {
+  --advanced-columns: minmax(0, 1fr);
+  --advanced-gap: .4rem;
+}
 .reference-game #midColumn :is(.Religion, .Space, .Time) .container :not(.btn, .btn *)[style*="padding-top: 20px"] {
   padding-top: .55rem !important;
 }
@@ -53,6 +53,16 @@
   gap: .25rem;
 }
 .reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnTitle { flex: 1 1 100%; }
+.reference-game #midColumn .Space .space-adjustable-building .btnContent { flex-wrap: nowrap; }
+.reference-game #midColumn .Space .space-adjustable-building .btnTitle { flex: 1 1 auto; min-width: 0; }
+.reference-game #midColumn .Space .space-adjustable-building .btnTitle :is(.label, .label-content) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
+}
+.reference-game #midColumn .space-quantity-controls { flex: none; }
+.reference-game #midColumn .space-active-count { min-width: 2rem; text-align: center; font-variant-numeric: tabular-nums; }
 .reference-game #midColumn :is(.Religion, .Space, .Time) .btn.modern .btnContent :is(a[href], .reference-child-batch) {
   box-sizing: border-box;
   display: inline-flex;
@@ -131,7 +141,4 @@
     position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
     margin-block: .25rem !important;
   }
-}
-@container reference-play (max-width: 30rem) {
-  .reference-game #midColumn :is(.Religion, .Space, .Time) > .reference-section-art { display: none; }
 }

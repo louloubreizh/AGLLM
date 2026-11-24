@@ -1,4 +1,4 @@
-import { AmbientLight, DirectionalLight, Fog, HemisphereLight } from "three";
+import { AmbientLight, Color, DirectionalLight, Fog, HemisphereLight, MathUtils } from "three";
 
 export const backgroundColor = 0x14251f;
 
@@ -9,7 +9,9 @@ const palettes = {
   winter: { grass: 0xa8bcc2, dark: 0x335a60, leaf: 0x69948d, crop: 0x8faeb1, water: 0x5d929a, light: 0xd2e6ff },
 };
 
-export function createLighting(scene, materials) {
+const duration = 2600;
+
+export function createLighting(scene, materials, canopy) {
   scene.fog = new Fog(backgroundColor, 90, 175);
   scene.add(new HemisphereLight(0xdcedde, 0x43503a, 2.2), new AmbientLight(0xffffff, 0.13));
   const sun = new DirectionalLight(0xffe0ac, 2.3);
@@ -20,23 +22,52 @@ export function createLighting(scene, materials) {
   sun.shadow.normalBias = 0.035;
   scene.add(sun);
 
-  let lastPalette;
+  const colors = ["grass", "water", "dark", "leaf", "crop", "groundCover", "buildingLeaves"]
+    .map((name) => materials[name].color);
+  colors.push(canopy.broadleaf.color, canopy.drooping.color, canopy.needle.color, sun.color, scene.fog.color);
+  const startColors = colors.map(() => new Color());
+  const targetColors = colors.map(() => new Color());
+  let previous;
+  let transition;
+
+  function animate(time) {
+    if (!transition) return;
+    const progress = MathUtils.smoothstep(time, transition.start, transition.end);
+    colors.forEach((color, index) => color.lerpColors(startColors[index], targetColors[index], progress));
+    materials.pool.color.copy(materials.water.color).multiplyScalar(0.55);
+    sun.intensity = MathUtils.lerp(transition.intensity, transition.targetIntensity, progress);
+    scene.fog.near = MathUtils.lerp(transition.fogNear, transition.targetFogNear, progress);
+    if (progress === 1) transition = null;
+  }
+
   return {
-    update(snapshot) {
-      const palette = palettes[snapshot?.season] || palettes.spring;
-      if (palette !== lastPalette) {
-        for (const key of ["grass", "water", "dark", "leaf", "crop"]) {
-          materials[key].color.setHex(palette[key]);
-        }
-        materials.groundCover.color.setHex({
-          summer: 0xece5c6, autumn: 0xc8ae85, winter: 0xaebfc3,
-        }[snapshot?.season] ?? 0xffffff);
-        materials.buildingLeaves.color.setHex(palette.leaf);
-        materials.pool.color.copy(materials.water.color).multiplyScalar(0.55);
-        sun.color.setHex(palette.light);
-        lastPalette = palette;
+    animate,
+    update({ season, weather }, now, reducedMotion = false) {
+      const key = `${season}/${weather}`;
+      if (key === previous) {
+        if (reducedMotion && transition) animate(transition.end);
+        return;
       }
-      sun.intensity = snapshot?.weather === "cold" ? 1.7 : 2.3;
+      const first = previous === undefined;
+      previous = key;
+      const palette = palettes[season] ?? palettes.spring;
+      const cold = weather === "cold";
+      const winter = season === "winter";
+      const leaf = { autumn: 0xe5b379, winter: 0xa1b7b2, summer: 0xe9e9cb }[season] ?? 0xffffff;
+      const ground = { summer: 0xece5c6, autumn: 0xc8ae85, winter: 0xaebfc3 }[season] ?? 0xffffff;
+      const fog = winter ? 0x546e77 : cold ? 0x354b47 : backgroundColor;
+      const shades = [palette.grass, palette.water, palette.dark, palette.leaf, palette.crop, ground,
+        palette.leaf, leaf, leaf, winter ? 0xc0d4d5 : 0xffffff, palette.light, fog];
+      colors.forEach((color, index) => {
+        startColors[index].copy(color);
+        targetColors[index].setHex(shades[index]);
+      });
+      transition = {
+        start: now, end: now + duration,
+        intensity: sun.intensity, targetIntensity: cold ? 1.7 : weather === "warm" ? 2.5 : 2.3,
+        fogNear: scene.fog.near, targetFogNear: winter ? 38 : cold ? 60 : 90,
+      };
+      if (first || reducedMotion) animate(transition.end);
     },
     dispose() {
       sun.shadow.dispose();

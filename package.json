@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:pages": "vite build --mode pages && node scripts/build-pages.mjs",
+    "build:site": "vite build --mode pages --base / && node scripts/build-pages.mjs",
     "start": "node scripts/lifecycle.mjs start",
     "stop": "node scripts/lifecycle.mjs stop",
     "motor:protect": "node scripts/protect-motor.mjs",

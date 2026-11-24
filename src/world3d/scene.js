@@ -15,7 +15,7 @@ import { createVillageResidents } from "./village/residents.js";
 import { roadsForPlots } from "./village/road-network.js";
 import { createTerrain } from "./village/terrain.js";
 
-export function createVillageScene(canvas) {
+export function createVillageScene(canvas, onRenderState = () => {}) {
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.setClearColor(0x000000, 0);
@@ -24,10 +24,11 @@ export function createVillageScene(canvas) {
 
   const scene = new Scene();
   const resources = createRenderResources(backgroundColor);
-  const lighting = createLighting(scene, resources.materials);
   const buildings = createVillageBuildings(resources);
   const residents = createVillageResidents(resources);
   const terrain = createTerrain(resources);
+  const lighting = createLighting(scene, resources.materials, terrain.canopy);
+  const reducedMotion = canvas.ownerDocument.defaultView.matchMedia("(prefers-reduced-motion: reduce)");
   const trails = createTrails(resources.materials.trail);
   const camera = createVillageCamera(canvas, renderer, buildings.instances);
   const select = createScenePicker(camera.camera, buildings, terrain.group, trails.group, residents.group);
@@ -47,6 +48,15 @@ export function createVillageScene(canvas) {
   let latest;
   let worker;
   let workerBusy = false;
+  let requestedKey;
+  let renderState;
+  function report(state) {
+    if (state === renderState) return;
+    renderState = state;
+    onRenderState(state);
+  }
+  const restored = () => { renderState = undefined; };
+  canvas.addEventListener("webglcontextrestored", restored);
   const layout = createLayoutScheduler((entries, delay, done) => {
     if (delay < 100 || typeof Worker === "undefined") {
       done(planVillage(entries, 0));
@@ -87,8 +97,7 @@ export function createVillageScene(canvas) {
   }
 
   function update(snapshot) {
-    lighting.update(snapshot);
-    terrain.setSeason(snapshot?.season);
+    if (snapshot) lighting.update(snapshot, performance.now(), reducedMotion.matches);
     paused = snapshot?.paused ?? false;
     const entries = snapshot?.buildings ?? [];
     const population = snapshot?.population ?? 0;
@@ -96,17 +105,22 @@ export function createVillageScene(canvas) {
     const species = snapshot?.species ?? "cat";
     const nextRoster = JSON.stringify([species, roster]);
     const key = JSON.stringify(entries);
+    requestedKey = key;
     latest = { population, roster, nextRoster, species };
     if (!plan) {
       applyPlan(planVillage([], 0), "[]");
     }
-    if (key !== planKey) layout.request(entries, key);
+    if (key !== planKey) {
+      report("calculating");
+      layout.request(entries, key);
+    }
     else layout.cancel();
     if (population !== plan.residents || nextRoster !== rosterKey) applyPlan(plan, planKey);
   }
 
   function draw(time) {
     frame = requestAnimationFrame(draw);
+    lighting.animate(time);
     residents.animate(time, paused);
     if (!paused && latest.population) renderer.shadowMap.needsUpdate = true;
     resources.animateWater(time);
@@ -115,6 +129,7 @@ export function createVillageScene(canvas) {
     buildings.setHighlighted(model);
     if (!model) {
       renderer.render(scene, camera.camera);
+      if (!renderer.getContext().isContextLost()) report(planKey === requestedKey ? "ready" : "calculating");
       return;
     }
     if (!composer) {
@@ -135,6 +150,7 @@ export function createVillageScene(canvas) {
     }
     outline.selectedObjects = [model];
     composer.render();
+    if (!renderer.getContext().isContextLost()) report(planKey === requestedKey ? "ready" : "calculating");
   }
 
   update(null);
@@ -162,6 +178,7 @@ export function createVillageScene(canvas) {
     reset: camera.reset,
     dispose() {
       cancelAnimationFrame(frame);
+      canvas.removeEventListener("webglcontextrestored", restored);
       layout.cancel();
       worker?.terminate();
       camera.dispose();
@@ -175,6 +192,7 @@ export function createVillageScene(canvas) {
       output?.dispose();
       composer?.dispose();
       renderer.dispose();
+      renderer.forceContextLoss();
     },
   };
 }

@@ -2,7 +2,7 @@ import { animal, coatMaterial, eye, joint, limb, oval, sides } from "./rig.js";
 
 export function createDrake(resources, index, censusCoat) {
   const { materials: m, part } = resources;
-  const { model, body } = animal("Drake des brumes", 0.37);
+  const { model, body } = animal("Dragon bleu", 0.37);
   const coat = coatMaterial(m, "drakeScales", index, censusCoat);
   const shape = (...args) => oval(resources, ...args);
   shape(body, coat, 0, 0.21, -0.035, 0.199, 0.215, 0.357);

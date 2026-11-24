@@ -19,6 +19,8 @@ const shapes = {
   chevron: "m5 9 7 7 7-7",
   power: "M12 2v9m5-6a8 8 0 1 1-10 0",
   save: "M4 3h13l4 4v14H3V3z M7 3v6h9V3 M7 21v-8h10v8",
+  savePending: "M4 3h13l4 4v14H3V3z",
+  saveComplete: "M4 3h13l4 4v14H3V3z",
   settings: "M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M19 5l-3 3m-8 8-3 3 M18 12a6 6 0 1 1-12 0 6 6 0 1 1 12 0Z M14 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0Z",
   info: "M22 12a10 10 0 1 1-20 0 10 10 0 1 1 20 0Z M12 11v6m0-10v.1",
   eye: "M2 12c2-4 6-6 10-6s8 2 10 6c-2 4-6 6-10 6s-8-2-10-6z M15 12a3 3 0 1 1-6 0 3 3 0 1 1 6 0z",

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon.jsx";
 
@@ -6,6 +6,8 @@ const arrowOffsets = { ArrowLeft: [-20, 0], ArrowRight: [20, 0], ArrowUp: [0, -2
 
 export function Widget({ element, label, icon }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [size, setSize] = useState(100);
+  const sizeMenu = useId();
   const pointer = useRef(null);
   const scope = element.ownerDocument.defaultView;
 
@@ -108,6 +110,11 @@ export function Widget({ element, label, icon }) {
     }
   }, [collapsed, element]);
 
+  useLayoutEffect(() => {
+    element.style.setProperty("--widget-content-zoom", size / 100);
+    return () => element.style.removeProperty("--widget-content-zoom");
+  }, [element, size]);
+
   return createPortal(
     <div className="widget-bar">
       <button
@@ -124,6 +131,15 @@ export function Widget({ element, label, icon }) {
         <span className="drag-mark"><Icon name="grip" /></span><Icon name={icon} /><span>{label}</span>
       </button>
       <div className="widget-controls">
+        {!collapsed && <>
+          <button type="button" className="widget-size" aria-label={`Taille du contenu · ${label}`} popoverTarget={sizeMenu}>
+            <span aria-hidden="true">A<span>A</span></span>
+          </button>
+          <div id={sizeMenu} className="widget-size-menu" popover="auto" role="group" aria-label={`Taille · ${label}`}>
+            <button type="button" disabled={size >= 150} onClick={() => setSize(size + 10)}>Taille +</button>
+            <button type="button" disabled={size <= 70} onClick={() => setSize(size - 10)}>Taille −</button>
+          </div>
+        </>}
         {!collapsed && (
           <button type="button" className="widget-resize" aria-label={`Redimensionner ${label}`}
             title="Glisser ou utiliser les flèches pour redimensionner"

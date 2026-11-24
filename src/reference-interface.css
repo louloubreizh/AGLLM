@@ -68,22 +68,20 @@
   container-type: inline-size;
 }
 .reference-game .game-widget { display: grid; }
+.reference-game[data-ui-only] .game-panels { --scene-row: 0fr; row-gap: 0; }
+.reference-game[data-ui-only] #game > .game-widget-play:not([data-collapsed], [data-positioned]) {
+  height: 100% !important;
+}
+.reference-game[data-ui-only] :is(.reference-scene-input, #midColumn .camp-building-card [data-camp-tool="eye"], .village-resident-journey + button) {
+  display: none !important;
+}
 .reference-game #headerLinks {
   position: fixed;
   inset: .5rem .65rem auto auto;
   z-index: 30;
   pointer-events: none;
 }
-.reference-game #headerLinks :is(.kgnet-login-link-container, #autosaveTooltip, #saveTooltip),
-.reference-game #headerToolbar .toolbarIcon:not(:has(.login-popup)) { display: none !important; }
-.reference-game #headerLinks .login-popup {
-  position: fixed;
-  inset: .5rem .65rem auto auto;
-  width: min(23rem, calc(100% - 1.3rem));
-  max-height: calc(100% - 1rem);
-  overflow: auto;
-  padding: .7rem;
-}
+.reference-game #headerLinks { visibility: hidden; }
 .reference-game #game > .game-widget-play { width: var(--widget-width, min(100%, 42rem)) !important; }
 .reference-game #game > .game-widget[data-positioned] {
   position: absolute !important;
@@ -216,7 +214,6 @@
   transform: translate(-50%, -50%) !important;
   overflow: auto;
 }
-.reference-game :is(#importDiv, #exportDiv) { z-index: 11; }
 .reference-game .dialog :is(textarea, input, select) { box-sizing: border-box; max-width: 100%; }
 .reference-game .dialog :is(input[type="button"], select, textarea) {
   color: var(--ink);
@@ -224,8 +221,6 @@
   border: 1px solid var(--line);
   border-radius: .35rem;
 }
-.reference-game #optionsDiv > div:first-of-type { flex-wrap: wrap !important; gap: .5rem 1rem !important; }
-.reference-game .reference-file-picker { display: grid; gap: .3rem; }
 
 @media (max-width: 1050px) {
   .reference-game #game > .game-widget { width: var(--widget-width, min(100%, 42rem)) !important; }
